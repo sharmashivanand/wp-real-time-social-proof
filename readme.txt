@@ -5,7 +5,7 @@ Donate link: https://www.converticacommerce.com?item_name=Donation%20for%20WP%20
 Requires at least: 3.7.4
 Tested up to: 5.0.3
 Requires PHP: 7.0
-Stable tag: 1.9.2
+Stable tag: 1.9.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -63,6 +63,15 @@ Ask away.
 3. screenshot3.png
 
 == Changelog ==
+
+
+= 1.9.3 =
+
+Bugfixes
+* WooCommerce would break the plugin on empty orders.
+* Notification sound wouldn't play for WooC and EDD
+* Cleaned up namespace issues
+* Improved settings sanitization and validation
 
 = 1.9.2 =
 Bugfixes
