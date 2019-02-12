@@ -310,19 +310,20 @@ if( ! class_exists('WPRTSP') ) {
                 return;
             }
 
-            
-            $general_show_on = sanitize_text_field($_POST['wprtsp']['general_show_on']);
-            $general_duration = sanitize_text_field($_POST['wprtsp']['general_duration']);
-            $general_initial_popup_time = sanitize_text_field($_POST['wprtsp']['general_initial_popup_time']);
-            $general_subsequent_popup_time = sanitize_text_field($_POST['wprtsp']['general_subsequent_popup_time']);
-            $general_post_ids = sanitize_text_field($_POST['wprtsp']['general_post_ids']);
+            $request = $_POST['wprtsp'];
+            $defaults = $this->cpt_defaults();
+            $general_show_on = array_key_exists('general_show_on', $request) ? sanitize_text_field($request['general_show_on'] ) : $defaults['general_show_on'];
+            $general_duration = array_key_exists('general_duration' ,$request) ? sanitize_text_field($request['general_duration'] ) : $defaults['general_duration'];
+            $general_initial_popup_time = array_key_exists('general_initial_popup_time' ,$request) ? sanitize_text_field($request['general_initial_popup_time'] ) : $defaults['general_initial_popup_time'];
+            $general_subsequent_popup_time = array_key_exists('general_subsequent_popup_time' ,$request) ? sanitize_text_field($request['general_subsequent_popup_time'] ) : $defaults['general_subsequent_popup_time'];
+            $general_post_ids = array_key_exists('general_post_ids' ,$request) ? sanitize_text_field($request['general_post_ids'] ) : $defaults['general_post_ids'];
 
-            $conversions_enable = sanitize_text_field($_POST['wprtsp']['conversions_enable']);
-            $conversions_shop_type = sanitize_text_field($_POST['wprtsp']['conversions_shop_type']);
-            $conversions_transaction = sanitize_text_field($_POST['wprtsp']['conversions_transaction']);
-            $conversions_transaction_alt = sanitize_text_field($_POST['wprtsp']['conversions_transaction_alt']);
-            $conversions_sound_notification = sanitize_text_field($_POST['wprtsp']['conversions_sound_notification']);
-            $conversions_position = sanitize_text_field($_POST['wprtsp']['conversions_position']);
+            $conversions_enable = array_key_exists('conversions_enable' ,$request) && $request['conversions_enable'] ? true : false;
+            $conversions_shop_type = array_key_exists('conversions_shop_type' ,$request) ? sanitize_text_field($request['conversions_shop_type'] ) : $defaults['conversions_shop_type'];
+            $conversions_transaction = array_key_exists('conversions_transaction' ,$request) ? sanitize_text_field($request['conversions_transaction'] ) : $defaults['conversions_transaction'];
+            $conversions_transaction_alt = array_key_exists('conversions_transaction_alt' ,$request) ? sanitize_text_field($request['conversions_transaction_alt'] ) : $defaults['conversions_transaction_alt'];
+            $conversions_sound_notification = array_key_exists('conversions_sound_notification' , $request) && $request['conversions_sound_notification'] ? 1 : 0;
+            $conversions_position = array_key_exists('conversions_position' , $request) && $request['conversions_position'] ? sanitize_text_field($request['conversions_position'] ) : $defaults['conversions_position']; // sanitize_text_field($_POST['wprtsp']['conversions_position']);
 
             $settings = array(
 
@@ -497,7 +498,7 @@ if( ! class_exists('WPRTSP') ) {
         function send_generated_records( $response, $data, $screen_id, $notification_id = 0 ) {
             $response['wprtsp'] = 'this is a generated record';
             $records = get_transient( 'wprtsp_' . $data['wprtsp'] );
-            $settings = \get_post_meta( $notification_id, '_socialproof', true );
+            $settings = get_post_meta( $notification_id, '_socialproof', true );
             $settings = $settings['records'];
             if( $records ) {
                 $record = array_rand( array_diff_key( $settings, $records ));
@@ -525,11 +526,13 @@ if( ! class_exists('WPRTSP') ) {
         }
 
         function enqueue_scripts(){
-            $notifications  = \get_posts( array( 'post_type' => 'socialproof', 'posts_per_page' => -1 ) );
+            $notifications  = get_posts( array( 'post_type' => 'socialproof', 'posts_per_page' => -1 ) );
             $active_notifications = array();
             foreach($notifications as $notification) {
-                $meta = \get_post_meta( $notification->ID, '_socialproof', true );
+                $meta = get_post_meta( $notification->ID, '_socialproof', true );
                 $show_on = $meta['general_show_on'];
+                //$this->llog($meta);
+                $post_ids = $meta['general_post_ids'];
                 switch($show_on) {
                     case '1':
                         if(apply_filters('wprtsp_enabled', $meta['conversions_enable'], $meta)) {
@@ -686,13 +689,13 @@ if( ! class_exists('WPRTSP') ) {
             if ( $payments ) { 
                 foreach ( $payments as $payment_post ) { 
                     setup_postdata($payment_post);
-                    $payment      = new \EDD_Payment( $payment_post->ID );
+                    $payment      = new EDD_Payment( $payment_post->ID );
                     if(empty($payment->ID)) {
                         continue;
                     }
                     
                     $payment_time   = human_time_diff(strtotime( $payment->date ), current_time('timestamp'));
-                    $customer       = new \EDD_Customer( $payment->customer_id );
+                    $customer       = new EDD_Customer( $payment->customer_id );
                     $downloads = $payment->cart_details;
                     $downloads = array_slice($downloads, 0, 1, true);
                     
@@ -708,7 +711,7 @@ if( ! class_exists('WPRTSP') ) {
             if( ! class_exists('WooCommerce') ) {
                 return false;
             }
-            $query = new \WC_Order_Query( array(
+            $query = new WC_Order_Query( array(
                 'limit' => 100,
                 'orderby' => 'date',
                 'order' => 'DESC',
@@ -718,8 +721,11 @@ if( ! class_exists('WPRTSP') ) {
             $orders = $query->get_orders();
             $customers = array();
             foreach($orders as $purchase) {
-                $order = \wc_get_order($purchase);
-                
+                $order = wc_get_order($purchase);
+                $item = $order->get_items();
+                if(! $item) {
+                    continue;
+                }
                 $user = $order->get_user();
                 if(!empty($user)) {
                     $customers[$purchase]['first_name'] = empty($user->user_firstname) ? 'Guest' : $user->user_firstname ;
@@ -729,12 +735,12 @@ if( ! class_exists('WPRTSP') ) {
                     $customers[$purchase]['first_name'] = 'Guest';
                     $customers[$purchase]['last_name'] = 'Guest';
                 }
-                $item = $order->get_items();
+                
                 $item = array_shift($item);
                 $customers[$purchase]['transaction'] = 'purchased';
                 $customers[$purchase]['product'] = $item->get_name();
                 $customers[$purchase]['product_link'] = get_permalink($item->get_product_id());
-                $time = new \WC_DateTime( $order->get_date_completed() );
+                $time = new WC_DateTime( $order->get_date_completed() );
                 $customers[$purchase]['time'] = human_time_diff($time->getTimestamp());
             }
             return set_transient( 'wprtsp_wooc', $customers, 30 * MINUTE_IN_SECONDS);

@@ -61,7 +61,7 @@ if (jQuery) {
                 }
                 if (wprtsp_settings.conversions_shop_type == 'Easy_Digital_Downloads' || wprtsp_settings.conversions_shop_type == 'WooCommerce') {
                     jQuery("#wprtsp_pop").slideDown(200, function () {
-                        jQuery("#wprtsp_pop").contents().find("#wprtsp").html('<div id="wprtsp_wrap">' + result + '</div>');
+                        jQuery("#wprtsp_pop").contents().find("#wprtsp").html('<div id="wprtsp_wrap">' + wprtsp_settings.conversions_sound_notification_markup + result + '</div>');
                         jQuery('#wprtsp_pop').css('height', jQuery("#wprtsp_pop").contents().find("html").height());
                         jQuery('#wprtsp_pop').css('width', jQuery("#wprtsp_pop").contents().find("body").width());
                     }).delay(wprtsp_settings.general_duration * 1000).fadeOut(2000);
