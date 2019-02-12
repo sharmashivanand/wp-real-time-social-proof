@@ -1,0 +1,189 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+body {
+    font-size: 13px;
+    display: table;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, helvetica, arial, sans-serif !important;
+}
+
+.light {
+    background-color: #fff;
+    color: #000;
+}
+
+.dark {
+    background-color: #333;
+    color: #ccc;
+}
+
+#wprtsp_wrap {
+    display: flex;
+    padding: 1.618em;
+    align-items: center;
+    justify-content: space-evenly;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.wprtsp_left {
+    margin-right: .618em;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 1000px;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.conversions .wprtsp_left {
+    background-image: url('map.svg')
+}
+
+.hotstats .wprtsp_left {
+    background-image: url('hotstats.svg'), radial-gradient(#ffdf8060, #ff8a8060);
+    background-size: 50%, cover;
+}
+
+.dark .hotstats .wprtsp_left {
+    background-image: url('hotstats.svg'), radial-gradient(#ffdf8060, #ff8a8060);
+    background-size: 50%, cover;
+}
+
+.livestats .wprtsp_left {
+    background-image: url('livestats.svg');
+}
+
+.wprtsp_right {
+    padding-left: .618em;
+    padding-right: .618em;
+    line-height: 1.5em;
+    white-space: nowrap;
+    width: auto;
+    height: auto;
+}
+
+.wprtsp_line1 {
+    font-size: 14px;
+    font-weight: bold;
+    color: #242328;
+}
+
+.dark .wprtsp_line1 {
+    color: #d7d6db;
+}
+
+.wprtsp_line2 {
+    color: #686b81;
+    font-size: 13px;
+    font-weight: normal;
+}
+
+.dark .wprtsp_line2 {
+    color: #bcbdc2;
+}
+
+.wprtsp_verified {
+    display: block;
+    white-space: nowrap;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, helvetica, arial, sans-serif !important;
+    font-size: 11px;
+    font-weight: normal;
+}
+
+.verified-conversion-icon,
+.verified-livestat-icon {
+    vertical-align: middle;
+    vertical-align: text-top;
+    height: 14px;
+    margin-right: 0.381em;
+    width: auto;
+}
+
+.wprtsp_verified {
+    color: #0095ff;
+}
+
+#wprtsp_wrap.ctas {
+    flex-direction: column;
+    text-align: center;
+}
+
+.wprtsp_cta_body {
+    margin: 1.618em auto 0 auto;
+}
+
+.ctas .wprtsp_cta_icon {
+    margin: auto;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    border-radius: 1000px;
+    background-position: center;
+    background-size: 200%;
+    background-repeat: no-repeat;
+    background-image: url('cta-animated.svg');
+}
+
+.wprtsp_cta_title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #7c90a2;
+}
+
+.dark .wprtsp_cta_title {
+    font-size: 14px;
+    font-weight: bold;
+    color: #7c90a2;
+}
+
+.wprtsp_cta_message {
+    color: #686b81;
+    font-weight: normal;
+    margin: 1.618em auto 0 auto;
+}
+
+.dark .wprtsp_cta_message {
+    color: #bcbdc2;
+}
+
+.cta_btn {
+    display: inline-block;
+    background: #0095ff;
+    padding: 1em 1.618em;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+#cta-grow {
+    display: block;
+    min-height: 5px;
+    transform: translate(-100%, 0);
+    background: #0095ff;
+    /*
+    animation-name: grow;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    <style type="text/css">#cta-grow{animation-duration:'+(settings.general_duration)+'s;}</style>
+    */
+}
+
+@keyframes grow {
+    from {
+        transform: translate(-100%, 0);
+    }
+    to {
+        transform: translate(0%, 0);
+    }
+}

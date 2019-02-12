@@ -1,0 +1,11 @@
+@charset "utf-8";
+
+input[type="text"] {
+    margin-top: .5em;
+    margin-bottom: .5em;
+}
+
+label {
+    display: block;
+    margin-top: 1em;
+}

@@ -1,0 +1,28 @@
+.wprtsp_tbl td {
+    padding: 0.618em;
+}
+
+.wprtsp_tbl h4{
+    margin-bottom: 0;
+}
+
+.wprtsp_tbl select, .wprtsp_tbl input {
+    padding: 0.618em;
+}
+
+.wprtsp_tbl select {
+    box-sizing: content-box;
+    padding: 0.4em 0.618em;
+}
+
+#poststuff .hndle {
+    font-size: 1.618em;
+}
+
+.postbox .toggle-indicator:before {
+    margin-top: 12px;
+}
+
+#post_ids_selector {
+    transition: all 1s linear;
+}
