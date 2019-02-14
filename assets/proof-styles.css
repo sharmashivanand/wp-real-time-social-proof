@@ -14,7 +14,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, Segoe UI, helvetica, arial, sans-serif !important;
 }
 
-.light {
+#wprtsp, .light {
     background-color: #fff;
     color: #000;
 }
