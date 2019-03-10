@@ -1,7 +1,7 @@
 wprtsp_pop = false;
 var clock = false;
 var data = {};
-var debug = false;
+var debug = 1;
 function llog(message) {
     if (debug) {
         console.dir(message);
@@ -77,8 +77,16 @@ if (jQuery) {
             success: function (response) {
 
                 if (settings.conversions_shop_type == 'Generated') {
-                    response = JSON.parse(response);
-                    llog(response);
+                    llog('response:' + response);
+                    try {
+                        response = JSON.parse(response);
+                    }
+                    catch(e){
+                        llog(e);
+                        clearTimeout(clock);
+                        llog('stopping clock');
+                        return;
+                    }
                     if (!prime1.length) {
                         prime1 = [5, 11, 17, 23, 31];
                     }
@@ -106,11 +114,11 @@ if (jQuery) {
                 jQuery('#wprtsp_pop').updateProof(message).updatePosition().animate({ "bottom": "10px", 'opacity': '1' }, { duration: 300, complete: function () { /*jQuery("#wprtsp_pop").contents().find("#cta-grow").css('animation', 'grow ' + settings.general_duration + 's ease-in-out'); */ } }).delay(settings.general_duration * 1000).animate({ "bottom": '-' + height + 'px', 'opacity': '0' }, { duration: 300, complete: function () { clearProof(); jQuery("#wprtsp_pop").contents().find("#cta-grow").css('animation', 'none'); } });
                 jQuery('#wprtsp_pop').mouseover(function () {
                     clearTimeout(clock);
-                    wprtsp_pop.stop(true, true).show(200);
+                    llog('stopping clock');
+                    wprtsp_pop.stop(true, true);//.show(200);
                 }).mouseout(function () {
-                    wprtsp_pop.stop(true, true).delay(200).fadeOut(2000, function () {
-                        clock = setTimeout(wprtsp_show_message, settings.general_subsequent_popup_time * 1000);
-                    });
+                    wprtsp_pop.stop(true, true).delay(200).animate({ "bottom": '-' + height + 'px', 'opacity': '0' }, { duration: 300, complete: function () { clearProof(); jQuery("#wprtsp_pop").contents().find("#cta-grow").css('animation', 'none'); clock = setTimeout(wprtsp_show_message, settings.general_subsequent_popup_time * 1000); llog('restarting clock');} })
+                    
                 });
             },
             error: function (xhr, status, err) {
@@ -186,13 +194,10 @@ if (jQuery) {
             data['wprtsp'] = result + '_' + time;
             //console.log(data['wprtsp']);
             data['wprtsp_notification_id'] = settings.id;
-
+            llog(data);
             //});
         })
         clock = setTimeout(wprtsp_show_message, settings.general_initial_popup_time * 1000);
-
-
-
 
         jQuery(document).on('heartbeat-tick', function (event, data) {
             if (data.hasOwnProperty('wprtsp')) {
