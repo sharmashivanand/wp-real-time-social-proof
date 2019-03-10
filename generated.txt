@@ -1,4 +1,0 @@
-:else:[{"first_name":"customer","last_name":"one","location":{"city":"city one","state":"state one"},"transaction":"registered for the webinar"}]
-:if:{"first_name":"customer","last_name":"one","location":{"city":"city one","state":"state one"},"transaction":"registered for the webinar"}
-:if:null
-:if: is null
