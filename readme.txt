@@ -64,6 +64,11 @@ Ask away.
 
 == Changelog ==
 
+
+= 1.9.5 =
+* BugFix: PopUps do not restart when mouse moves out.
+* Better randomization of generated records.
+
 = 1.9.4 =
 * Introduced plugin links to Settings page, support, rating, etc.
 * Cleaned up useless meta boxes on the CPT screen.
