@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 506.27">
+    <defs>
+        <style>
+        .cls-0{fill:#0095ff;}
+        .cls-1{
+        fill:#fffff00;
+            animation: appear1 2.5s ease-in-out 0s infinite normal both running;
+        }
+        .cls-2{
+        fill:#fffff00;
+            animation: appear1 2.5s ease-in-out 0.8333s infinite normal both running;
+        }
+        .cls-3{
+        fill:#fffff00;
+            animation: appear1 2.5s ease-in-out 1.6666s infinite normal both running;
+        }
+        @keyframes appear1 {
+            0% {
+                fill: #ffffff00;
+            }
+            12.5% {
+                fill: #ffffffff;
+            }
+            75%, 100% {
+                fill: #ffffff00;
+            }
+        }
+        </style>
+    </defs>
+    <title>conversion-1</title>
+    <g id="Layer_2" data-name="Layer 2">
+        <g id="Layer_1-2" data-name="Layer 1">
+            <path class="cls-0" d="M270,0C419.12,0,540,93.59,540,209c0,84.4-64.64,157.07-157.65,190.08l25.22,107.16-97.47-90.5A350.69,350.69,0,0,1,270,418.07c-149.12,0-270-93.59-270-209S120.88,0,270,0Z"/>
+            <path class="cls-1" d="M125,253.15a26.89,26.89,0,1,0,26.9-26.91A26.9,26.9,0,0,0,125,253.15Z"/>
+            <path class="cls-2" d="M243.1,253.15A26.9,26.9,0,1,0,270,226.24,26.89,26.89,0,0,0,243.1,253.15Z"/>
+            <path class="cls-3" d="M361.21,253.15a26.89,26.89,0,1,0,26.9-26.91A26.89,26.89,0,0,0,361.21,253.15Z"/>
+        </g>
+    </g>
+</svg>

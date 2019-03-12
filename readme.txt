@@ -5,7 +5,7 @@ Donate link: https://www.converticacommerce.com?item_name=Donation%20for%20WP%20
 Requires at least: 3.7.4
 Tested up to: 5.1
 Requires PHP: 7.0
-Stable tag: 1.9.5
+Stable tag: 1.9.6
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -63,11 +63,6 @@ Ask away.
 3. screenshot3.png
 
 == Changelog ==
-
-
-= 1.9.5 =
-* BugFix: PopUps do not restart when mouse moves out.
-* Better randomization of generated records.
 
 = 1.9.4 =
 * Introduced plugin links to Settings page, support, rating, etc.
