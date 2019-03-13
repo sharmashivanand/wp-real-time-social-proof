@@ -44,77 +44,40 @@ label {
     transition: all 1s linear;
 }
 
-#social-proof-pro-general .handlediv .toggle-indicator:before,
-#social-proof-pro-conversions .handlediv .toggle-indicator:before,
-#social-proof-pro-live .handlediv .toggle-indicator:before,
-#social-proof-pro-hot-stats .handlediv .toggle-indicator:before,
-#social-proof-pro-custom-message .handlediv .toggle-indicator:before {
-    /*color: #fff;*/
+#social-proof-general .handlediv .toggle-indicator:before,
+#social-proof-conversions .handlediv .toggle-indicator:before,
+#social-proof-live .handlediv .toggle-indicator:before,
+#social-proof-hot-stats .handlediv .toggle-indicator:before,
+#social-proof-custom-message .handlediv .toggle-indicator:before {
     margin-top: 12px;
 }
 
-#social-proof-pro-general .hndle {
-    /*
-    background: hsl(214, 25%, 33%);
-    background: hsl(195, 5%, 50%);
-    */
+#social-proof-general .hndle {
     border-left: 10px solid hsl(195, 5%, 50%);
     border-left: 10px solid hsl(195, 5%, 80%);
-    /*     color: #fff;
- */
 }
 
-#social-proof-pro-conversions .hndle,
-#social-proof-pro-live .hndle,
-#social-proof-pro-hot-stats .hndle,
-#social-proof-pro-custom-message .hndle {
+#social-proof-conversions .hndle,
+#social-proof-live .hndle,
+#social-proof-hot-stats .hndle,
+#social-proof-custom-message .hndle {
     padding-left: 48px;
     background-size: 24px !important;
 }
 
-#social-proof-pro-conversions .hndle {
-    /*
-    background: #ffbf00;
-    background: #f4d86d;
-    background: #0095ff;
-    */
-    /*
-    border-left: 10px solid #0095ff;
-         color: #fff;
- */
+#social-proof-conversions .hndle {
     background: url('conversions.svg') 10px center no-repeat;
 }
 
-#social-proof-pro-live .hndle {
-    /*
-    background: #ffbf00;
-    background: #f4d86d;
-    background: hsl(48, 100%, 48%);
-    */
-    /*border-left: 10px solid hsl(48, 100%, 48%);
-         color: #fff;
- */
+#social-proof-live .hndle {
     background: url('livestats.svg') 10px center no-repeat;
 }
 
-#social-proof-pro-hot-stats .hndle {
-    /*
-    background: hsl(350,60%,50%);
-    
-    border-left: 10px solid hsl(350, 60%, 50%);
-    */
-    /*     color: #fff;
- */
+#social-proof-hot-stats .hndle {
     background: url('hotstats.svg') 10px center no-repeat;
 }
 
-#social-proof-pro-custom-message .hndle {
-    /*
-    background: #60bf7f;
-    */
-    /*
-    border-left: 10px solid #60bf7f;
-     color: #fff; */
+#social-proof-custom-message .hndle {
     background: url('ctas.svg') 10px center no-repeat;
 }
 
@@ -207,26 +170,3 @@ label {
         opacity: 0;
     }
 }
-
-/*
-#social-proof-pro-general .inside,
-#social-proof-pro-conversions .inside,
-#social-proof-pro-live .inside,
-#social-proof-pro-hot-stats .inside,
-#social-proof-pro-custom-message .inside {
-    transition: all 1s linear;
-    opacity: 1;
-}
-
-#social-proof-pro-general.closing .inside,
-#social-proof-pro-conversions.closing .inside,
-#social-proof-pro-live.closing .inside,
-#social-proof-pro-hot-stats.closing .inside,
-#social-proof-pro-custom-message.closing .inside {
-
-    opacity: 0;
-    padding: 0px;
-    margin: 0px;
-    transition: all 1s linear;
-}
-*/

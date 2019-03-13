@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP Real-Time Social-Proof
  * Description: Animated, live, real-time social-proof Pop-ups for your WordPress website to boost sales and signups.
- * Version:     1.9.6
+ * Version:     2.0
  * Plugin URI:  https://wordpress.org/plugins/wp-real-time-social-proof/
  * Author:      Shivanand Sharma
  * Author URI:  https://www.converticacommerce.com
@@ -64,8 +64,9 @@ class WPRTSP {
 
     function setup_actions(){
         add_action( 'admin_init', array( $this, 'plugin_data' )); // setup plugin information so that it's easier to get
-        add_action( 'admin_init', array( $this, 'upgrade' )); // upgrade cpt data routine
         add_action( 'init', array( $this, 'register_post_types' )); // register our CPT
+        add_action( 'admin_notices', array($this, 'admin_notice'), 99999);
+        add_action( 'admin_init', array( $this, 'upgrade' )); // upgrade cpt data routine
         add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) ); // Add important links to plugins list (left-side)
         add_filter( 'plugin_row_meta', array($this, 'plugin_meta_links'), 10, 2); // Add important links to plugins list (right-side)
         add_action( 'admin_head', array( $this, 'admin_style' ) ); // some quick fixes to admin styles especially CPT menu icon
@@ -107,31 +108,6 @@ class WPRTSP {
     function plugin_data(){
         $plugin_data = get_plugin_data($this->plugin);
         return $plugin_data;
-    }
-
-    function upgrade(){
-        $cpt_version = get_option('wprtsp_cpt_version');
-        if(empty($cpt_version)) { //using 1.9.5 or earlier
-            $socialproofs = array();
-            $query = new WP_Query(array(
-                'post_type' => 'socialproof',
-                'post_status' => 'any'
-            ));
-            
-            while ($query->have_posts()) {
-                $query->the_post();
-                $post_id = get_the_ID();
-                $socialproofs[] = $post_id;
-                //$this->llog(get_post($post_id));
-            }
-            wp_reset_query();
-            //$this->llog($socialproofs);
-            if(!empty($socialproofs)) {
-                foreach($socialproofs as $proof_id){
-                    $meta = get_post_meta($proof_id,'_socialproof',true);
-                }
-            }
-        }
     }
 
     function register_post_types(){
@@ -190,6 +166,63 @@ class WPRTSP {
         );
 
         register_post_type( 'socialproof', apply_filters( 'socialproof_post_type_args', $cpt_args ) );
+    }
+
+    function admin_notice(){
+        
+        $upgrade_required = get_option('wprtsp_upgrade_required');
+        if(!empty($upgrade_required)) {
+            ?>
+            <div class="notice notice-error"><p><strong>Please <a href="<?php echo get_admin_url( null, 'edit.php?post_type=socialproof') ?>">visit all your social proofs</a> and save them again else they may not work with this version.</strong></p></div>
+            <?php
+        }
+    }
+
+    function upgrade(){
+        $cpt_version = get_option('wprtsp_cpt_version');
+        $socialproofs = array();
+        $query = new WP_Query(array(
+            'post_type' => 'socialproof',
+            'post_status' => 'any'
+        ));
+        
+        while ($query->have_posts()) {
+            $query->the_post();
+            $post_id = get_the_ID();
+            $socialproofs[] = $post_id;
+        }
+        wp_reset_query();
+        
+        if( (empty($cpt_version) || $cpt_version != $this->plugin_data) && !empty($socialproofs)) {
+            do_action('before_wprtsp_upgrade', $cpt_version);
+            update_option('wprtsp_upgrade_required', true);
+        }
+        
+        if( empty( $cpt_version) ) { //using 1.9.5 or earlier OR MAY BE A NEW USER
+            $socialproofs = array();
+            $query = new WP_Query(array(
+                'post_type' => 'socialproof',
+                'post_status' => 'any'
+            ));
+            
+            while ($query->have_posts()) {
+                $query->the_post();
+                $post_id = get_the_ID();
+                $socialproofs[] = $post_id;
+                //$this->llog(get_post($post_id));
+            }
+            wp_reset_query();
+            //$this->llog($socialproofs);
+            if(!empty($socialproofs)) {
+                foreach($socialproofs as $proof_id){
+                    $meta = get_post_meta($proof_id,'_socialproof',true);
+                }
+            }
+        }
+
+        //delete_option('wprtsp_upgrade_required');
+
+        do_action('after_wprtsp_upgrade', $cpt_version);
     }
 
     /* Add links below the plugin name on the plugins page */

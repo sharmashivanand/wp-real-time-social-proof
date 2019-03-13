@@ -148,12 +148,6 @@ class WPRTSPGENERAL{
 
 }
 
-function wprtspgeneral() {
-	return WPRTSPGENERAL::get_instance();
-}
-// Let's roll!
-wprtspgeneral();
-
 class WPRTSPCONVERSION{
     
     static function get_instance() {
@@ -301,9 +295,14 @@ class WPRTSPCONVERSION{
     }
 }
 
+function wprtspgeneral() {
+	return WPRTSPGENERAL::get_instance();
+}
 
 function wprtspconversion() {
 	return WPRTSPCONVERSION::get_instance();
 }
-// Let's roll!
+
+wprtspgeneral();
+
 wprtspconversion();
