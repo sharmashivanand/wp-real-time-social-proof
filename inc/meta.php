@@ -224,6 +224,10 @@ class WPRTSPGENERAL{
 
     function sanitize($request = array()){
         $defaults = $this->defaults();
+        
+        if(! $request ){ // not sure why but on a freshpost, if you customize settings, this throws errors when DEBUG is true
+            return $defaults;
+        }
 
         $request['general_ga_utm_tracking'] = array_key_exists('general_ga_utm_tracking', $request) && $request['general_ga_utm_tracking'] ? 1 : 0;
         $request['general_badge_enable'] = array_key_exists('general_badge_enable', $request) && $request['general_badge_enable'] ? 1 : 0;

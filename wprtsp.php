@@ -74,7 +74,7 @@ class WPRTSP {
         add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts') ); // Add the front end script
         add_action( 'add_meta_boxes', array( $this, 'remove_metaboxes' ), 5 ); // hook early and remove all metaboxes
         add_action( 'add_meta_boxes', array( $this,'add_meta_boxes' ) ); // add metaboxes
-        add_action( 'save_post', array($this, 'save_meta_box_data' ) ); // save metabox data
+        add_action( 'save_post_socialproof', array($this, 'save_meta_box_data' ), 10, 3 ); // save metabox data
         add_filter( 'wprtsp_enabled', array($this, 'wprtsp_enabled' ), 10, 2 ); // check if proof is enabled
 
         add_filter( 'wprtsp_vars', array($this, 'wprtsp_detect_mobile') ); // check if mobile vars need to be enqueued in js
@@ -439,7 +439,7 @@ class WPRTSP {
         do_action('wprtsp_add_meta_boxes');
     }
     
-    function save_meta_box_data($post_id){
+    function save_meta_box_data($post_id, $post, $update){
         
         if ( ! isset( $_POST['socialproof_meta_box_nonce'] ) ||
             ! wp_verify_nonce( $_POST['socialproof_meta_box_nonce'], 'socialproof_meta_box_nonce' ) ) {
@@ -453,7 +453,7 @@ class WPRTSP {
         if (!current_user_can('edit_post', $post_id)) {
             return;
         }
-        
+
         $request = $_POST['wprtsp'];
         
         $settings = $this->wprtsp_sanitize($request);
