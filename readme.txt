@@ -69,6 +69,8 @@ Ask away.
 
 == Changelog ==
 
+= 2.0.4 =
+* Fixed: PHP warnings when WP_DEBUG is on
 
 = 2.0.3 =
 * Eliminated PHP errors when license key is absent.
