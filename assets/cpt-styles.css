@@ -1,0 +1,48 @@
+@charset "utf-8";
+
+.postbox-container input[type="text"] {
+    margin-top: .5em;
+    margin-bottom: .5em;
+}
+
+.postbox-container label {
+    display: block;
+    margin-top: 1em;
+}
+
+.wprtsp_tbl td {
+    padding: 0.618em;
+}
+
+.wprtsp_tbl h4{
+    margin-bottom: 0;
+}
+
+.wprtsp_tbl select, .wprtsp_tbl input {
+    padding: 0.618em;
+}
+
+.wprtsp_tbl select {
+    box-sizing: content-box;
+    padding: 0.4em 0.618em;
+}
+
+#poststuff .hndle {
+    font-size: 1.618em;
+}
+
+.postbox .toggle-indicator:before {
+    margin-top: 12px;
+}
+
+#post_ids_selector {
+    transition: all 1s linear;
+}
+
+#social-proof-general h2.hndle {
+    border-left: 5px solid #0095ff;
+}
+
+#social-proof-conversions h2.hndle {
+    border-left: 5px solid #e05269;
+}

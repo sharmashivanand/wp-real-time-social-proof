@@ -1,0 +1,8 @@
+[submodule "wp-social-proof"]
+	path = wp-social-proof
+	url = https://github.com/sharmashivanand/wp-social-proof.git
+	branch = 2.0
+[submodule "wprtsppro"]
+	path = wprtsppro
+	url = https://github.com/sharmashivanand/wprtsppro.git
+	branch = 2.0

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 324.8 505.91">
+    <defs>
+        <style>
+        .cls-1 {
+            fill: #ffbf00;
+            animation: flash 4s linear 0s infinite normal both running;
+        }
+
+        @keyframes flash {
+            0%, 17%, 21%, 51%, 55% {
+                fill: #ffbf00;
+            }
+            19%, 53% {
+                fill: #0095ff;
+            }
+        }
+        </style>
+    </defs>
+    <polygon class="cls-1" points="324.8 218.34 216.17 218.34 292.63 0 0 287.75 108.63 287.75 25.12 505.91 324.8 218.34"/>
+</svg>

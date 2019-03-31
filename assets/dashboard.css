@@ -1,0 +1,27 @@
+@charset "utf-8";
+.dashboard_page_wprtsp-firstrun .wp-badge {
+    background: transparent url(brand-logo.svg) no-repeat;
+    background-size: auto;
+    box-shadow: none;
+    color: inherit;
+}
+
+.dashboard_page_wprtsp-firstrun .svg .wp-badge {
+    background-image: url(brand-logo.svg);
+}
+
+.dashboard_page_wprtsp-firstrun .about-wrap .one-col {
+    max-width: 100%;
+}
+
+.dashboard_page_wprtsp-firstrun .about-wrap .one-col.feature-section p {
+    max-width: none;
+}
+
+.dashboard_page_wprtsp-firstrun .two-col .feature {
+    max-width: 45%;
+}
+
+.dashboard_page_wprtsp-firstrun .three-col .feature {
+    max-width: 30%;
+}
