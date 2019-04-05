@@ -16,17 +16,17 @@ The only social proof plugin you need for WooCommerce, Easy Digital Downloads or
 
 Potential shoppers trust other buyers (social proof). Therefore, when a potential buyer sees how many other people have bought from your store, when was the transaction and which product they bought, this help them trust your store. This is known as __social-proof__.
 
-[A very short video explains this powerful phenomenon and how you can levarage it to sell better. Pls see here](https://wp-social-proof.com/how-it-works/)
+[A very short video explains this powerful phenomenon and how you can leverage it to sell better. Pls see here](https://wp-social-proof.com/how-it-works/)
 
 WP Real-Time Social-Proof shows popups of the recent sales and signups on the bottom left (or right) corner of your website.
 
-All your efforts be it via organic SEO, paid ads or any other form of marketing and promotion, go through a bottleneck. The fact is the cost of paid-ads is shooting up. Visitors are confused with information overload. Ad-blindness is at an all time high. Cost Per Acquision is getting costly.
+All your efforts be it via organic SEO, paid ads or any other form of marketing and promotion, go through a bottleneck. The fact is the cost of paid-ads is shooting up. Visitors are confused with information overload. Ad-blindness is at an all time high. Cost Per Acquition is getting costly.
 
 #### Benefits:
 * __Better ROI from paid marketing & SEO__ efforts due to higher conversion rates.
 * __Save__ on cost of customer acquisition.
 * Tap into buyer psychology: __"Fear-of-Missing-Out"__ effect and __"herd effect"__ to __create urgency__ and invite buyer action.
-* *Boost convertion rates*, __build credibility & trust__.
+* *Boost conversion rates*, __build credibility & trust__.
 * Auto-sync with WooCommerce, Easy Digital Download sales data.
 * __Super-elegant__ popup styles.
 
@@ -43,7 +43,7 @@ All your efforts be it via organic SEO, paid ads or any other form of marketing 
 
 
 #### Pro Version — It's all about credibility and subtly gaining attention to impress your message
-* __Google Analytics:__ Full intgration with Google Analytics to show real-time visitors and also track conversion improvement.
+* __Google Analytics:__ Full integration with Google Analytics to show real-time visitors and also track conversion improvement.
 * __LiveStats:__ Show live real-time visitors visiting the website from Google Analytics.
 * __HotStats:__ Sales milestones like the number of sales in the last 24 hours, 7 days etc.
 * __Custom Messages:__ Limited time offers and discount coupon codes to employ the FOMO effect.
