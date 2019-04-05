@@ -346,6 +346,8 @@ class WPRTSPCONVERSION{
         
         add_filter( 'wprtsp_get_proof_data_conversions_WooCommerce', array( $this, 'get_wooc_conversions'), 10, 2 ); // Get wooc comversions
         add_filter( 'wprtsp_tag_WooCommerce_name', array($this, 'get_tag_WooCommerce_name') ); // replace woocommerce {name} tag
+        add_filter( 'wprtsp_tag_WooCommerce_firstname', array($this, 'get_tag_WooCommerce_firstname') ); // replace woocommerce {firstname} tag
+        add_filter( 'wprtsp_tag_WooCommerce_lastname', array($this, 'get_tag_WooCommerce_lastname') ); // replace woocommerce {lastname} tag
         add_filter( 'wprtsp_tag_WooCommerce_location', array($this, 'get_tag_WooCommerce_location') ); // replace woocommerce {name} tag
         add_filter( 'wprtsp_tag_WooCommerce_action', array($this, 'get_tag_WooCommerce_action') ); // replace woocommerce {name} tag
         add_filter( 'wprtsp_tag_WooCommerce_product', array($this, 'get_tag_WooCommerce_product') ); // replace woocommerce {name} tag
@@ -604,13 +606,18 @@ class WPRTSPCONVERSION{
             $order_data = $order->get_data();
             
             $user = $order->get_user();
+            $name = '';
+            $firstname = '';
+            $lastname = '';
             if(!empty($user)) {
-                $name = '';
+                
                 if( $user->user_firstname && strtolower($user->user_firstname) != 'guest' ) {
                     $name .= $user->user_firstname;
+                    $firstname = $user->user_firstname;
                 }
                 if( $user->user_lastname && strtolower($user->user_lastname) != 'guest'){
                     $name .= ' ' . $user->user_lastname;
+                    $lastname = $user->user_lastname;
                 }
                 if(empty(trim($name))) {
                     $name = 'A visitor';
@@ -627,7 +634,9 @@ class WPRTSPCONVERSION{
             $customers[$purchase]['time'] = human_time_diff($time->getTimestamp());
             $messages[] = array(
                 'link' => $customers[$purchase]['product_link'],
-                'name' => $name,
+                'name' => $name ? $name: 'A guest',
+                'firstname' => $firstname ? $firstname : 'A guest',
+                'lastname' => $lastname ? $lastname : '',
                 'location' => implode(', ', array_filter(array($order_data['billing']['city'],$order_data['billing']['country']))),
                 'action' => 'purchased',
                 'product' => $customers[$purchase]['product'],
@@ -638,7 +647,36 @@ class WPRTSPCONVERSION{
         return $messages;
     }
 
+    function translate_wooc_placeholders( $records, $settings ) {
+        $template1 =  $settings['conversion_template_line1'];
+        $template2 =  $settings['conversion_template_line2'];
+        $messages = array();
+
+        $i = 0;
+        foreach( $records as $key => $value) {
+            $messages[$i]['line1'] = '<span class="wprtsp_line1">' . preg_replace_callback( "/{.+?}/", function($matches) use($value, $settings){
+                $key = preg_replace('/[^\da-z]/i', '', $matches[0]);
+                return apply_filters('wprtsp_tag_'.$settings['conversions_shop_type'].'_'.$key, $value[$key] );
+            }, $template1 ) . '</span>' ;
+            $messages[$i]['line2'] = '<span class="wprtsp_line2">' . preg_replace_callback( "/{.+?}/", function($matches) use($value, $settings){
+                $key = preg_replace('/[^\da-z]/i', '', $matches[0]);
+                return apply_filters('wprtsp_tag_'.$settings['conversions_shop_type'].'_'.$key, $value[$key] );
+            }, $template2 ) . '</span>';
+            $messages[$i]['link'] = $value['link'];
+           $i++;
+        }
+        return $messages;
+    }
+
     function get_tag_WooCommerce_name($name){
+        return  "<span class=\"wprtsp_name\">$name</span>";
+    }
+
+    function get_tag_WooCommerce_firstname($name){
+        return  "<span class=\"wprtsp_name\">$name</span>";
+    }
+
+    function get_tag_WooCommerce_lastname($name){
         return  "<span class=\"wprtsp_name\">$name</span>";
     }
 
@@ -698,6 +736,8 @@ class WPRTSPCONVERSION{
                 $downloads = $payment->cart_details;
                 $downloads = array_slice($downloads, 0, 1, true);
                 $name = '';
+                $firstname = '';
+                $lastname = '';
                 $address = array_key_exists('address', $payment->user_info) ? $payment->user_info['address'] : false;
                 if($address) {
                     $address = $payment->user_info['address']['city'] . ' ' . $payment->user_info['address']['country'];
@@ -708,9 +748,11 @@ class WPRTSPCONVERSION{
                 }
                 if( array_key_exists('first_name', $payment->user_info) && ! empty( $payment->user_info['first_name'] ) ) {
                     $name = $payment->user_info['first_name'];
+                    $firstname = $name;
                 }
                 if( array_key_exists('last_name', $payment->user_info) && ! empty( $payment->user_info['last_name'] ) ) {
                     $name .= ' '.$payment->user_info['last_name'];
+                    $lastname = $payment->user_info['last_name'];
                 }
                 if(empty(trim($name))) {
                     $name = 'Someone';
@@ -719,6 +761,8 @@ class WPRTSPCONVERSION{
                 $messages[] = array(
                     'link' => get_permalink( $downloads[0]['id'] ),
                     'name' => $name,
+                    'firstname' => $firstname ? $firstname : 'A visitor',
+                    'lastname' => $lastname ? $lastname : '',
                     'location' => $address,
                     'action' => 'purchased',
                     'product' => $downloads[0]['name'],
@@ -732,6 +776,27 @@ class WPRTSPCONVERSION{
         return $messages;
     }
     
+    function translate_edd_placeholders( $records, $settings ) {
+        $template1 =  $settings['conversion_template_line1'];
+        $template2 =  $settings['conversion_template_line2'];
+        $messages = array();
+
+        $i = 0;
+        foreach( $records as $key => $value) {
+            $messages[$i]['line1'] = '<span class="wprtsp_line1">' . preg_replace_callback( "/{.+?}/", function($matches) use($value, $settings){
+                $key = preg_replace('/[^\da-z]/i', '', $matches[0]);
+                return apply_filters('wprtsp_tag_'.$settings['conversions_shop_type'].'_'.$key, $value[$key] );
+            }, $template1 ) . '</span>' ;
+            $messages[$i]['line2'] = '<span class="wprtsp_line2">' . preg_replace_callback( "/{.+?}/", function($matches) use($value, $settings){
+                $key = preg_replace('/[^\da-z]/i', '', $matches[0]);
+                return apply_filters('wprtsp_tag_'.$settings['conversions_shop_type'].'_'.$key, $value[$key] );
+            }, $template2 ) . '</span>';
+            $messages[$i]['link'] = $value['link'];
+           $i++;
+        }
+        return $messages;
+    }
+
     function get_tag_Easy_Digital_Downloads_name($name){
         return  "<span class=\"wprtsp_name\">$name</span>";
     }
@@ -753,6 +818,7 @@ class WPRTSPCONVERSION{
     }
 
     /**************************************************** */
+
     function shuffle_assoc($list) { 
         if (!is_array($list)) {
             return $list;
@@ -817,70 +883,6 @@ class WPRTSPCONVERSION{
         return $this->translate_generated_placeholders( $indexes, $settings );
     }
     
-    function get_tag_Generated_name($name){
-        return  "<span class=\"wprtsp_name\">$name</span>";
-    }
-
-    function get_tag_Generated_action($action){
-        return  "<span class=\"wprtsp_action\">$action</span>";
-    }
-
-    function get_tag_Generated_product($product){
-        return  "<span class=\"wprtsp_product\">$product</span>";
-    }
-
-    function get_tag_Generated_time($time){
-        return  "<span class=\"wprtsp_time\">$time</span>";
-    }
-
-    function get_tag_Generated_location($location){
-        return empty($location)? '' : " <span class=\"wprtsp_location\">from $location </span>";
-    }
-
-    /********************************************* */
-    
-    function translate_wooc_placeholders( $records, $settings ) {
-        $template1 =  $settings['conversion_template_line1'];
-        $template2 =  $settings['conversion_template_line2'];
-        $messages = array();
-
-        $i = 0;
-        foreach( $records as $key => $value) {
-            $messages[$i]['line1'] = '<span class="wprtsp_line1">' . preg_replace_callback( "/{.+?}/", function($matches) use($value, $settings){
-                $key = preg_replace('/[^\da-z]/i', '', $matches[0]);
-                return apply_filters('wprtsp_tag_'.$settings['conversions_shop_type'].'_'.$key, $value[$key] );
-            }, $template1 ) . '</span>' ;
-            $messages[$i]['line2'] = '<span class="wprtsp_line2">' . preg_replace_callback( "/{.+?}/", function($matches) use($value, $settings){
-                $key = preg_replace('/[^\da-z]/i', '', $matches[0]);
-                return apply_filters('wprtsp_tag_'.$settings['conversions_shop_type'].'_'.$key, $value[$key] );
-            }, $template2 ) . '</span>';
-            $messages[$i]['link'] = $value['link'];
-           $i++;
-        }
-        return $messages;
-    }
-
-    function translate_edd_placeholders( $records, $settings ) {
-        $template1 =  $settings['conversion_template_line1'];
-        $template2 =  $settings['conversion_template_line2'];
-        $messages = array();
-
-        $i = 0;
-        foreach( $records as $key => $value) {
-            $messages[$i]['line1'] = '<span class="wprtsp_line1">' . preg_replace_callback( "/{.+?}/", function($matches) use($value, $settings){
-                $key = preg_replace('/[^\da-z]/i', '', $matches[0]);
-                return apply_filters('wprtsp_tag_'.$settings['conversions_shop_type'].'_'.$key, $value[$key] );
-            }, $template1 ) . '</span>' ;
-            $messages[$i]['line2'] = '<span class="wprtsp_line2">' . preg_replace_callback( "/{.+?}/", function($matches) use($value, $settings){
-                $key = preg_replace('/[^\da-z]/i', '', $matches[0]);
-                return apply_filters('wprtsp_tag_'.$settings['conversions_shop_type'].'_'.$key, $value[$key] );
-            }, $template2 ) . '</span>';
-            $messages[$i]['link'] = $value['link'];
-           $i++;
-        }
-        return $messages;
-    }
-
     function translate_generated_placeholders( $records, $settings ) {
         $template1 =  $settings['conversion_template_line1'];
         $template2 =  $settings['conversion_template_line2'];
@@ -901,7 +903,27 @@ class WPRTSPCONVERSION{
         }
         return $messages;
     }
-    /********************************************* */
+
+    function get_tag_Generated_name($name){
+        return  "<span class=\"wprtsp_name\">$name</span>";
+    }
+
+    function get_tag_Generated_action($action){
+        return  "<span class=\"wprtsp_action\">$action</span>";
+    }
+
+    function get_tag_Generated_product($product){
+        return  "<span class=\"wprtsp_product\">$product</span>";
+    }
+
+    function get_tag_Generated_time($time){
+        return  "<span class=\"wprtsp_time\">$time</span>";
+    }
+
+    function get_tag_Generated_location($location){
+        return empty($location)? '' : " <span class=\"wprtsp_location\">from $location </span>";
+    }
+
 }
 
 class WPRTSPUPGRADES{
