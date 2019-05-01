@@ -418,7 +418,11 @@ function get_verified_link(type) {
         settings.t = type;
         var en = btoa(encodeURIComponent(JSON.stringify(settings)));
         verified_url.searchParams.set('wsps', btoa(encodeURIComponent(settings.conversions_shop_type)));
-        verified_url.searchParams.set('wspv', btoa(encodeURIComponent(JSON.stringify(settings))));
+
+        var setvars = JSON.parse(JSON.stringify(settings));
+        setvars.proofs.conversions = setvars.proofs.conversions.shift();
+
+        verified_url.searchParams.set('wspv', btoa(encodeURIComponent(JSON.stringify(setvars))));
         verified_url.searchParams.set('wspc', + new Date());
         verified_url.searchParams.set('wspt', btoa(encodeURIComponent(type)));
         return verified_url.toString();
