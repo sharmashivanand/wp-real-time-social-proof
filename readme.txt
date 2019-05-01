@@ -5,7 +5,7 @@ Donate link: https://www.converticacommerce.com?item_name=Donation%20for%20WP%20
 Requires at least: 3.7.4
 Tested up to: 5.1.1
 Requires PHP: 7.0
-Stable tag: 2.0.5
+Stable tag: 2.0.6
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -68,6 +68,9 @@ Ask away.
 6. screenshot-6.png
 
 == Changelog ==
+
+= 2.0.6 =
+* Fixed: Verified link would break due to length
 
 = 2.0.5 =
 * Fixed: Implemented {firstname} and {lastname} tags for WooCommerce and Easy Digital Downloads
