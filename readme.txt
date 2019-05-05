@@ -42,7 +42,7 @@ All your efforts be it via organic SEO, paid ads or any other form of marketing 
 * Create multivariate notifications.
 
 
-#### Pro Version — It's all about credibility and subtly gaining attention to impress your message
+#### [Pro Version](https://wp-social-proof.com) — It's all about credibility and subtly gaining attention to impress your message
 * __Google Analytics:__ Full integration with Google Analytics to show real-time visitors and also track conversion improvement.
 * __LiveStats:__ Show live real-time visitors visiting the website from Google Analytics.
 * __HotStats:__ Sales milestones like the number of sales in the last 24 hours, 7 days etc.
