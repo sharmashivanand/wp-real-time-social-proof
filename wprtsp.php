@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP Real-Time Social-Proof
  * Description: Animated, live, real-time social-proof Pop-ups for your WordPress website to boost sales and signups.
- * Version:     2.0.6
+ * Version:     2.0.9
  * Plugin URI:  https://wordpress.org/plugins/wp-real-time-social-proof/
  * Author:      Shivanand Sharma
  * Author URI:  https://www.wp-social-proof.com
@@ -601,9 +601,31 @@ class WPRTSP {
     }
 
     function plugin_update_message( $data, $response ) {
-        
+        $upgrade_notice = '';
         if( $this->is_valid_pro() ) {
-            $changelog = 'https://wp-social-proof.com/buy/wp-social-proof/?changelog=1';
+            $changelog = 'https://wp-social-proof.com/buy/wp-real-time-social-proof/?changelog=1';
+            $changelog = 'https://raw.githubusercontent.com/sharmashivanand/wp-real-time-social-proof/master/readme.txt';
+            $res = wp_safe_remote_get($changelog);
+            if(is_wp_error($res)) {
+                return;
+            }
+            $res = wp_remote_retrieve_body($res);
+            $regexp = '~==\s*Changelog\s*==\s*=\s*[0-9.]+\s*=(.*)(=\s*' . preg_quote( $this->version ) . '\s*=|$)~Uis';//$res  = stristr( $res, '== Changelog ==', true );
+            if ( !preg_match( $regexp, $res, $matches ) ) {
+                return;
+            }
+            $changelog = (array) preg_split( '~[\r\n]+~', trim( $matches[1] ) );
+            //$ul = false;
+            
+            foreach ( $changelog as $index => $line ) {
+                if ( preg_match( '~^\s*\*\s*~', $line ) ) {
+                    $line = preg_replace( '~^\s*\*\s*~', '', htmlspecialchars( $line ) );
+                    $upgrade_notice .=  '<span style="font-weight:bold;">&#x2605;</span> '.$line . '<br />';
+                } else {
+                    
+                }
+            }
+            $upgrade_notice =  $upgrade_notice;
         }
         else {
             $changelog = 'https://plugins.trac.wordpress.org/browser/'.basename($this->dir).'/trunk/readme.txt?format=txt'; // should translate into https://plugins.trac.wordpress.org/browser/wp-real-time-social-proof/trunk/readme.txt?format=txt since repo doesn't allow changing slugs
@@ -618,7 +640,7 @@ class WPRTSP {
             }
             $changelog = (array) preg_split( '~[\r\n]+~', trim( $matches[1] ) );
             //$ul = false;
-            $upgrade_notice = '';
+            
             foreach ( $changelog as $index => $line ) {
                 if ( preg_match( '~^\s*\*\s*~', $line ) ) {
                     $line = preg_replace( '~^\s*\*\s*~', '', htmlspecialchars( $line ) );
