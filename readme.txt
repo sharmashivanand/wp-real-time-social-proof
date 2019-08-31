@@ -5,7 +5,7 @@ Donate link: https://www.converticacommerce.com?item_name=Donation%20for%20WP%20
 Requires at least: 3.7.4
 Tested up to: 5.1.1
 Requires PHP: 5.6
-Stable tag: 2.1.2
+Stable tag: 2.1.1
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -69,9 +69,9 @@ Ask away.
 
 == Changelog ==
 
-= 2.1.0 =
+= 2.1.1 =
 * Fixed animation on mouseover
-* Responsiive view on mobiles
+* Responsive view on mobiles
 * Fixed first-run page on gutenberg
 
 = 2.0.9 =
@@ -176,9 +176,9 @@ Generated records show name, transaction, location of the person. Times are inte
 
 == Upgrade Notice ==
 
-= 2.1.0 =
+= 2.1.1 =
 * Fixed animation on mouseover
-* Responsiive view on mobiles
+* Responsive view on mobiles
 * Fixed first-run page on gutenberg
 
 = 2.0.9 =
