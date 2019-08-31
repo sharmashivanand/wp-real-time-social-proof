@@ -19,9 +19,9 @@
 }
 
 .dashboard_page_wprtsp-firstrun .two-col .feature {
-    max-width: 45%;
+    _max-width: 45%;
 }
 
 .dashboard_page_wprtsp-firstrun .three-col .feature {
-    max-width: 30%;
+    _max-width: 30%;
 }

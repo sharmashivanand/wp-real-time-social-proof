@@ -72,6 +72,7 @@ Ask away.
 = 2.1.0 =
 * Fixed animation on mouseover
 * Responsiive view on mobiles
+* Fixed first-run page on gutenberg
 
 = 2.0.9 =
 * Fixed: Fixed php notice in upgrade notice
@@ -178,6 +179,7 @@ Generated records show name, transaction, location of the person. Times are inte
 = 2.1.0 =
 * Fixed animation on mouseover
 * Responsiive view on mobiles
+* Fixed first-run page on gutenberg
 
 = 2.0.9 =
 * Fixed: Fixed php notice in upgrade notice

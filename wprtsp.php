@@ -278,19 +278,19 @@ class WPRTSP {
         <div class="changelog">
             <h3><?php _e( 'First things first →', 'wprtsp' ); ?></h3>
 
-            <div class="feature-section col one-col">
-                <div class="last-feature feature">
+            <div class="feature-section col one-col has-1-columns">
+                <div class="last-feature feature column is-vertically-aligned-top">
                     <p><?php _e( 'This is a new generation of social-proof. Many kinds of proof, many ways to grab visitor attention, settings on steriods, control over desktop and mobile&hellip; aaand so much more&hellip;!', 'wprtsp' ); ?></p>
                 </div>
             </div>
 
-            <div class="feature-section col two-col">
-                <div class="last-feature feature">
+            <div class="feature-section col two-col has-2-columns">
+                <div class="last-feature feature column is-vertically-aligned-top">
                     <h4><?php _e( 'Now you have deep Integration with Google Analytics', 'wprtsp' ); ?></h4>
                     <p><?php _e( 'Track goals, conversions and even fetch live, real-time visitor count&hellip; like a pro! Ain\'t that cool?', 'wprtsp' ); ?></p>
                 </div>
 
-                <div class="feature">
+                <div class="feature column is-vertically-aligned-top">
                     <h4><?php _e( '&hellip;and Powerful yet Friendly Options. Solid!', 'wprtsp' ); ?></h4>
                     <p><?php _e( 'Impressively effective in turning fense-sitting visitors into paying customers. — because <strong>those are the easiest to convert</strong> and <strong><em>that\'s where your money is best spent</em></strong>.  Powerful, robust settings to tweak it to the tee without any compromise. Inline tooltips to make things easy and a breeze to setup.', 'wprtsp' ); ?></p>
                 </div>
@@ -300,31 +300,30 @@ class WPRTSP {
         <div class="changelog">
             <h3><?php esc_html_e( 'Upgrader… Proper!', 'wprtsp' ); ?></h3>
 
-            <div class="feature-section col one-col">
-                <div class="last-feature feature">
+            <div class="feature-section col one-col has-1-columns">
+                <div class="last-feature feature column is-vertically-aligned-top">
                     <p><?php esc_html_e( 'We agree it\'s been a challenge to upgrade '.$plugin_data['Name'].' seamlessly. But with the new experience '.$plugin_data['Name'].' upgrades all your social-proofs seamlessly. Took a little while to get things right but we did it!', 'wprtsp' ); ?></p>
-                    <p><?php _e( '<strong>&hellip;Except!!!: Just this one time, you\'ll need to <a target="_blank" href="'.get_admin_url( null, 'edit.php?post_type=socialproof' ).'">save your social proofs manually</a>.</strong>', 'wprtsp' ); ?></p>
                 </div>
             </div>
 
-            <div class="feature-section col three-col">
-                <div class="feature">
+            <div class="feature-section col three-col has-3-columns">
+                <div class="feature column is-vertically-aligned-top">
                     <h4><?php esc_html_e( 'Power of Addons', 'wprtsp' ); ?></h4>
                     <p><?php _e( $plugin_data['Name'] . ' is just an engine to engage visitors with social-proof. However, with a gunning engine you should be able to serve any kind of statistical data. Now with the power of addons, you have access to a variety of stats that you can engage visitors with — <strong>recent sales</strong>, live <strong>real-time visitor count</strong>, <strong>sales milestones</strong>, <strong>custom calls-to-action</strong> and so much more.', 'wprtsp' ); ?></p>
                 </div>
 
-                <div class="feature">
+                <div class="feature column is-vertically-aligned-top">
                     <h4><?php esc_html_e( 'A Call to Developers', 'bbpress' ); ?></h4>
                     <p><?php esc_html_e( 'Developers can create their own addons and sell / distribute as they deem fit. This extends the power of ' . $plugin_data['Name'] . ' and is a win-win for everyone.', 'wprtsp' ); ?></p>
                 </div>
 
-                <div class="last-feature feature">
+                <div class="last-feature feature column is-vertically-aligned-top">
                     <h4><?php _e('Over to you', 'wprtsp') ?></h4>
-                    <p><?php _e( 'We\'ll stop bragging now and let you tap into the power of ' . $plugin_data['Name'] . ' Let\'s <a href="'.get_admin_url( null, 'edit.php?post_type=socialproof' ).'">get started</a>. Shall we? ' . $display_version, 'wprtsp' ); ?></p>
+                    <p><?php _e( 'We\'ll stop bragging now and let you tap into the power of ' . $plugin_data['Name'] . ' Let\'s <a href="'.get_admin_url( null, 'edit.php?post_type=socialproof' ).'">get started</a>. Shall we?', 'wprtsp' ); ?></p>
                 </div>
             </div>
         </div>
-        <!-- <div class="return-to-dashboard"><?php _e( 'Let\'s', 'wprtsp' ); ?><a href="<?php echo esc_url( admin_url( null, 'edit.php?post_type=socialproof' ) ); ?>"><?php _e( 'Get Started' ) ?></a><?php _e('Shall we?', 'wprtsp' ); ?></div> -->
+        <div class="return-to-dashboard"><?php _e( 'Let\'s', 'wprtsp' ); ?><a href="<?php echo esc_url( get_admin_url( null, 'edit.php?post_type=socialproof' ) ); ?>"><?php _e( 'Get Started' ) ?></a><?php _e('Shall we?', 'wprtsp' ); ?></div>
     </div>
     <?php
     }
