@@ -12,6 +12,8 @@ var debug = 1;
 var title = false;
 var titletimer = false;
 var height = 0;
+var wprtsp_startshow = 0;
+var wprtsp_pauseshow = 0;
 llog(settings);
 
 function llog($str) {
@@ -60,20 +62,17 @@ if (jQuery) {
             llog('initiated');
         }
     });
-}
-else {
+} else {
     llog('no jq');
 }
 
 jQuery.fn.updateProof = function (message) {
     if (current_proof_type == 'ctas') {
         jQuery("#wprtsp_pop").css('border-radius', '5px');
-    }
-    else {
+    } else {
         if (settings.general_box_style == 'rounded') {
             jQuery("#wprtsp_pop").css('border-radius', '1000px');
-        }
-        else {
+        } else {
             jQuery("#wprtsp_pop").css('border-radius', '0px');
         }
     }
@@ -92,8 +91,8 @@ jQuery.fn.updateProof = function (message) {
         var playPromise = jQuery('#wprtsp_audio')[0].play();
         if (playPromise !== undefined) {
             playPromise.then(_ => {
-                llog('success');
-            })
+                    llog('success');
+                })
                 .catch(error => {
                     llog(playPromise);
                     llog(error);
@@ -110,8 +109,7 @@ jQuery.fn.updateProof = function (message) {
     //if (current_proof_type == 'ctas') {
     try {
         //jQuery("#cta-grow").css('animation-duration', (settings.general_duration * 1000) + 's');
-    }
-    catch (e) {
+    } catch (e) {
         llog(e);
     }
     //}
@@ -119,6 +117,7 @@ jQuery.fn.updateProof = function (message) {
     jQuery("#wprtsp_pop").contents().find("#wprtsp_wrap").attr('class', current_proof_type);
     jQuery('#wprtsp_pop').css('height', jQuery("#wprtsp_pop").contents().find("html").height());
     jQuery('#wprtsp_pop').css('width', jQuery("#wprtsp_pop").contents().find("body").width());
+    jQuery('#wprtsp_pop').css('max-width', 'calc( 100% - 20px )');
     height = jQuery("#wprtsp_pop").contents().find("html").height();
     //llog(height);
     return this;
@@ -144,34 +143,66 @@ function wprtsp_show_message() {
     llog('wprtsp_show_message');
     var message = wprtsp_get_message();
     if (!message) {
-        try { clearTimeout(clock); }
-        catch (e) {
+        try {
+            clearTimeout(clock);
+        } catch (e) {
             llog(e);
         }
         return;
     }
-    jQuery('#wprtsp_pop').updateProof(message).updatePosition().animate({ "bottom": "10px", 'opacity': '1' }, { duration: 300, complete: function () { jQuery("#wprtsp_pop").contents().find("#cta-grow").css('animation', 'grow ' + settings.general_duration + 's ease-in-out'); } }).delay(settings.general_duration * 1000).animate({ "bottom": '-' + height + 'px', 'opacity': '0' }, { duration: 300, complete: function () { clearProof(); jQuery("#wprtsp_pop").contents().find("#cta-grow").css('animation', 'none'); } });
+    jQuery('#wprtsp_pop').updateProof(message).updatePosition().animate({
+        "bottom": "10px",
+        'opacity': '1'
+    }, {
+        duration: 300,
+        complete: function () {
+            wprtsp_startshow = Date.now();
+            jQuery("#wprtsp_pop").contents().find("#cta-grow").css('animation', 'grow ' + settings.general_duration + 's ease-in-out');
+        }
+    }).delay(settings.general_duration * 1000).animate({
+        "bottom": '-' + height + 'px',
+        'opacity': '0'
+    }, {
+        duration: 300,
+        complete: function () {
+            clearProof();
+            jQuery("#wprtsp_pop").contents().find("#cta-grow").css('animation', 'none');
+        }
+    });
 
     jQuery('#wprtsp_pop').mouseover(function () {
+        wprtsp_pauseshow = Date.now();
+        console.log('Show Started @: '+ wprtsp_startshow);
+        console.log('Show Paused @: '+ wprtsp_pauseshow);
         clearTimeout(clock);
         wprtsp_pop.stop(true, true).show(200);
     }).mouseout(function () {
-        wprtsp_pop.stop(true, true).delay(200).animate({ "bottom": '-' + height + 'px', 'opacity': '0' }, { duration: 300, complete: function () { clearProof(); jQuery("#wprtsp_pop").contents().find("#cta-grow").css('animation', 'none'); } });
+        console.log('Show stopped for ' + (wprtsp_pauseshow - wprtsp_startshow) + 'ms');
+        console.log('Show remaining for ' + ((settings.general_duration * 1000) - (wprtsp_pauseshow - wprtsp_startshow)) + 'ms');
+        wprtsp_pop.stop(true, true).delay((settings.general_duration * 1000) - (wprtsp_pauseshow - wprtsp_startshow)).animate({
+            "bottom": '-' + height + 'px',
+            'opacity': '0'
+        }, {
+            duration: 300,
+            complete: function () {
+                clearProof();
+                jQuery("#wprtsp_pop").contents().find("#cta-grow").css('animation', 'none');
+            }
+        });
     });
 }
 
 function titlenotification() {
     if (document.title != settings.general_title_string) {
         jQuery(document).attr('title', settings.general_title_string);
-    }
-    else {
+    } else {
         jQuery(document).attr('title', title);
     }
 }
 
 function wprtsp_get_message() {
     llog('wprtsp_get_message');
-    llog( 'flag:' + flag );
+    llog('flag:' + flag);
     if (flag == 's') {
         llog(flag);
         set_next_flag();
@@ -385,8 +416,7 @@ function ctas_html(cta) {
         <div class="wprtsp_cta_title"><a href="${link}">${cta['message']}</a></div>
         <div class="wprtsp_cta_message"><a class="cta_btn" href="${link}">${cta['button_text']}</a></div>
     </div></div>`;
-    }
-    else {
+    } else {
         return `<span id="cta-grow"></span><div id="wprtsp_wrap" class="wprtsp-cta">
         <span class="wprtsp_cta_icon"></span>
         <div class="wprtsp_cta_body">
@@ -423,7 +453,7 @@ function get_verified_link(type) {
         setvars.proofs.conversions = setvars.proofs.conversions.shift();
 
         verified_url.searchParams.set('wspv', btoa(encodeURIComponent(JSON.stringify(setvars))));
-        verified_url.searchParams.set('wspc', + new Date());
+        verified_url.searchParams.set('wspc', +new Date());
         verified_url.searchParams.set('wspt', btoa(encodeURIComponent(type)));
         return verified_url.toString();
     }

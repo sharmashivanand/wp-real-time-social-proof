@@ -1,11 +1,11 @@
-﻿=== WP Real-Time Social-Proof ===
+=== WP Real-Time Social-Proof ===
 Contributors: varun21, ruchikawp
 Tags: social proof, marketing, recent sales notification, woocommerce, popup, live sales, conversion, ctr, ecommerce, easy digital downloads, newsletter, optin, signup, sales triggers
 Donate link: https://www.converticacommerce.com?item_name=Donation%20for%20WP%20Social%20Proof&cmd=_donations&currency_code=USD&lc=US&business=shivanand@converticacommerce.com
 Requires at least: 3.7.4
 Tested up to: 5.1.1
 Requires PHP: 7.0
-Stable tag: 2.0.9
+Stable tag: 2.1.0
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -68,6 +68,10 @@ Ask away.
 6. screenshot-6.png
 
 == Changelog ==
+
+= 2.1.0 =
+* Fixed animation on mouseover
+* Responsiive view on mobiles
 
 = 2.0.9 =
 * Fixed: Fixed php notice in upgrade notice
@@ -170,6 +174,10 @@ Initial release
 Generated records show name, transaction, location of the person. Times are intelligently generated using prime numbers for maximum CTR. Records are also pulled out of uniquely seed based random algorithm.
 
 == Upgrade Notice ==
+
+= 2.1.0 =
+* Fixed animation on mouseover
+* Responsiive view on mobiles
 
 = 2.0.9 =
 * Fixed: Fixed php notice in upgrade notice
