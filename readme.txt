@@ -4,8 +4,8 @@ Tags: social proof, marketing, recent sales notification, woocommerce, popup, li
 Donate link: https://www.converticacommerce.com?item_name=Donation%20for%20WP%20Social%20Proof&cmd=_donations&currency_code=USD&lc=US&business=shivanand@converticacommerce.com
 Requires at least: 3.7.4
 Tested up to: 5.1.1
-Requires PHP: 7.0
-Stable tag: 2.1.0
+Requires PHP: 5.6
+Stable tag: 2.1.2
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
