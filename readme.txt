@@ -5,7 +5,7 @@ Donate link: https://www.converticacommerce.com?item_name=Donation%20for%20WP%20
 Requires at least: 3.7.4
 Tested up to: 5.2.2
 Requires PHP: 5.6
-Stable tag: 2.1.2
+Stable tag: 2.1.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -68,6 +68,9 @@ Ask away.
 6. screenshot-6.png
 
 == Changelog ==
+
+= 2.1.3 =
+* Fixed a bug when orders with null value were received.
 
 = 2.1.2 =
 * Fixed animation on mouseover
@@ -175,6 +178,9 @@ Initial release
 Generated records show name, transaction, location of the person. Times are intelligently generated using prime numbers for maximum CTR. Records are also pulled out of uniquely seed based random algorithm.
 
 == Upgrade Notice ==
+
+= 2.1.3 =
+* Fixed a bug when orders with null value were received.
 
 = 2.1.2 =
 * Fixed animation on mouseover
