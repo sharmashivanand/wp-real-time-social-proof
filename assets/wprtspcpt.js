@@ -91,8 +91,8 @@ jQuery.fn.updateProof = function (message) {
         var playPromise = jQuery('#wprtsp_audio')[0].play();
         if (playPromise !== undefined) {
             playPromise.then(_ => {
-                    llog('success');
-                })
+                llog('success');
+            })
                 .catch(error => {
                     llog(playPromise);
                     llog(error);
@@ -172,8 +172,8 @@ function wprtsp_show_message() {
 
     jQuery('#wprtsp_pop').mouseover(function () {
         wprtsp_pauseshow = Date.now();
-        console.log('Show Started @: '+ wprtsp_startshow);
-        console.log('Show Paused @: '+ wprtsp_pauseshow);
+        console.log('Show Started @: ' + wprtsp_startshow);
+        console.log('Show Paused @: ' + wprtsp_pauseshow);
         clearTimeout(clock);
         wprtsp_pop.stop(true, true).show(200);
     }).mouseout(function () {
@@ -450,7 +450,9 @@ function get_verified_link(type) {
         verified_url.searchParams.set('wsps', btoa(encodeURIComponent(settings.conversions_shop_type)));
 
         var setvars = JSON.parse(JSON.stringify(settings));
-        setvars.proofs.conversions = setvars.proofs.conversions.shift();
+        if (setvars.proofs.hasOwnProperty('conversions') && setvars.proofs.conversions.length) {
+            setvars.proofs.conversions = setvars.proofs.conversions.shift();
+        }
 
         verified_url.searchParams.set('wspv', btoa(encodeURIComponent(JSON.stringify(setvars))));
         verified_url.searchParams.set('wspc', +new Date());

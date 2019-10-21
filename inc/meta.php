@@ -55,6 +55,7 @@ class WPRTSPGENERAL {
 		);
 		$defaults['general_allowed_box_styles']          = array( 'square', 'rounded' );
 		$defaults['general_allowed_notification_themes'] = array( 'light', 'dark' );
+		$defaults['general_roles_exclude']               = 'administrator';
 
 		return $defaults;
 	}
@@ -71,24 +72,22 @@ class WPRTSPGENERAL {
 		$settings = $this->sanitize( $settings );
 		// extract($settings);
 
-		$show_on               = $settings['general_show_on'];
-		$post_ids              = $settings['general_post_ids'];
-		$duration              = $settings['general_duration'];
-		$initial_popup_time    = $settings['general_initial_popup_time'];
-		$subsequent_popup_time = $settings['general_subsequent_popup_time'];
-		$general_badge_enable  = $settings['general_badge_enable'];
-
-		$general_position = $settings['general_position'];
-		$positions_html   = '';
-		$positions        = $defaults['general_allowed_positions'];
-
-		$general_box_style = $settings['general_box_style'];
-		$box_styles_html   = '';
-		$box_styles        = $defaults['general_allowed_box_styles'];
-
-		$general_notification_theme = $settings['general_notification_theme'];
-		$notification_theme_html    = '';
-		$notification_themes        = $defaults['general_allowed_notification_themes'];
+		$show_on                      = $settings['general_show_on'];
+		$wprtsp_general_roles_exclude = $settings['general_roles_exclude'];
+		$post_ids                     = $settings['general_post_ids'];
+		$duration                     = $settings['general_duration'];
+		$initial_popup_time           = $settings['general_initial_popup_time'];
+		$subsequent_popup_time        = $settings['general_subsequent_popup_time'];
+		$general_badge_enable         = $settings['general_badge_enable'];
+		$general_position             = $settings['general_position'];
+		$positions_html               = '';
+		$positions                    = $defaults['general_allowed_positions'];
+		$general_box_style            = $settings['general_box_style'];
+		$box_styles_html              = '';
+		$box_styles                   = $defaults['general_allowed_box_styles'];
+		$general_notification_theme   = $settings['general_notification_theme'];
+		$notification_theme_html      = '';
+		$notification_themes          = $defaults['general_allowed_notification_themes'];
 
 		$statevars = array(
 			'origin_site_url'        => get_site_url(),
@@ -163,6 +162,19 @@ class WPRTSPGENERAL {
 						<option value="1" <?php selected( $show_on, 1 ); ?> >Entire Site</option>
 						<option value="2" <?php selected( $show_on, 2 ); ?> >On selected posts / pages</option>
 						<option value="3" <?php selected( $show_on, 3 ); ?> >Everywhere except the following</option>
+					</select>
+			</tr>
+			<tr>
+				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>User with these roles will not see notifications. Comes in handy when you are logged into your own site and don't want to be disturbed.</p></div></div><label for="wprtsp_general_roles_exclude">Exclude User Roles</label></td>
+				<td><select id="wprtsp_general_roles_exclude" name="wprtsp[general_roles_exclude]">
+						<?php
+						global $wp_roles;
+						foreach ( $wp_roles->roles as $role => $capabilities ) {
+							?>
+							<option value="<?php echo $role; ?>"<?php selected( $wprtsp_general_roles_exclude, $role ); ?>><?php echo ucwords( $role ); ?> &amp; Above</option>
+							<?php
+						}
+						?>
 					</select>
 			</tr>
 			<tr id="post_ids_selector">
@@ -248,6 +260,7 @@ class WPRTSPGENERAL {
 		$request['general_ga_utm_tracking']       = array_key_exists( 'general_ga_utm_tracking', $request ) && $request['general_ga_utm_tracking'] ? 1 : 0;
 		$request['general_badge_enable']          = array_key_exists( 'general_badge_enable', $request ) && $request['general_badge_enable'] ? 1 : 0;
 		$request['general_title_string']          = array_key_exists( 'general_title_string', $request ) && $request['general_title_string'] ? sanitize_text_field( $request['general_title_string'] ) : $defaults['general_title_string'];
+		$request['general_roles_exclude']         = array_key_exists( 'general_roles_exclude', $request ) ? sanitize_text_field( $request['general_roles_exclude'] ) : $defaults['general_roles_exclude'];
 		$request['general_show_on']               = array_key_exists( 'general_show_on', $request ) ? sanitize_text_field( $request['general_show_on'] ) : $defaults['general_show_on'];
 		$request['general_post_ids']              = array_key_exists( 'general_post_ids', $request ) ? sanitize_text_field( $request['general_post_ids'] ) : $defaults['general_post_ids'];
 		$request['general_position']              = array_key_exists( 'general_position', $request ) ? sanitize_text_field( $request['general_position'] ) : $defaults['general_position'];
