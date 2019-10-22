@@ -55,7 +55,7 @@ class WPRTSP {
 	function includes() {
 		require_once $this->dir . 'inc/meta.php';
 
-		if ( file_exists( $this->dir . 'wprtsppro/pro/pro.php' ) ) {
+		if ( $this->is_valid_pro() && file_exists( $this->dir . 'wprtsppro/pro/pro.php' ) ) {
 			include_once $this->dir . 'wprtsppro/pro/pro.php';
 		}
 	}
@@ -93,25 +93,64 @@ class WPRTSP {
 	}
 
 	function is_valid_pro() {
-
 		if ( $this->is_pro() ) {
-
 			$settings = get_option( 'wprtsp' );
-
 			if ( ! $settings ) {
 				return;
 			}
+			if ( empty( $settings['license_key'] ) ) {
+				return;
+			}
+			return $this->get_pro_status();
+		}
+	}
 
+	function get_pro_status() {
+		$status = get_transient( 'wprtsp_license_status' );
+		if ( ! $status ) {
+			$settings = get_option( 'wprtsp' );
+			if ( ! $settings ) {
+				return;
+			}
 			if ( empty( $settings['license_key'] ) ) {
 				return;
 			}
 
-			$wprtsp_license_status = get_option( 'wprtsp_license_status' );
-
-			if ( $wprtsp_license_status !== false && $wprtsp_license_status == 'valid' ) {
+			$key =  $settings['license_key'];
+			if ( empty( $key ) ) {
+				return;
+			}
+			$url         = trailingslashit(WPRTSP_EDD_SL_URL) . '?edd_action=check_license&item_id=262&license=' . $key . '&url=' . site_url();
+			$response    = wp_safe_remote_request( $url );
+			$headers     = wp_remote_retrieve_headers( $response );
+			$status_code = wp_remote_retrieve_response_code( $response );
+			if ( 200 != $status_code ) {
+				return;
+			}
+			if ( is_wp_error( $response ) ) {
+				return;
+			}
+			$body   = wp_remote_retrieve_body( $response );
+			$status = json_decode( $body, true );
+			if ( is_null( $status ) ) {
+				return;
+			}
+			if ( $status['success'] != true ) {
+				return;
+			}
+			if ( ! empty( $status['success'] ) && $status['success'] == true ) {
+				$this->set_validation();
 				return true;
 			}
+			return;
+		} else {
+			return $status == 'valid';
 		}
+	}
+
+	function set_validation() {
+		set_transient( 'wprtsp_license_status', 'valid', 24 * HOUR_IN_SECONDS );
+		return true;
 	}
 
 	function set_version() {
@@ -424,7 +463,7 @@ class WPRTSP {
 			$meta['notification_id'] = $notification->ID;
 			$this->settings          = $meta;
 			$enabled                 = apply_filters( 'wprtsp_enabled', false, $meta );
-            
+
 			if ( ! $enabled ) {
 				return;
 			}
@@ -487,7 +526,7 @@ class WPRTSP {
 				$records = $this->wprtsp_get_proofs();
 				if ( $records ) {
 					$this->settings['proofs'] = $records;
-					$enabled = true;
+					$enabled                  = true;
 				}
 				break;
 			case '2':
@@ -502,7 +541,7 @@ class WPRTSP {
 					$records = $this->wprtsp_get_proofs();
 					if ( $records ) {
 						$this->settings['proofs'] = $records;
-						$enabled = true;
+						$enabled                  = true;
 					}
 				}
 				break;
@@ -519,23 +558,23 @@ class WPRTSP {
 					$records = $this->wprtsp_get_proofs();
 					if ( $records ) {
 						$this->settings['proofs'] = $records;
-						$enabled = true;
+						$enabled                  = true;
 					}
 				}
 				break;
 		}
 
 		$exclude_role = $settings['general_roles_exclude'];
-		$roles = get_role( $exclude_role )->capabilities;
+		$roles        = get_role( $exclude_role )->capabilities;
 		foreach ( $roles as $cap ) {
 			if ( current_user_can( $cap ) ) {
 				$enabled = false;
 			}
-        }
-        if($enabled) {
-            wp_enqueue_script( 'wprtsp-main', $this->uri . 'assets/wprtspcpt.js', array( 'jquery' ), null, true );
+		}
+		if ( $enabled ) {
+			wp_enqueue_script( 'wprtsp-main', $this->uri . 'assets/wprtspcpt.js', array( 'jquery' ), null, true );
 			wp_localize_script( 'wprtsp-main', 'wprtsp_vars', json_encode( apply_filters( 'wprtsp_vars', $this->settings ) ) );
-        }
+		}
 		return $enabled;
 	}
 
