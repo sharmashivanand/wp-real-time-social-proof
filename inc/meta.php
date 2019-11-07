@@ -157,14 +157,6 @@ class WPRTSPGENERAL {
 				</td>
 			</tr>
 			<tr>
-				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Where all to show Social Proof notifications.</p></div></div><label for="wprtsp_general_show_on">Show Notifications On</label></td>
-				<td><select id="wprtsp_general_show_on" name="wprtsp[general_show_on]">
-						<option value="1" <?php selected( $show_on, 1 ); ?> >Entire Site</option>
-						<option value="2" <?php selected( $show_on, 2 ); ?> >On selected posts / pages</option>
-						<option value="3" <?php selected( $show_on, 3 ); ?> >Everywhere except the following</option>
-					</select>
-			</tr>
-			<tr>
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>User with these roles will not see notifications. Comes in handy when you are logged into your own site and don't want to be disturbed.</p></div></div><label for="wprtsp_general_roles_exclude">Exclude User Roles</label></td>
 				<td><select id="wprtsp_general_roles_exclude" name="wprtsp[general_roles_exclude]">
 						<?php
@@ -176,7 +168,15 @@ class WPRTSPGENERAL {
 						}
 						?>
 					</select>
+			</tr><tr>
+				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Where all to show Social Proof notifications.</p></div></div><label for="wprtsp_general_show_on">Show Notifications On</label></td>
+				<td><select id="wprtsp_general_show_on" name="wprtsp[general_show_on]">
+						<option value="1" <?php selected( $show_on, 1 ); ?> >Entire Site</option>
+						<option value="2" <?php selected( $show_on, 2 ); ?> >On selected posts / pages</option>
+						<option value="3" <?php selected( $show_on, 3 ); ?> >Everywhere except the following</option>
+					</select>
 			</tr>
+			
 			<tr id="post_ids_selector">
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Enable, disable Social Proof notifications on specific pages.</p></div></div><label for="wprtsp_general_post_ids">Enter Post Ids (comma separated)</label></td>
 				<td><input type="text" class="widefat" 

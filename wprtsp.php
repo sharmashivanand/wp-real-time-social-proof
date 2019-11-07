@@ -55,7 +55,7 @@ class WPRTSP {
 	function includes() {
 		require_once $this->dir . 'inc/meta.php';
 
-		if ( $this->is_valid_pro() && file_exists( $this->dir . 'wprtsppro/pro/pro.php' ) ) {
+		if ( file_exists( $this->dir . 'wprtsppro/pro/pro.php' ) ) {
 			include_once $this->dir . 'wprtsppro/pro/pro.php';
 		}
 	}
@@ -72,8 +72,8 @@ class WPRTSP {
 		add_action( 'admin_head', array( $this, 'admin_head' ) ); // some quick fixes to admin styles especially CPT menu icon
 		add_action( 'admin_enqueue_scripts', array( $this, 'plugin_styles' ) ); // Style our CPT
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) ); // Add the front end script
-		add_action( 'add_meta_boxes', array( $this, 'remove_metaboxes' ), 5 ); // hook early and remove all metaboxes
-		add_action( 'add_meta_boxes', array( $this, 'add_meta_boxes' ) ); // add metaboxes
+		add_action( 'add_meta_boxes_socialproof', array( $this, 'remove_metaboxes' ), 5 ); // hook early and remove all metaboxes
+		add_action( 'add_meta_boxes_socialproof', array( $this, 'add_meta_boxes' ) ); // add metaboxes
 		add_action( 'save_post_socialproof', array( $this, 'save_meta_box_data' ), 10, 3 ); // save metabox data
 		add_filter( 'wprtsp_enabled', array( $this, 'wprtsp_enabled' ), 10, 2 ); // check if proof is enabled
 
@@ -474,7 +474,6 @@ class WPRTSP {
 		global $wp_meta_boxes;
 		global $post;
 		$current_post_type = get_post_type( $post );
-
 		if ( $current_post_type == 'socialproof' ) {
 			$publishbox    = $wp_meta_boxes['socialproof']['side']['core']['submitdiv'];
 			$wp_meta_boxes = array();
