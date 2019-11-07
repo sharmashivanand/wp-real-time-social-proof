@@ -71,6 +71,12 @@ Ask away.
 
 = 2.1.6 =
 * Bugfix: metaboxes being added and removed at incorrect hooks.
+* Removed additions metaboxes added by other themes / plugins.
+* Bugfix: License menu flyout is missing sometimes.
+* Removed compatibility with WPRTSP Records Manager version 0.2 and lower.
+* Better validation for metaboxes activation.
+* Fixed code-compliance / formatting.
+* Fixed CPT declaration to avoid inserting rewriterules.
 
 = 2.1.5 =
 * New Feature: Exclude Notifications for user roles.
@@ -188,6 +194,15 @@ Initial release
 Generated records show name, transaction, location of the person. Times are intelligently generated using prime numbers for maximum CTR. Records are also pulled out of uniquely seed based random algorithm.
 
 == Upgrade Notice ==
+
+= 2.1.6 =
+* Bugfix: metaboxes being added and removed at incorrect hooks.
+* Removed additions metaboxes added by other themes / plugins.
+* Bugfix: License menu flyout is missing sometimes.
+* Removed compatibility with WPRTSP Records Manager version 0.2 and lower.
+* Better validation for metaboxes activation.
+* Fixed code-compliance / formatting.
+* Fixed CPT declaration to avoid inserting rewriterules.
 
 = 2.1.4 =
 * Fixed a bug when all notifications stop working if conversions are disabled.

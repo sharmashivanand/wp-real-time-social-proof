@@ -116,11 +116,11 @@ class WPRTSP {
 				return;
 			}
 
-			$key =  $settings['license_key'];
+			$key = $settings['license_key'];
 			if ( empty( $key ) ) {
 				return;
 			}
-			$url         = trailingslashit(WPRTSP_EDD_SL_URL) . '?edd_action=check_license&item_id=262&license=' . $key . '&url=' . site_url();
+			$url         = trailingslashit( WPRTSP_EDD_SL_URL ) . '?edd_action=check_license&item_id=262&license=' . $key . '&url=' . site_url();
 			$response    = wp_safe_remote_request( $url );
 			$headers     = wp_remote_retrieve_headers( $response );
 			$status_code = wp_remote_retrieve_response_code( $response );
@@ -196,23 +196,28 @@ class WPRTSP {
 			'items_list'            => __( 'items_list', 'wprtsp' ),
 		);
 		$cpt_args = array(
-			'description'       => 'Social Proof',
-			'public'            => false,
-			'show_ui'           => true,
-			'show_in_admin_bar' => true,
-			'show_in_rest'      => true,
-			'menu_position'     => null,
+			'description'         => 'Social Proof',
+			'public'              => false,
+			'show_ui'             => true,
+			'rewrite'             => false,
+			'publicly_queryable'  => false,
+			'query_var'           => false,
+			'show_in_nav_menus'   => false,
+			'exclude_from_search' => true,
+			'show_in_admin_bar'   => true,
+			'show_in_rest'        => false,
+			'menu_position'       => null,
 			// 'menu_icon'           => 'dashicons-format-chat',
-			'menu_icon'         => $this->uri . 'assets/menu-icon.svg',
-			'can_export'        => true,
-			'delete_with_user'  => false,
-			'hierarchical'      => false,
-			'has_archive'       => false,
-			'labels'            => $labels,
-			'template_lock'     => true,
+			'menu_icon'           => $this->uri . 'assets/menu-icon.svg',
+			'can_export'          => true,
+			'delete_with_user'    => false,
+			'hierarchical'        => false,
+			'has_archive'         => false,
+			'labels'              => $labels,
+			'template_lock'       => true,
 
 			// What features the post type supports.
-			'supports'          => array(
+			'supports'            => array(
 				'title',
 				// 'editor',
 				// 'thumbnail',
@@ -488,6 +493,8 @@ class WPRTSP {
 
 	function add_meta_boxes() {
 		do_action( 'wprtsp_add_meta_boxes' );
+		remove_all_actions( 'edit_form_advanced' );
+		remove_all_actions( 'edit_page_form' );
 	}
 
 	function save_meta_box_data( $post_id, $post, $update ) {
