@@ -77,6 +77,8 @@ Ask away.
 * Better validation for metaboxes activation.
 * Fixed code-compliance / formatting.
 * Fixed CPT declaration to avoid inserting rewriterules.
+* Fully mobile responsive.
+* Updated UI.
 
 = 2.1.5 =
 * New Feature: Exclude Notifications for user roles.
@@ -203,6 +205,8 @@ Generated records show name, transaction, location of the person. Times are inte
 * Better validation for metaboxes activation.
 * Fixed code-compliance / formatting.
 * Fixed CPT declaration to avoid inserting rewriterules.
+* Fully mobile responsive.
+* Updated UI.
 
 = 2.1.4 =
 * Fixed a bug when all notifications stop working if conversions are disabled.
