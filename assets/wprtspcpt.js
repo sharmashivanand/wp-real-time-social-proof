@@ -131,7 +131,6 @@ jQuery.fn.updateProof = function (message) {
             jQuery('#wprtsp_pop').css('width', 'calc( 100% - 20px )');
             jQuery("#wprtsp_pop").contents().find("body").css( 'width', 'calc( 100% - 20px )' );
             jQuery("#wprtsp_pop").css( 'height', 'auto' );
-
             jQuery('#wprtsp_pop').css('transform', 'scale(.75)');
             //jQuery('#wprtsp_pop').css('transform-origin', 'left');
         }
