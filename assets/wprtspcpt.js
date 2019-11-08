@@ -56,7 +56,7 @@ if (jQuery) {
                 frameborder: '0',
                 scrolling: 'no',
                 style: settings.styles.popup_style,
-                srcdoc: '<html><head><base target="_parent"><link rel="stylesheet" type="text/css" href="' + settings.url + 'assets/proof-styles.css"></head><body id="wprtsp"><img src="' + settings.url + 'assets/verified.svg" /></body></html>',
+                srcdoc: '<html><head><base target="_parent"><link rel="stylesheet" type="text/css" href="' + settings.url + 'assets/proof-styles.css?v=' + Date.now() + '"><meta name="viewport" content="width=device-width, initial-scale=1" /></head><body id="wprtsp"><img src="' + settings.url + 'assets/verified.svg" /></body></html>',
             }).appendTo('body');
             clock = setTimeout(wprtsp_show_message, settings.general_initial_popup_time * 1000);
             llog('initiated');
@@ -91,8 +91,8 @@ jQuery.fn.updateProof = function (message) {
         var playPromise = jQuery('#wprtsp_audio')[0].play();
         if (playPromise !== undefined) {
             playPromise.then(_ => {
-                llog('success');
-            })
+                    llog('success');
+                })
                 .catch(error => {
                     llog(playPromise);
                     llog(error);
@@ -117,8 +117,25 @@ jQuery.fn.updateProof = function (message) {
     jQuery("#wprtsp_pop").contents().find("#wprtsp_wrap").attr('class', current_proof_type);
     jQuery('#wprtsp_pop').css('height', jQuery("#wprtsp_pop").contents().find("html").height());
     jQuery('#wprtsp_pop').css('width', jQuery("#wprtsp_pop").contents().find("body").width());
-    jQuery('#wprtsp_pop').css('max-width', 'calc( 100% - 20px )');
+    //jQuery('#wprtsp_pop').css('max-width', 'calc( 100% - 20px )');
+    console.log('popup width: ' + jQuery("#wprtsp_pop").contents().find("body").width());
+    console.log('document width: ' + jQuery(window).width());
     height = jQuery("#wprtsp_pop").contents().find("html").height();
+    var mq = window.matchMedia("(max-width: 414px)");
+    if (mq.matches) {
+        jQuery('#wprtsp_pop').css('border-radius', '0');
+        var ww = jQuery(window).width()
+        var spw = jQuery("#wprtsp_pop").contents().find("body").width();
+        if (ww <= spw) {
+            
+            jQuery('#wprtsp_pop').css('width', 'calc( 100% - 20px )');
+            jQuery("#wprtsp_pop").contents().find("body").css( 'width', 'calc( 100% - 20px )' );
+            jQuery("#wprtsp_pop").css( 'height', 'auto' );
+
+            jQuery('#wprtsp_pop').css('transform', 'scale(.75)');
+            //jQuery('#wprtsp_pop').css('transform-origin', 'left');
+        }
+    }
     //llog(height);
     return this;
 }

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP Real-Time Social-Proof
  * Description: Animated, live, real-time social-proof Pop-ups for your WordPress website to boost sales and signups.
- * Version:     2.1.4
+ * Version:     2.1.6
  * Plugin URI:  https://wordpress.org/plugins/wp-real-time-social-proof/
  * Author:      Shivanand Sharma
  * Author URI:  https://www.wp-social-proof.com
@@ -448,7 +448,7 @@ class WPRTSP {
 		$screen = get_current_screen();
 
 		if ( $screen->post_type == 'socialproof' ) {
-			wp_enqueue_style( 'wprtsp', $this->uri . 'assets/admin-styles.css' );
+			wp_enqueue_style( 'wprtsp', $this->uri . 'assets/admin-styles.css', array(), filemtime( $this->dir . 'assets/admin-styles.css' ) );
 		}
 
 	}
@@ -578,7 +578,7 @@ class WPRTSP {
 			}
 		}
 		if ( $enabled ) {
-			wp_enqueue_script( 'wprtsp-main', $this->uri . 'assets/wprtspcpt.js', array( 'jquery' ), null, true );
+			wp_enqueue_script( 'wprtsp-main', $this->uri . 'assets/wprtspcpt.js', array( 'jquery' ), filemtime( $this->dir . 'assets/wprtspcpt.js' ), true );
 			wp_localize_script( 'wprtsp-main', 'wprtsp_vars', json_encode( apply_filters( 'wprtsp_vars', $this->settings ) ) );
 		}
 		return $enabled;
