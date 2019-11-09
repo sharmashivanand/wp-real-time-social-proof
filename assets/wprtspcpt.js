@@ -59,7 +59,6 @@ if (jQuery) {
                 srcdoc: '<html><head><base target="_parent"><link rel="stylesheet" type="text/css" href="' + settings.url + 'assets/proof-styles.css?v=' + Date.now() + '"><meta name="viewport" content="width=device-width, initial-scale=1" /></head><body id="wprtsp"><img src="' + settings.url + 'assets/verified.svg" /></body></html>',
             }).appendTo('body');
             clock = setTimeout(wprtsp_show_message, settings.general_initial_popup_time * 1000);
-            llog('initiated');
         }
     });
 } else {
@@ -77,9 +76,8 @@ jQuery.fn.updateProof = function (message) {
         }
     }
     if (eval(`settings.${current_proof_type}_sound_notification`)) {
-        //llog( eval(  `settings.${current_proof_type}_sound_notification_file` ) ) ;
         var src = `${settings.url}assets/sounds/` + eval(`settings.${current_proof_type}_sound_notification_file`);
-        //llog(src);
+
         var wprtsp_audio = jQuery('#wprtsp_audio').length ? jQuery('#wprtsp_audio') : jQuery('<audio/>', {
             id: 'wprtsp_audio',
             class: 'wprtsp_audio',
@@ -91,7 +89,6 @@ jQuery.fn.updateProof = function (message) {
         var playPromise = jQuery('#wprtsp_audio')[0].play();
         if (playPromise !== undefined) {
             playPromise.then(_ => {
-                    llog('success');
                 })
                 .catch(error => {
                     llog(playPromise);
@@ -106,20 +103,10 @@ jQuery.fn.updateProof = function (message) {
         }
     }
     jQuery("#wprtsp_pop").contents().find("#wprtsp").html(message);
-    //if (current_proof_type == 'ctas') {
-    try {
-        //jQuery("#cta-grow").css('animation-duration', (settings.general_duration * 1000) + 's');
-    } catch (e) {
-        llog(e);
-    }
-    //}
     jQuery("#wprtsp_pop").contents().find("#wprtsp").attr('class', settings.general_notification_theme);
     jQuery("#wprtsp_pop").contents().find("#wprtsp_wrap").attr('class', current_proof_type);
     jQuery('#wprtsp_pop').css('height', jQuery("#wprtsp_pop").contents().find("html").height());
     jQuery('#wprtsp_pop').css('width', jQuery("#wprtsp_pop").contents().find("body").width());
-    //jQuery('#wprtsp_pop').css('max-width', 'calc( 100% - 20px )');
-    console.log('popup width: ' + jQuery("#wprtsp_pop").contents().find("body").width());
-    console.log('document width: ' + jQuery(window).width());
     height = jQuery("#wprtsp_pop").contents().find("html").height();
     var mq = window.matchMedia("(max-width: 414px)");
     if (mq.matches) {
@@ -136,7 +123,6 @@ jQuery.fn.updateProof = function (message) {
             //jQuery('#wprtsp_pop').css('transform-origin', 'left');
         }
     }
-    //llog(height);
     return this;
 }
 
@@ -146,7 +132,6 @@ function clearProof() {
         clearInterval(titletimer);
         title = false;
     }
-    //jQuery("#cta-grow").removeClass('cta-grow');
     clock = setTimeout(wprtsp_show_message, settings.general_subsequent_popup_time * 1000);
     return this;
 }
@@ -157,7 +142,6 @@ jQuery.fn.updatePosition = function () {
 }
 
 function wprtsp_show_message() {
-    llog('wprtsp_show_message');
     var message = wprtsp_get_message();
     if (!message) {
         try {
@@ -218,57 +202,44 @@ function titlenotification() {
 }
 
 function wprtsp_get_message() {
-    llog('wprtsp_get_message');
-    llog('flag:' + flag);
+    
     if (flag == 's') {
-        llog(flag);
         set_next_flag();
         current_proof_type = 'conversions';
         return wprtsp_conversions_messages.shift();
     }
     if (flag == 'h') {
-        llog(flag);
         set_next_flag();
         current_proof_type = 'hotstats';
         return wprtsp_hotstats_messages.shift();
     }
     if (flag == 'l') {
-        llog(flag);
         set_next_flag();
         current_proof_type = 'livestats';
         return wprtsp_livestats_messages.shift();
     }
     if (flag == 'c') {
-        llog(flag);
-        // once CTA is shown, no need to show newer popups
-        set_next_flag();
+        set_next_flag(); // once CTA is shown, no need to show newer popups
         current_proof_type = 'ctas';
-        //clearTimeout(clock);
         return wprtsp_ctas_messages.shift();
     }
 }
 
 function init_flag() {
-    llog('init_flag');
-    llog(wprtsp_conversions_messages);
     if (wprtsp_conversions_messages.length) {
         flag = 's';
-        llog('initiated flag to ' + flag);
         return;
     }
     if (wprtsp_hotstats_messages.length) {
         flag = 'h';
-        llog('initiated flag to ' + flag);
         return;
     }
     if (wprtsp_livestats_messages.length) {
         flag = 'l';
-        llog('initiated flag to ' + flag);
         return;
     }
     if (wprtsp_ctas_messages.length) {
         flag = 'c';
-        llog('initiated flag to ' + flag);
         return;
     }
 }
@@ -330,8 +301,6 @@ function set_next_flag() {
         }
     }
     if (flag == 'c') {
-        //clearTimeout(clock);
-        //return;
         if (wprtsp_conversions_messages.length) {
             flag = 's';
             return;
@@ -355,7 +324,6 @@ function build_conversions() {
     for (var i = 0; i < settings.proofs.conversions.length; i++) {
         wprtsp_conversions_messages.push(conversions_html(settings.proofs.conversions[i]));
     }
-    llog(wprtsp_conversions_messages);
 }
 
 function conversions_html(conversion) {
@@ -399,7 +367,6 @@ function build_livestats() {
     for (var i = 0; i < settings.proofs.livestats.length; i++) {
         wprtsp_livestats_messages.push(livestats_html(settings.proofs.livestats[i]));
     }
-    //llog(wprtsp_livestats_messages);
 }
 
 function livestats_html(livestat) {
@@ -421,7 +388,6 @@ function build_ctas() {
     for (var i = 0; i < settings.proofs.ctas.length; i++) {
         wprtsp_ctas_messages.push(ctas_html(settings.proofs.ctas[i]));
     }
-    //llog(wprtsp_ctas_messages);
 }
 
 function ctas_html(cta) {
@@ -444,7 +410,6 @@ function ctas_html(cta) {
 }
 
 function get_ga_utm_link(link, type) {
-    //var link = cta['link'];
     if (settings.general_ga_utm_tracking) {
         link = new URL(link);
         link.searchParams.set('utm_campaign', 'WP-Social-Proof-Pro');

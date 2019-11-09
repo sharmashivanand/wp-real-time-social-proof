@@ -325,9 +325,8 @@ class WPRTSPGENERAL {
 			} else {
 
 			}
-			// llog(get_edit_post_link($_REQUEST['post']) );
 			wp_redirect( html_entity_decode( get_edit_post_link( $_REQUEST['post'] ) ), 302 );
-			// die();
+			exit;
 		}
 
 		if ( isset( $_REQUEST['wpsppro-action'] ) && $_REQUEST['wpsppro-action'] == 'revoke' && isset( $_REQUEST['success'] ) && $_REQUEST['success'] == '1' ) {
@@ -338,7 +337,6 @@ class WPRTSPGENERAL {
 }
 
 class WPRTSPCONVERSION {
-
 
 	function get_names( $notification_id ) {
 		return apply_filters( 'wprtsp_names', array( 'Kai Nakken', 'Cathy Gluck', 'Tiana Heier', 'Reiko Doucette', 'Shanel Nichols', 'Karan Sigler', 'Javier Roots', 'Camila Nowak', 'Refugia Blanc', 'Farrah Beehler', 'Kelly Lonergan', 'Jene Lechler', 'Awilda Hesler', 'Robbi Jauregui', 'Jaimie Wilkinson', 'Nanette Perras', 'Cinda Alley', 'Monet Player', 'Linn Bayless', 'Yukiko Cottman', 'Almeta Walkes', 'Janina Benesh', 'Shaun Camp', 'Mitch Ohern', 'Sam Carlon', 'Man Millard', 'Dania Coil', 'Eartha Hayhurst', 'Devin Fuston', 'Darcie Covin', 'Traci Mcsweeney', 'Lenore Bourassa', 'Nita Kaya', 'Tamra Biron', 'Melissa Garett', 'Myrta Magallanes', 'Magen Matinez', 'Gabriella Falls', 'Wayne Mcshane', 'Kristal Murnane', 'Allegra Plotner', 'Floyd Busbee', 'Danuta Lookabaugh', 'Nisha Correira', 'Lincoln Ewert', 'Shaunta Antrim', 'Augustine Rominger', 'Brady Sharpton', 'Jenice Tiedeman', 'Emanuel Hysmith', 'Sade Tefft', 'Kathe Macdowell', 'Tom Fordham', 'Elaina Moad', 'Denise Trudel', 'Rusty Mechem', 'Rosaura Tarin', 'Glayds Anger', 'Roma Hendrickson', 'Marsha Mathena', 'Shiloh Broadfoot', 'Casandra Pia', 'Cortez Bronstein', 'Bernadette Schwartz', 'Corinne Goudeau', 'Cornelia Kelsey', 'Joe Amore', 'Ahmad Blanca', 'Liana Chastain', 'Ester Shoop', 'Shayna Stoneman', 'Adrienne Faz', 'Carissa Cagle', 'Carita Meshell', 'Ria Reidy', 'Ka Hixson', 'Micki Hazen', 'Jeri Chaires', 'Gil Ledger', 'Kirk Square', 'Ericka Cedeno', 'Forest Mcquaid', 'Lauretta Keenan', 'Cleopatra Teeters', 'Gertha Rivas', 'Madie Iadarola', 'Elke Springfield', 'Marisol Patrick', 'Yoshie Studley', 'Cristopher Roddy', 'Buster Nyland', 'Vannesa Grable', 'Katharina Bustle', 'Monique Villescas', 'Maximo Lamb', 'Voncile Donahoe', 'Aiko Atkin', 'Tobie Mehta', 'Sixta Domina', 'Daniele Chacon' ), $notification_id );
@@ -614,7 +612,7 @@ class WPRTSPCONVERSION {
 		return $request;
 	}
 
-	   /************************************** */
+	/************************************** */
 
 	function get_wooc_conversions( $settings ) {
 		if ( ! class_exists( 'WooCommerce' ) ) {
@@ -912,16 +910,7 @@ class WPRTSPCONVERSION {
 		reset( $locations );
 		reset( $times );
 
-		// $this->llog($settings);
-
-		// $date = date("Y-m-d H:i:s");
-
-		// $date = date('D, d M Y H:i:s');
-
 		for ( $i = 0; $i < count( $names ); $i++ ) {
-			// $name = explode(' ', current($this->names));
-
-			// $date = date("Y-m-d H:i:s", $time);
 
 			$indexes[ $i ] = array(
 				'link'     => $link,
@@ -929,7 +918,7 @@ class WPRTSPCONVERSION {
 				'location' => current( $locations ),
 				'action'   => $settings['conversion_generated_action'],
 				'product'  => $settings['conversion_generated_product'],
-				// 'time' => human_time_diff( $time ) . ' ago'
+
 			);
 			next( $locations );
 			next( $names );

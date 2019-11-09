@@ -1,6 +1,6 @@
 @charset "utf-8";
 @import url("fonts/roboto.css") all;
-th, strong, h1, h2, h3, h4, h5, h6 {
+th, strong, h1, h2, h3, h4, h5, h6, .row-title {
     font-weight: 500;
 }
 

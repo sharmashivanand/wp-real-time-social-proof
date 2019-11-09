@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP Real-Time Social-Proof
  * Description: Animated, live, real-time social-proof Pop-ups for your WordPress website to boost sales and signups.
- * Version:     2.1.6
+ * Version:     2.1.8
  * Plugin URI:  https://wordpress.org/plugins/wp-real-time-social-proof/
  * Author:      Shivanand Sharma
  * Author URI:  https://www.wp-social-proof.com
@@ -75,6 +75,10 @@ class WPRTSP {
 		add_action( 'add_meta_boxes_socialproof', array( $this, 'remove_metaboxes' ), 5 ); // hook early and remove all metaboxes
 		add_action( 'add_meta_boxes_socialproof', array( $this, 'add_meta_boxes' ) ); // add metaboxes
 		add_action( 'save_post_socialproof', array( $this, 'save_meta_box_data' ), 10, 3 ); // save metabox data
+		
+
+		add_action( 'wprtsp_add_meta_boxes', array( $this, 'add_extra_meta_boxes' ) ); // add extra metaboxes
+		
 		add_filter( 'wprtsp_enabled', array( $this, 'wprtsp_enabled' ), 10, 2 ); // check if proof is enabled
 
 		add_filter( 'wprtsp_vars', array( $this, 'wprtsp_detect_mobile' ) ); // check if mobile vars need to be enqueued in js
@@ -84,6 +88,14 @@ class WPRTSP {
 		add_filter( 'wprtsp_vars', array( $this, 'wprtsp_add_vars' ) ); // enqueue any additional js data
 
 		add_action( 'in_plugin_update_message-' . basename( __DIR__ ) . '/' . basename( __FILE__ ), array( $this, 'plugin_update_message' ), 10, 2 );
+	}
+
+	function add_extra_meta_boxes(){
+		add_meta_box( 'social-proof-rss', __( 'Tips &amp; Tricks', 'wprtsp' ), array( $this, 'meta_box_tips' ), 'socialproof', 'side' );
+	}
+
+	function meta_box_tips(){
+		echo 22;
 	}
 
 	function is_pro() {
