@@ -89,7 +89,7 @@ jQuery.fn.updateProof = function (message) {
         var playPromise = jQuery('#wprtsp_audio')[0].play();
         if (playPromise !== undefined) {
             playPromise.then(_ => {
-                })
+            })
                 .catch(error => {
                     llog(playPromise);
                     llog(error);
@@ -115,10 +115,10 @@ jQuery.fn.updateProof = function (message) {
         var spw = jQuery("#wprtsp_pop").contents().find("body").width();
         if (ww <= spw) {
             jQuery('#wprtsp_pop').css('width', 'calc( 100% - 10px )');
-            jQuery("#wprtsp_pop").contents().find("body").css( 'width', 'calc( 100% - 10px )' );
+            jQuery("#wprtsp_pop").contents().find("body").css('width', 'calc( 100% - 10px )');
             //jQuery("#wprtsp_pop").css( 'height', 'auto' );
-            jQuery("#wprtsp_pop").css( 'height', '' );
-            jQuery("#wprtsp_pop").css( 'left', '5px' );
+            jQuery("#wprtsp_pop").css('height', '');
+            jQuery("#wprtsp_pop").css('left', '5px');
             //jQuery('#wprtsp_pop').css('transform', 'scale(.75)');
             //jQuery('#wprtsp_pop').css('transform-origin', 'left');
         }
@@ -202,7 +202,7 @@ function titlenotification() {
 }
 
 function wprtsp_get_message() {
-    
+
     if (flag == 's') {
         set_next_flag();
         current_proof_type = 'conversions';
@@ -226,6 +226,27 @@ function wprtsp_get_message() {
 }
 
 function init_flag() {
+    var initproof = settings.general_notification_order;
+    if (initproof.length) {
+        initproof = initproof.split(',');
+    }
+    if (initproof[0] == 'LiveSales' && wprtsp_conversions_messages.length) {
+        flag = 's';
+        return;
+    }
+    if (initproof[0] == 'LiveVisitors' && wprtsp_livestats_messages.length) {
+        flag = 'l';
+        return;
+    }
+    if (initproof[0] == 'SalesMilestones' && wprtsp_hotstats_messages.length) {
+        flag = 'h';
+        return;
+    }
+    if (initproof[0] == 'CustomCTA' && wprtsp_ctas_messages.length) {
+        flag = 'c';
+        return;
+    }
+
     if (wprtsp_conversions_messages.length) {
         flag = 's';
         return;
@@ -244,8 +265,85 @@ function init_flag() {
     }
 }
 
-function set_next_flag() {
+function translate_flag(sflag) {
+    switch (sflag) {
+        case 's': return 'LiveSales';
+        case 'l': return 'LiveVisitors';
+        case 'h': return 'SalesMilestones';
+        case 'c': return 'CustomCTA';
+    }
+}
 
+function translate_into_flag(sflag) {
+    switch (sflag) {
+        case 'LiveSales': return 's';
+        case 'LiveVisitors': return 'l';
+        case 'SalesMilestones': return 'h';
+        case 'CustomCTA': return 'c';
+    }
+}
+
+function proof_has_length(sProof) {
+    switch (sProof) {
+        case 'LiveSales': return wprtsp_conversions_messages.length;
+        case 'LiveVisitors': return wprtsp_livestats_messages.length;
+        case 'SalesMilestones': return wprtsp_hotstats_messages.length;
+        case 'CustomCTA': return wprtsp_ctas_messages.length;
+    }
+}
+
+function get_sequence_next(currentflag) {
+    //case: 'LiveVisitors','SalesMilestones','LiveSales','CustomCTA';
+    var sequence = settings.general_notification_order;
+    if (sequence.length) {
+        sequence = sequence.split(',');
+    }
+    var inext, next_proof;
+    switch (currentflag) {
+        case 's': inext = (sequence.indexOf('LiveSales') + 1) % settings.general_notification_order.length;
+            next_proof = sequence[inext];
+            if (proof_has_length(next_proof)) {
+                flag = translate_into_flag(next_proof);
+            }
+            else {
+                flag = get_sequence_next(translate_into_flag(next_proof));
+            }
+            return;
+        case 'l':
+            inext = (sequence.indexOf('LiveVisitors') + 1) % settings.general_notification_order.length;
+            next_proof = sequence[inext];
+            if (proof_has_length(next_proof)) {
+                flag = translate_into_flag(next_proof);
+            }
+            else {
+                flag = get_sequence_next(translate_into_flag(next_proof));
+            }
+            return;
+        case 'h':
+            inext = (sequence.indexOf('SalesMilestones') + 1) % settings.general_notification_order.length;
+            next_proof = sequence[inext];
+            if (proof_has_length(next_proof)) {
+                flag = translate_into_flag(next_proof);
+            }
+            else {
+                flag = get_sequence_next(translate_into_flag(next_proof));
+            }
+            return;
+        case 'c':
+            inext = (sequence.indexOf('CustomCTA') + 1) % settings.general_notification_order.length;
+            next_proof = sequence[inext];
+            if (proof_has_length(next_proof)) {
+                flag = translate_into_flag(next_proof);
+            }
+            else {
+                flag = get_sequence_next(translate_into_flag(next_proof));
+            }
+            return;
+    }
+}
+
+function set_next_flag() {
+    return get_sequence_next(flag);
     if (flag == 's') {
         if (wprtsp_hotstats_messages.length) {
             flag = 'h';
