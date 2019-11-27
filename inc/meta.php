@@ -36,41 +36,38 @@ class WPRTSPGENERAL {
 
 	function defaults( $defaults = array() ) {
 
-		$defaults['general_ga_utm_tracking'] = 1;
-		$defaults['general_badge_enable']    = 0; // bool
-		$defaults['general_title_string']    = 'Rachel says…'; // bool
+		$wprtsp = wprtsp();
 
-		$defaults['general_show_on']               = '1'; // select
-		$defaults['general_post_ids']              = get_option( 'page_on_front' ); // string
-		$defaults['general_position']              = 'bl'; // select
-		$defaults['general_initial_popup_time']    = '5'; // select
-		$defaults['general_duration']              = '7'; // select
-		$defaults['general_subsequent_popup_time'] = '30'; // select
-		$defaults['general_box_style']             = 'rounded';
-		$defaults['general_notification_theme']    = 'light';
-
+		$defaults['general_ga_utm_tracking']             = 1;
+		$defaults['general_badge_enable']                = 0; // bool
+		$defaults['general_title_string']                = 'Rachel says…'; // bool
+		$defaults['general_show_on']                     = '1'; // select
+		$defaults['general_post_ids']                    = get_option( 'page_on_front' ); // string
+		$defaults['general_position']                    = 'bl'; // select
+		$defaults['general_initial_popup_time']          = '5'; // select
+		$defaults['general_duration']                    = '7'; // select
+		$defaults['general_subsequent_popup_time']       = '30'; // select
+		$defaults['general_box_style']                   = 'rounded';
+		$defaults['general_notification_theme']          = 'light';
 		$defaults['general_allowed_positions']           = array(
 			'bl' => 'Bottom Left',
 			'br' => 'Bottom Right',
 		);
 		$defaults['general_allowed_box_styles']          = array( 'square', 'rounded' );
 		$defaults['general_allowed_notification_themes'] = array( 'light', 'dark' );
-		$defaults['general_roles_exclude']               = 'administrator';
-
+		$defaults['general_roles_exclude']               = '';
+		$defaults['general_notification_order']          = implode( ',', array_keys( $wprtsp->registered_proofs() ) );
 		return $defaults;
 	}
 
 	function general_meta_box() {
 		global $post;
-
 		$settings = get_post_meta( $post->ID, '_socialproof', true );
-
 		$defaults = $this->defaults();
 		if ( ! $settings ) {
 			$settings = $defaults;
 		}
 		$settings = $this->sanitize( $settings );
-		// extract($settings);
 
 		$show_on                      = $settings['general_show_on'];
 		$wprtsp_general_roles_exclude = $settings['general_roles_exclude'];
@@ -96,23 +93,18 @@ class WPRTSPGENERAL {
 			'origin_notification_id' => $post->ID,
 			'origin_ajaxurl'         => admin_url( 'admin-ajax.php' ),
 		);
-
 		$statevars = json_encode( $statevars );
 		$statevars = strtr( base64_encode( $statevars ), '+/=', '-_,' );
-
 		foreach ( $positions as $key => $value ) {
 			$positions_html .= '<option value="' . $key . '" ' . selected( $general_position, $key, false ) . '>' . preg_replace( '/[^\da-z]/i', ' ', $value ) . '</option>';
 		}
 		foreach ( $box_styles as $value ) {
 			$box_styles_html .= '<option value="' . $value . '" ' . selected( $general_box_style, $value, false ) . '>' . ucwords( preg_replace( '/[^\da-z]/i', ' ', $value ) ) . '</option>';
 		}
-
 		foreach ( $notification_themes as $value ) {
 			$notification_theme_html .= '<option value="' . $value . '" ' . selected( $general_notification_theme, $value, false ) . '>' . ucwords( preg_replace( '/[^\da-z]/i', ' ', $value ) ) . '</option>';
 		}
-
 		$ga_profile = get_option( 'wpsppro_ga_profile' );
-
 		if ( $ga_profile ) {
 			$ga_profile = $ga_profile['ga_webpropertyua'];
 		}
@@ -128,7 +120,7 @@ class WPRTSPGENERAL {
 				</td>
 			</tr>
 			<tr>
-			<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Connect with Google Analytics to get Live Visitor count. Make sure to select the correct analytics profile.</p></div></div><label>Google Analytics</label></td>
+				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Connect with Google Analytics to get Live Visitor count. Make sure to select the correct analytics profile.</p></div></div><label>Google Analytics</label></td>
 				<td>
 				<?php
 				if ( ! $ga_profile ) {
@@ -158,17 +150,31 @@ class WPRTSPGENERAL {
 			</tr>
 			<tr>
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>User with these roles will not see notifications. Comes in handy when you are logged into your own site and don't want to be disturbed.</p></div></div><label for="wprtsp_general_roles_exclude">Exclude User Roles</label></td>
-				<td><select id="wprtsp_general_roles_exclude" name="wprtsp[general_roles_exclude]">
-						<?php
-						global $wp_roles;
-						foreach ( $wp_roles->roles as $role => $capabilities ) {
-							?>
-							<option value="<?php echo $role; ?>"<?php selected( $wprtsp_general_roles_exclude, $role ); ?>><?php echo ucwords( $role ); ?> &amp; Above</option>
-							<?php
+				<td>
+					<?php
+					global $wp_roles;
+					$role_options = array();
+					foreach ( $wp_roles->roles as $role => $capabilities ) {
+						$role_options[] = $role;
+					}
+					$role_options[] = '';
+					?>
+					<select id="wprtsp_general_roles_exclude" name="wprtsp[general_roles_exclude]">
+					<?php
+					foreach ( $role_options as $option ) {
+						if ( !empty($option)) {
+							$option_label = ucwords( $option ) . ' &amp; Above';
+						} else {
+							$option_label = 'None';
 						}
 						?>
+						<option value="<?php echo $option; ?>"<?php selected( $wprtsp_general_roles_exclude, $option ); ?>><?php echo $option_label; ?></option>
+						<?php
+					}
+					?>
 					</select>
-			</tr><tr>
+			</tr>
+			<tr>
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Where all to show Social Proof notifications.</p></div></div><label for="wprtsp_general_show_on">Show Notifications On</label></td>
 				<td><select id="wprtsp_general_show_on" name="wprtsp[general_show_on]">
 						<option value="1" <?php selected( $show_on, 1 ); ?> >Entire Site</option>
@@ -176,7 +182,6 @@ class WPRTSPGENERAL {
 						<option value="3" <?php selected( $show_on, 3 ); ?> >Everywhere except the following</option>
 					</select>
 			</tr>
-			
 			<tr id="post_ids_selector">
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Enable, disable Social Proof notifications on specific pages.</p></div></div><label for="wprtsp_general_post_ids">Enter Post Ids (comma separated)</label></td>
 				<td><input type="text" class="widefat" 
@@ -204,6 +209,39 @@ class WPRTSPGENERAL {
 						<?php echo $notification_theme_html; ?>
 					</select></td>
 			</tr>
+			<tr>
+				<td colspan="2">
+					<h3>Order of Proofs</h3>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>The notifications will popup in this order.  You can drag and drop to set the sequence of the notifications.</p></div></div><label for="wprtsp_general_notification_order_ui">The order of proofs</label>
+				</td>
+				<td><ol id="wprtsp_general_notification_order_ui" multiple>
+						<?php
+						// echo $sources_html;
+						$proofs = $settings['general_notification_order'];
+						$proofs = explode( ',', $proofs );
+						// $this->llog( $proofs );
+						foreach ( $proofs as $proof ) {
+							echo '<li id="' . $proof . '">' . $proof . '</li>';
+						}
+						?>
+					</ol>
+					<input type="text" value="<?php echo $settings['general_notification_order']; ?>" id="wprtsp_general_notification_order" name="wprtsp[general_notification_order]" />
+					<script type="text/javascript">
+					jQuery( document ).ready(function($) {
+						$( "#wprtsp_general_notification_order_ui" ).sortable({
+							update: function( event, ui ){
+								$('#wprtsp_general_notification_order').val($("#wprtsp_general_notification_order_ui").sortable('toArray'));
+							}
+						});
+						$( "#wprtsp_general_notification_order_ui" ).disableSelection();
+					});
+					</script>
+				</td>
+			</tr>
 		</table>
 		<table id="tbl_timings" class="wprtsp_tbl wprtsp_tbl_timings">
 			<tr>
@@ -222,7 +260,8 @@ class WPRTSPGENERAL {
 						<option value="30" <?php selected( $initial_popup_time, 30 ); ?> >30</option>
 						<option value="60" <?php selected( $initial_popup_time, 60 ); ?> >60</option>
 						<option value="120" <?php selected( $initial_popup_time, 120 ); ?> >120</option>
-					</select></td>
+					</select>
+				</td>
 			</tr>
 			<tr>
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>How much delay should be there between each notification. Too frequent notifications could ruin the user-experience. Moderation is key. Use the element of surprise.</p></div></div><label for="wprtsp_general_subsequent_popup_time">Delay between notifications</label></td>
@@ -269,6 +308,7 @@ class WPRTSPGENERAL {
 		$request['general_duration']              = array_key_exists( 'general_duration', $request ) ? sanitize_text_field( $request['general_duration'] ) : $defaults['general_duration'];
 		$request['general_initial_popup_time']    = array_key_exists( 'general_initial_popup_time', $request ) ? sanitize_text_field( $request['general_initial_popup_time'] ) : $defaults['general_initial_popup_time'];
 		$request['general_subsequent_popup_time'] = array_key_exists( 'general_subsequent_popup_time', $request ) ? sanitize_text_field( $request['general_subsequent_popup_time'] ) : $defaults['general_subsequent_popup_time'];
+		$request['general_notification_order']    = array_key_exists( 'general_notification_order', $request ) ? sanitize_text_field( $request['general_notification_order'] ) : $defaults['general_notification_order'];
 
 		return $request;
 	}
@@ -336,7 +376,7 @@ class WPRTSPGENERAL {
 
 }
 
-class WPRTSPCONVERSION {
+class LiveSales {
 
 	function get_names( $notification_id ) {
 		return apply_filters( 'wprtsp_names', array( 'Kai Nakken', 'Cathy Gluck', 'Tiana Heier', 'Reiko Doucette', 'Shanel Nichols', 'Karan Sigler', 'Javier Roots', 'Camila Nowak', 'Refugia Blanc', 'Farrah Beehler', 'Kelly Lonergan', 'Jene Lechler', 'Awilda Hesler', 'Robbi Jauregui', 'Jaimie Wilkinson', 'Nanette Perras', 'Cinda Alley', 'Monet Player', 'Linn Bayless', 'Yukiko Cottman', 'Almeta Walkes', 'Janina Benesh', 'Shaun Camp', 'Mitch Ohern', 'Sam Carlon', 'Man Millard', 'Dania Coil', 'Eartha Hayhurst', 'Devin Fuston', 'Darcie Covin', 'Traci Mcsweeney', 'Lenore Bourassa', 'Nita Kaya', 'Tamra Biron', 'Melissa Garett', 'Myrta Magallanes', 'Magen Matinez', 'Gabriella Falls', 'Wayne Mcshane', 'Kristal Murnane', 'Allegra Plotner', 'Floyd Busbee', 'Danuta Lookabaugh', 'Nisha Correira', 'Lincoln Ewert', 'Shaunta Antrim', 'Augustine Rominger', 'Brady Sharpton', 'Jenice Tiedeman', 'Emanuel Hysmith', 'Sade Tefft', 'Kathe Macdowell', 'Tom Fordham', 'Elaina Moad', 'Denise Trudel', 'Rusty Mechem', 'Rosaura Tarin', 'Glayds Anger', 'Roma Hendrickson', 'Marsha Mathena', 'Shiloh Broadfoot', 'Casandra Pia', 'Cortez Bronstein', 'Bernadette Schwartz', 'Corinne Goudeau', 'Cornelia Kelsey', 'Joe Amore', 'Ahmad Blanca', 'Liana Chastain', 'Ester Shoop', 'Shayna Stoneman', 'Adrienne Faz', 'Carissa Cagle', 'Carita Meshell', 'Ria Reidy', 'Ka Hixson', 'Micki Hazen', 'Jeri Chaires', 'Gil Ledger', 'Kirk Square', 'Ericka Cedeno', 'Forest Mcquaid', 'Lauretta Keenan', 'Cleopatra Teeters', 'Gertha Rivas', 'Madie Iadarola', 'Elke Springfield', 'Marisol Patrick', 'Yoshie Studley', 'Cristopher Roddy', 'Buster Nyland', 'Vannesa Grable', 'Katharina Bustle', 'Monique Villescas', 'Maximo Lamb', 'Voncile Donahoe', 'Aiko Atkin', 'Tobie Mehta', 'Sixta Domina', 'Daniele Chacon' ), $notification_id );
@@ -367,10 +407,9 @@ class WPRTSPCONVERSION {
 	}
 
 	function setup_actions() {
+		add_filter( 'wprtsp_register_proof', array( $this, 'register_proof' ) );
 		add_action( 'wprtsp_add_meta_boxes', array( $this, 'add_meta_boxes' ) );
-
 		add_filter( 'wprtsp_sanitize', array( $this, 'sanitize' ) );
-
 		add_filter( 'wprtsp_get_proof_data_conversions_WooCommerce', array( $this, 'get_wooc_conversions' ), 10, 2 ); // Get wooc comversions
 		add_filter( 'wprtsp_tag_WooCommerce_name', array( $this, 'get_tag_WooCommerce_name' ) ); // replace woocommerce {name} tag
 		add_filter( 'wprtsp_tag_WooCommerce_firstname', array( $this, 'get_tag_WooCommerce_firstname' ) ); // replace woocommerce {firstname} tag
@@ -395,8 +434,13 @@ class WPRTSPCONVERSION {
 		add_filter( 'wprtsp_tag_Generated_time', array( $this, 'get_tag_Generated_time' ) ); // replace woocommerce {name} tag
 	}
 
+	function register_proof( $proofs ) {
+		$proofs[ get_class( $this ) ] = get_class( $this );
+		return $proofs;
+	}
+
 	function add_meta_boxes() {
-		add_meta_box( 'social-proof-conversions', __( 'Conversions', 'wprtsp' ), array( $this, 'conversions_meta_box' ), 'socialproof', 'normal' );
+		add_meta_box( 'social-proof-conversions', __( 'Live Sales', 'wprtsp' ), array( $this, 'conversions_meta_box' ), 'socialproof', 'normal' );
 	}
 
 	function defaults( $defaults = array() ) {
@@ -482,7 +526,7 @@ class WPRTSPCONVERSION {
 		<table id="tbl_conversions" class="wprtsp_tbl wprtsp_tbl_conversions">
 			<tr>
 				<td colspan="2">
-					<h3>Show recent conversions to visitors</h3>
+					<h3>Show live sales to visitors</h3>
 				</td>
 			</tr>
 			<tr>
@@ -1038,7 +1082,7 @@ function wprtspgeneral() {
 }
 
 function wprtspconversion() {
-	return WPRTSPCONVERSION::get_instance();
+	return LiveSales::get_instance();
 }
 
 wprtspgeneral();

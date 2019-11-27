@@ -114,10 +114,10 @@ jQuery.fn.updateProof = function (message) {
         var ww = jQuery(window).width()
         var spw = jQuery("#wprtsp_pop").contents().find("body").width();
         if (ww <= spw) {
-            
             jQuery('#wprtsp_pop').css('width', 'calc( 100% - 10px )');
             jQuery("#wprtsp_pop").contents().find("body").css( 'width', 'calc( 100% - 10px )' );
-            jQuery("#wprtsp_pop").css( 'height', 'auto' );
+            //jQuery("#wprtsp_pop").css( 'height', 'auto' );
+            jQuery("#wprtsp_pop").css( 'height', '' );
             jQuery("#wprtsp_pop").css( 'left', '5px' );
             //jQuery('#wprtsp_pop').css('transform', 'scale(.75)');
             //jQuery('#wprtsp_pop').css('transform-origin', 'left');

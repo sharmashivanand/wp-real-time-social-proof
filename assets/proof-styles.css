@@ -123,6 +123,8 @@ body {
 
 .wprtsp_cta_body {
   margin: 1.618em auto 0 auto;
+  max-width: 255px;
+  flex: 1;
 }
 
 .ctas .wprtsp_cta_icon {
@@ -136,6 +138,7 @@ body {
   background-size: 200%;
   background-repeat: no-repeat;
   background-image: url("cta-animated.svg");
+  flex: 1;
 }
 
 .wprtsp_cta_title {

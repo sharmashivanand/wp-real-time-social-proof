@@ -70,32 +70,48 @@ class WPRTSP {
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) ); // Add important links to plugins list (left-side)
 		add_filter( 'plugin_row_meta', array( $this, 'plugin_meta_links' ), 10, 2 ); // Add important links to plugins list (right-side)
 		add_action( 'admin_head', array( $this, 'admin_head' ) ); // some quick fixes to admin styles especially CPT menu icon
-		add_action( 'admin_enqueue_scripts', array( $this, 'plugin_styles' ) ); // Style our CPT
+		add_action( 'admin_enqueue_scripts', array( $this, 'plugin_styles' ), 99 ); // Style our CPT
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) ); // Add the front end script
 		add_action( 'add_meta_boxes_socialproof', array( $this, 'remove_metaboxes' ), 5 ); // hook early and remove all metaboxes
 		add_action( 'add_meta_boxes_socialproof', array( $this, 'add_meta_boxes' ) ); // add metaboxes
 		add_action( 'save_post_socialproof', array( $this, 'save_meta_box_data' ), 10, 3 ); // save metabox data
-		
-
 		add_action( 'wprtsp_add_meta_boxes', array( $this, 'add_extra_meta_boxes' ) ); // add extra metaboxes
-		
 		add_filter( 'wprtsp_enabled', array( $this, 'wprtsp_enabled' ), 10, 2 ); // check if proof is enabled
-
 		add_filter( 'wprtsp_vars', array( $this, 'wprtsp_detect_mobile' ) ); // check if mobile vars need to be enqueued in js
 		add_action( 'admin_menu', array( $this, 'settings_menu' ) );
 		add_action( 'admin_menu', array( $this, 'firstrun_menu' ) );
-
 		add_filter( 'wprtsp_vars', array( $this, 'wprtsp_add_vars' ) ); // enqueue any additional js data
-
 		add_action( 'in_plugin_update_message-' . basename( __DIR__ ) . '/' . basename( __FILE__ ), array( $this, 'plugin_update_message' ), 10, 2 );
+		add_action( 'check_ajax_referer', array( $this, 'postbox_actions' ), 1 );
+		add_filter( 'get_user_option_closedpostboxes_socialproof', array( $this, 'metaboxclosed' ), 99, 3 );
+		add_filter( 'get_user_option_metaboxhidden_socialproof', array( $this, 'metaboxhidden' ), 99, 3 );
 	}
 
-	function add_extra_meta_boxes(){
+	function metaboxclosed( $result, $option, $user ) {
+		// disable hiding socialproof metaboxes.
+		return array( 'pseudo_wpsp_box' );
+	}
+
+	function metaboxhidden( $result, $option, $user ) {
+		// disable hiding socialproof metaboxes.
+		return array( 'pseudo_wpsp_box' );
+	}
+
+	function postbox_actions( $action ) {
+		if ( $_REQUEST['page'] != 'socialproof' ) {
+			return;
+		}
+		// if ( $action != 'meta-box-order' ) {
+			die( 'wpsp doesn\'t support: ' . $action );
+		// }
+	}
+
+	function add_extra_meta_boxes() {
 		add_meta_box( 'social-proof-rss', __( 'Tips &amp; Tricks', 'wprtsp' ), array( $this, 'meta_box_tips' ), 'socialproof', 'side' );
 	}
 
-	function meta_box_tips(){
-		echo 22;
+	function meta_box_tips() {
+		// echo 22;
 	}
 
 	function is_pro() {
@@ -244,7 +260,6 @@ class WPRTSP {
 	}
 
 	function admin_notice() {
-
 		$upgrade_required = get_option( 'wprtsp_upgrade_required' );
 		if ( $upgrade_required ) {
 			?>
@@ -450,7 +465,11 @@ class WPRTSP {
 
 	function admin_head() {
 		?>
-		<style type="text/css">#menu-posts-socialproof .wp-menu-image img { width: 20px; height: auto; opacity: 1; }</style>
+		<style type="text/css">#menu-posts-socialproof .wp-menu-image img { width: 20px; height: auto; opacity: 1; }
+		.post-type-socialproof .postbox.hide-if-js {
+			_display: block;
+		}
+		</style>
 		<?php
 		remove_submenu_page( 'index.php', 'wprtsp-firstrun' );
 	}
@@ -458,8 +477,10 @@ class WPRTSP {
 	/* Enqueue the styles for admin page */
 	function plugin_styles() {
 		$screen = get_current_screen();
-
 		if ( $screen->post_type == 'socialproof' ) {
+			// wp_dequeue_script( 'jquery-ui-sortable' );
+			wp_dequeue_script( 'jquery-ui-draggable' );
+			wp_deregister_script( 'postbox' );
 			wp_enqueue_style( 'wprtsp', $this->uri . 'assets/admin-styles.css', array(), filemtime( $this->dir . 'assets/admin-styles.css' ) );
 		}
 
@@ -583,12 +604,17 @@ class WPRTSP {
 		}
 
 		$exclude_role = $settings['general_roles_exclude'];
-		$roles        = get_role( $exclude_role )->capabilities;
-		foreach ( $roles as $cap ) {
-			if ( current_user_can( $cap ) ) {
-				$enabled = false;
+		if ( ! empty( $exclude_role ) ) {
+			$roles = get_role( $exclude_role )->capabilities;
+			foreach ( $roles as $cap ) {
+				if ( current_user_can( $cap ) ) {
+					$enabled = false;
+				}
 			}
+		} else {
+			//$enabled = false;
 		}
+
 		if ( $enabled ) {
 			wp_enqueue_script( 'wprtsp-main', $this->uri . 'assets/wprtspcpt.js', array( 'jquery' ), filemtime( $this->dir . 'assets/wprtspcpt.js' ), true );
 			wp_localize_script( 'wprtsp-main', 'wprtsp_vars', json_encode( apply_filters( 'wprtsp_vars', $this->settings ) ) );
@@ -606,6 +632,10 @@ class WPRTSP {
 		$vars['siteurl']  = get_bloginfo( 'url' );
 		$vars['sitename'] = get_bloginfo( 'name' );
 		return $vars;
+	}
+
+	function registered_proofs() {
+		return apply_filters( 'wprtsp_register_proof', array() );
 	}
 
 	function wprtsp_get_proofs() {
