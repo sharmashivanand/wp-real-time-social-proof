@@ -202,34 +202,37 @@ function titlenotification() {
 }
 
 function wprtsp_get_message() {
-
+    console.log('current flag:' + flag);
+    
+    console.log('new flag:' + flag);
     if (flag == 's') {
-        set_next_flag();
         current_proof_type = 'conversions';
+        set_sequence_next(flag);
         return wprtsp_conversions_messages.shift();
     }
     if (flag == 'h') {
-        set_next_flag();
+        //set_next_flag();
         current_proof_type = 'hotstats';
+        set_sequence_next(flag);
         return wprtsp_hotstats_messages.shift();
     }
     if (flag == 'l') {
-        set_next_flag();
+        //set_next_flag();
         current_proof_type = 'livestats';
+        set_sequence_next(flag);
         return wprtsp_livestats_messages.shift();
     }
     if (flag == 'c') {
-        set_next_flag(); // once CTA is shown, no need to show newer popups
+        //set_next_flag();
         current_proof_type = 'ctas';
+        set_sequence_next(flag);
         return wprtsp_ctas_messages.shift();
     }
 }
 
 function init_flag() {
     var initproof = settings.general_notification_order;
-    if (initproof.length) {
-        initproof = initproof.split(',');
-    }
+
     if (initproof[0] == 'LiveSales' && wprtsp_conversions_messages.length) {
         flag = 's';
         return;
@@ -265,7 +268,7 @@ function init_flag() {
     }
 }
 
-function translate_flag(sflag) {
+function translate_into_proof(sflag) {
     switch (sflag) {
         case 's': return 'LiveSales';
         case 'l': return 'LiveVisitors';
@@ -284,139 +287,44 @@ function translate_into_flag(sflag) {
 }
 
 function proof_has_length(sProof) {
+    console.log('sProof:' + sProof);
     switch (sProof) {
-        case 'LiveSales': return wprtsp_conversions_messages.length;
-        case 'LiveVisitors': return wprtsp_livestats_messages.length;
-        case 'SalesMilestones': return wprtsp_hotstats_messages.length;
-        case 'CustomCTA': return wprtsp_ctas_messages.length;
+        case 'LiveSales':
+            console.log('wprtsp_conversions_messages.length:' + wprtsp_conversions_messages.length);
+            return wprtsp_conversions_messages.length;
+        case 'LiveVisitors':
+            console.log('wprtsp_livestats_messages.length:' + wprtsp_livestats_messages.length);
+            return wprtsp_livestats_messages.length;
+        case 'SalesMilestones':
+            console.log('wprtsp_hotstats_messages.length:' + wprtsp_hotstats_messages.length);
+            return wprtsp_hotstats_messages.length;
+        case 'CustomCTA':
+            console.log('wprtsp_ctas_messages.length:' + wprtsp_ctas_messages.length);
+            return wprtsp_ctas_messages.length;
     }
 }
 
-function get_sequence_next(currentflag) {
-    //case: 'LiveVisitors','SalesMilestones','LiveSales','CustomCTA';
+function set_sequence_next(currentflag) {
     var sequence = settings.general_notification_order;
-    if (sequence.length) {
-        sequence = sequence.split(',');
+    var have_proof = false;
+    sequence.forEach(function (item, index) {
+        if(proof_has_length(item)){
+            have_proof = 1;
+        }
+    });
+    if (!have_proof) {
+        throw 'No more proofs to show.';
     }
-    var inext, next_proof;
-    switch (currentflag) {
-        case 's': inext = (sequence.indexOf('LiveSales') + 1) % settings.general_notification_order.length;
-            next_proof = sequence[inext];
-            if (proof_has_length(next_proof)) {
-                flag = translate_into_flag(next_proof);
-            }
-            else {
-                flag = get_sequence_next(translate_into_flag(next_proof));
-            }
-            return;
-        case 'l':
-            inext = (sequence.indexOf('LiveVisitors') + 1) % settings.general_notification_order.length;
-            next_proof = sequence[inext];
-            if (proof_has_length(next_proof)) {
-                flag = translate_into_flag(next_proof);
-            }
-            else {
-                flag = get_sequence_next(translate_into_flag(next_proof));
-            }
-            return;
-        case 'h':
-            inext = (sequence.indexOf('SalesMilestones') + 1) % settings.general_notification_order.length;
-            next_proof = sequence[inext];
-            if (proof_has_length(next_proof)) {
-                flag = translate_into_flag(next_proof);
-            }
-            else {
-                flag = get_sequence_next(translate_into_flag(next_proof));
-            }
-            return;
-        case 'c':
-            inext = (sequence.indexOf('CustomCTA') + 1) % settings.general_notification_order.length;
-            next_proof = sequence[inext];
-            if (proof_has_length(next_proof)) {
-                flag = translate_into_flag(next_proof);
-            }
-            else {
-                flag = get_sequence_next(translate_into_flag(next_proof));
-            }
-            return;
+    var inext;
+    inext = (sequence.indexOf(translate_into_proof(currentflag)) + 1) % settings.general_notification_order.length;
+    if (proof_has_length(sequence[inext])) {
+        flag = translate_into_flag(sequence[inext]);
+    }
+    else {
+        set_sequence_next(translate_into_flag(sequence[inext]));
     }
 }
 
-function set_next_flag() {
-    return get_sequence_next(flag);
-    if (flag == 's') {
-        if (wprtsp_hotstats_messages.length) {
-            flag = 'h';
-            return;
-        }
-        if (wprtsp_livestats_messages.length) {
-            flag = 'l';
-            return;
-        }
-        if (wprtsp_ctas_messages.length) {
-            flag = 'c';
-            return;
-        }
-        if (wprtsp_conversions_messages.length) {
-            flag = 's';
-            return;
-        }
-    }
-    if (flag == 'h') {
-        if (wprtsp_livestats_messages.length) {
-            flag = 'l';
-            return;
-        }
-        if (wprtsp_ctas_messages.length) {
-            flag = 'c';
-            return;
-        }
-        if (wprtsp_conversions_messages.length) {
-            flag = 's';
-            return;
-        }
-        if (wprtsp_hotstats_messages.length) {
-            flag = 'h';
-            return;
-        }
-    }
-    if (flag == 'l') {
-        if (wprtsp_ctas_messages.length) {
-            flag = 'c';
-            return;
-        }
-        if (wprtsp_conversions_messages.length) {
-            flag = 's';
-            return;
-        }
-        if (wprtsp_hotstats_messages.length) {
-            flag = 'h';
-            return;
-        }
-        if (wprtsp_livestats_messages.length) {
-            flag = 'l';
-            return;
-        }
-    }
-    if (flag == 'c') {
-        if (wprtsp_conversions_messages.length) {
-            flag = 's';
-            return;
-        }
-        if (wprtsp_hotstats_messages.length) {
-            flag = 'h';
-            return;
-        }
-        if (wprtsp_livestats_messages.length) {
-            flag = 'l';
-            return;
-        }
-        if (wprtsp_ctas_messages.length) {
-            flag = 'c';
-            return;
-        }
-    }
-}
 
 function build_conversions() {
     for (var i = 0; i < settings.proofs.conversions.length; i++) {

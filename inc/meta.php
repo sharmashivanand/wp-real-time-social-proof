@@ -56,7 +56,7 @@ class WPRTSPGENERAL {
 		$defaults['general_allowed_box_styles']          = array( 'square', 'rounded' );
 		$defaults['general_allowed_notification_themes'] = array( 'light', 'dark' );
 		$defaults['general_roles_exclude']               = '';
-		$defaults['general_notification_order']          = implode( ',', array_keys( $wprtsp->registered_proofs() ) );
+		$defaults['general_notification_order']          = $wprtsp->registered_proofs();
 		return $defaults;
 	}
 
@@ -64,11 +64,12 @@ class WPRTSPGENERAL {
 		global $post;
 		$settings = get_post_meta( $post->ID, '_socialproof', true );
 		$defaults = $this->defaults();
+
 		if ( ! $settings ) {
 			$settings = $defaults;
 		}
-		$settings = $this->sanitize( $settings );
 
+		$settings                     = $this->sanitize( $settings );
 		$show_on                      = $settings['general_show_on'];
 		$wprtsp_general_roles_exclude = $settings['general_roles_exclude'];
 		$post_ids                     = $settings['general_post_ids'];
@@ -162,7 +163,7 @@ class WPRTSPGENERAL {
 					<select id="wprtsp_general_roles_exclude" name="wprtsp[general_roles_exclude]">
 					<?php
 					foreach ( $role_options as $option ) {
-						if ( !empty($option)) {
+						if ( ! empty( $option ) ) {
 							$option_label = ucwords( $option ) . ' &amp; Above';
 						} else {
 							$option_label = 'None';
@@ -218,18 +219,18 @@ class WPRTSPGENERAL {
 				<td>
 					<div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>The notifications will popup in this order.  You can drag and drop to set the sequence of the notifications.</p></div></div><label for="wprtsp_general_notification_order_ui">The order of proofs</label>
 				</td>
-				<td><ol id="wprtsp_general_notification_order_ui" multiple>
+				<td>
+					<ol id="wprtsp_general_notification_order_ui" multiple>
 						<?php
-						// echo $sources_html;
-						$proofs = $settings['general_notification_order'];
-						$proofs = explode( ',', $proofs );
+						$proofs = $this->sanitize_order( $settings['general_notification_order'], $defaults['general_notification_order'] );// array_values( array_unique( array_merge( , array_diff( , $settings['general_notification_order'] ) ) ) );
+						// $proofs = explode( ',', $proofs );
 						// $this->llog( $proofs );
 						foreach ( $proofs as $proof ) {
 							echo '<li id="' . $proof . '">' . $proof . '</li>';
 						}
 						?>
 					</ol>
-					<input type="text" value="<?php echo $settings['general_notification_order']; ?>" id="wprtsp_general_notification_order" name="wprtsp[general_notification_order]" />
+					<input type="text" value="<?php echo implode( ',', $settings['general_notification_order'] ); ?>" id="wprtsp_general_notification_order" name="wprtsp[general_notification_order]" />
 					<script type="text/javascript">
 					jQuery( document ).ready(function($) {
 						$( "#wprtsp_general_notification_order_ui" ).sortable({
@@ -289,11 +290,11 @@ class WPRTSPGENERAL {
 		<?php
 	}
 
-	function sanitize( $request = array() ) {
+	function sanitize( $request ) {
 		$defaults = $this->defaults();
 
 		if ( ! $request ) { // not sure why but on a freshpost, if you customize settings, this throws errors when DEBUG is true
-			return $defaults;
+			// return $defaults;
 		}
 
 		$request['general_ga_utm_tracking']       = array_key_exists( 'general_ga_utm_tracking', $request ) && $request['general_ga_utm_tracking'] ? 1 : 0;
@@ -308,9 +309,22 @@ class WPRTSPGENERAL {
 		$request['general_duration']              = array_key_exists( 'general_duration', $request ) ? sanitize_text_field( $request['general_duration'] ) : $defaults['general_duration'];
 		$request['general_initial_popup_time']    = array_key_exists( 'general_initial_popup_time', $request ) ? sanitize_text_field( $request['general_initial_popup_time'] ) : $defaults['general_initial_popup_time'];
 		$request['general_subsequent_popup_time'] = array_key_exists( 'general_subsequent_popup_time', $request ) ? sanitize_text_field( $request['general_subsequent_popup_time'] ) : $defaults['general_subsequent_popup_time'];
-		$request['general_notification_order']    = array_key_exists( 'general_notification_order', $request ) ? sanitize_text_field( $request['general_notification_order'] ) : $defaults['general_notification_order'];
+		$request['general_notification_order']    = array_key_exists( 'general_notification_order', $request ) ? ( is_array( $request['general_notification_order'] ) ? $this->sanitize_order( $request['general_notification_order'], $defaults['general_notification_order'] ) : $this->sanitize_order( explode( ',', $request['general_notification_order'] ), $defaults['general_notification_order'] ) ) : $defaults['general_notification_order'];
 
 		return $request;
+	}
+
+	/**
+	 * Really magical function. Takes two arrays and sorts the second array by the order of the first
+	 *
+	 * @param [type] $setting: current setting
+	 * @param [type] $default: default proofs
+	 * @return void
+	 */
+	function sanitize_order( $setting, $default ) {
+		// array_values ensures that non-associative arrays don't get messed up because of keys
+		// array_intersect ensures that only the available proofs are used in the sequence
+		return array_values( array_intersect( array_map( 'sanitize_text_field', array_values( array_unique( array_merge( $setting, array_diff( $default, $setting ) ) ) ) ), $default ) );
 	}
 
 	function wprtsp_get_styles( $vars ) {
@@ -435,7 +449,7 @@ class LiveSales {
 	}
 
 	function register_proof( $proofs ) {
-		$proofs[ get_class( $this ) ] = get_class( $this );
+		$proofs[] = get_class( $this );
 		return $proofs;
 	}
 
@@ -463,6 +477,20 @@ class LiveSales {
 		// $defaults['conversions_generated_records'] = $this->generate_cpt_records(array('conversions_transaction' => 'subscribed to the newsletter', 'conversions_transaction_alt' => 'registered for the webinar'));
 
 		return $defaults;
+	}
+
+	function wooc_get_orders() {
+		$args            = array(
+			'post_type'   => 'shop_order',
+			'post_status' => 'wc-completed',
+			'numberposts' => -1,
+		);
+		$customer_orders = get_posts( $args );
+
+		if ( ! empty( $customer_orders ) && is_array( $customer_orders ) ) {
+			return count( $customer_orders );
+		}
+		return 0;
 	}
 
 	function conversions_meta_box() {
@@ -638,7 +666,7 @@ class LiveSales {
 		<?php
 	}
 
-	function sanitize( $request = array() ) {
+	function sanitize( $request ) {
 		$defaults = $this->defaults();
 
 		$request['conversions_enable']                  = array_key_exists( 'conversions_enable', $request ) && $request['conversions_enable'] ? 1 : 0;
