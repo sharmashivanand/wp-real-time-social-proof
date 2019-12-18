@@ -493,17 +493,16 @@ class WPRTSP {
 				'posts_per_page' => -1,
 			)
 		);
-		$active_notifications = array();
-
+		
 		foreach ( $notifications as $notification ) {
 			$meta                    = get_post_meta( $notification->ID, '_socialproof', true );
 			$meta                    = $this->wprtsp_sanitize( $meta );
 			$meta['notification_id'] = $notification->ID;
 			$this->settings          = $meta;
+			//echo 'enabled:' . $notification->ID . PHP_EOL;
 			$enabled                 = apply_filters( 'wprtsp_enabled', false, $meta );
-
 			if ( ! $enabled ) {
-				return;
+				// return;
 			}
 		}
 	}
@@ -557,11 +556,10 @@ class WPRTSP {
 		// echo '$enabled';
 		// var_dump($enabled);
 		// echo '$settings';
-		// var_dump($settings);
 		$post_ids = $settings['general_post_ids'];
 		$show_on  = $settings['general_show_on'];
 		switch ( $show_on ) {
-			case '1':
+			case '1':   // Entire Site
 				$records = $this->wprtsp_get_proofs();
 				if ( $records ) {
 					$this->settings['proofs'] = $records;
@@ -584,7 +582,7 @@ class WPRTSP {
 					}
 				}
 				break;
-			case '3':
+			case '3':   // Everywhere except the following
 				$post_ids = $settings['general_post_ids'];
 				if ( ! is_array( $post_ids ) ) {
 					if ( strpos( $post_ids, ',' ) !== false ) {
@@ -612,7 +610,7 @@ class WPRTSP {
 				}
 			}
 		} else {
-			//$enabled = false;
+			// $enabled = false;
 		}
 
 		if ( $enabled ) {
