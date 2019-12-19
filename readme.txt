@@ -70,7 +70,11 @@ Ask away.
 == Changelog ==
 
 = 2.1.8 =
-* 
+* Refined ability to exclude user-roles.
+* Bugfix: Multiple social-proofs don't work.
+* Feature: Proofs can be sorted to show in a custom order.
+* Bugfix: UI height was broken on mobile.
+* CSS updates to settings UI
 
 = 2.1.6 =
 * Bugfix: metaboxes being added and removed at incorrect hooks.
@@ -199,6 +203,13 @@ Initial release
 Generated records show name, transaction, location of the person. Times are intelligently generated using prime numbers for maximum CTR. Records are also pulled out of uniquely seed based random algorithm.
 
 == Upgrade Notice ==
+
+= 2.1.8 =
+* Refined ability to exclude user-roles.
+* Bugfix: Multiple social-proofs don't work.
+* Feature: Proofs can be sorted to show in a custom order.
+* Bugfix: UI height was broken on mobile.
+* CSS updates to settings UI
 
 = 2.1.6 =
 * Bugfix: metaboxes being added and removed at incorrect hooks.
