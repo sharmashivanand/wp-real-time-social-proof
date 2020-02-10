@@ -98,7 +98,7 @@ class WPRTSP {
 	}
 
 	function postbox_actions( $action ) {
-		if ( $_REQUEST['page'] != 'socialproof' ) {
+		if ( ! empty( $_REQUEST['page'] ) && $_REQUEST['page'] != 'socialproof' ) {
 			return;
 		}
 		// if ( $action != 'meta-box-order' ) {
@@ -487,20 +487,20 @@ class WPRTSP {
 	}
 
 	function enqueue_scripts() {
-		$notifications        = get_posts(
+		$notifications = get_posts(
 			array(
 				'post_type'      => 'socialproof',
 				'posts_per_page' => -1,
 			)
 		);
-		
+
 		foreach ( $notifications as $notification ) {
 			$meta                    = get_post_meta( $notification->ID, '_socialproof', true );
 			$meta                    = $this->wprtsp_sanitize( $meta );
 			$meta['notification_id'] = $notification->ID;
 			$this->settings          = $meta;
-			//echo 'enabled:' . $notification->ID . PHP_EOL;
-			$enabled                 = apply_filters( 'wprtsp_enabled', false, $meta );
+			// echo 'enabled:' . $notification->ID . PHP_EOL;
+			$enabled = apply_filters( 'wprtsp_enabled', false, $meta );
 			if ( ! $enabled ) {
 				// return;
 			}
