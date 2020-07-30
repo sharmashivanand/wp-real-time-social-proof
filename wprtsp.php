@@ -98,12 +98,14 @@ class WPRTSP {
 	}
 
 	function postbox_actions( $action ) {
-		if ( ! empty( $_REQUEST['page'] ) && $_REQUEST['page'] != 'socialproof' ) {
-			return;
+		//print_r($_REQUEST);
+		if ( ! empty( $_REQUEST['page'] ) && $_REQUEST['page'] == 'socialproof' ) {
+			if ( $action != 'meta-box-order' ) {
+				die( 'wpsp doesn\'t support: ' . $action );
+			}
+			//return;
 		}
-		// if ( $action != 'meta-box-order' ) {
-			die( 'wpsp doesn\'t support: ' . $action );
-		// }
+		
 	}
 
 	function add_extra_meta_boxes() {

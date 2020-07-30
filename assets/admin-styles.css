@@ -1,15 +1,6 @@
 @charset "utf-8";
 @import url("fonts/roboto.css") all;
-
-th,
-strong,
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-.row-title {
+th, strong, h1, h2, h3, h4, h5, h6, .row-title {
     font-weight: 500;
 }
 
@@ -17,24 +8,7 @@ h6,
     font-family: Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
 }
 
-.post-type-socialproof input[type=checkbox],
-.post-type-socialproof input[type=radio],
-.post-type-socialproof input[type=color],
-.post-type-socialproof input[type=date],
-.post-type-socialproof input[type=datetime-local],
-.post-type-socialproof input[type=datetime],
-.post-type-socialproof input[type=email],
-.post-type-socialproof input[type=month],
-.post-type-socialproof input[type=number],
-.post-type-socialproof input[type=password],
-.post-type-socialproof input[type=search],
-.post-type-socialproof input[type=tel],
-.post-type-socialproof input[type=text],
-.post-type-socialproof input[type=time],
-.post-type-socialproof input[type=url],
-.post-type-socialproof input[type=week],
-.post-type-socialproof select,
-.post-type-socialproof textarea {
+.post-type-socialproof input[type=checkbox], .post-type-socialproof input[type=radio], .post-type-socialproof input[type=color], .post-type-socialproof input[type=date], .post-type-socialproof input[type=datetime-local], .post-type-socialproof input[type=datetime], .post-type-socialproof input[type=email], .post-type-socialproof input[type=month], .post-type-socialproof input[type=number], .post-type-socialproof input[type=password], .post-type-socialproof input[type=search], .post-type-socialproof input[type=tel], .post-type-socialproof input[type=text], .post-type-socialproof input[type=time], .post-type-socialproof input[type=url], .post-type-socialproof input[type=week], .post-type-socialproof select, .post-type-socialproof textarea {
     border-radius: 0;
 }
 
@@ -42,8 +16,7 @@ label {
     vertical-align: text-top;
 }
 
-.wprtsp_tbl td,
-.wprtsp_tbl th {
+.wprtsp_tbl td, .wprtsp_tbl th {
     padding: 0.618em;
 }
 
@@ -51,13 +24,11 @@ label {
     margin-bottom: 0;
 }
 
-.wprtsp_tbl select,
-.wprtsp_tbl input {
+.wprtsp_tbl select, .wprtsp_tbl input {
     padding: 0.618em;
 }
 
-.wprtsp_tbl input[type="text"],
-.wprtsp_tbl input[type="number"] {
+.wprtsp_tbl input[type="text"], .wprtsp_tbl input[type="number"] {
     margin-top: .5em;
     margin-bottom: .5em;
 }
@@ -79,15 +50,33 @@ label {
     margin-top: 12px;
 }
 
+body #tbl_display .btn-gauth {
+    background: white;
+    color: #757575;
+    background: transparent url(btn_google_light_normal_ios.svg) no-repeat 8px center;
+    background: transparent url(google.svg) no-repeat 5px center;
+    padding: 0.381em 1em .381em 3.236em;
+    box-shadow: 0px 1px 2px hsla(0, 0%, 0%, .25);
+    font-weight: bold;
+    font-family: "Roboto Meduim", Roboto, Arial, Helvetica, sans-serif;
+    border: 5px solid transparent;
+    background-size: 32px;
+}
+
+body #tbl_display .btn-gauth:focus {
+    border: 5px solid hsl(217, 89%, 61%, .30);
+}
+
+body #tbl_display .btn-gauth:active {
+    border: 5px solid transparent;
+    background-color: #eeeeee;
+}
+
 #post_ids_selector {
     transition: all 1s linear;
 }
 
-#social-proof-general .handlediv .toggle-indicator:before,
-#social-proof-conversions .handlediv .toggle-indicator:before,
-#social-proof-live .handlediv .toggle-indicator:before,
-#social-proof-hot-stats .handlediv .toggle-indicator:before,
-#social-proof-custom-message .handlediv .toggle-indicator:before {
+#social-proof-general .handlediv .toggle-indicator:before, #social-proof-conversions .handlediv .toggle-indicator:before, #social-proof-live .handlediv .toggle-indicator:before, #social-proof-hot-stats .handlediv .toggle-indicator:before, #social-proof-custom-message .handlediv .toggle-indicator:before {
     margin-top: 12px;
 }
 
@@ -96,10 +85,7 @@ label {
     border-left: 10px solid hsl(195, 5%, 80%);
 }
 
-#social-proof-conversions .hndle,
-#social-proof-live .hndle,
-#social-proof-hot-stats .hndle,
-#social-proof-custom-message .hndle {
+#social-proof-conversions .hndle, #social-proof-live .hndle, #social-proof-hot-stats .hndle, #social-proof-custom-message .hndle {
     padding-left: 48px;
     background-size: 24px !important;
 }
@@ -120,10 +106,7 @@ label {
     background: url('ctas.svg') 10px center no-repeat;
 }
 
-#conversions_audition_sound:before,
-#livestats_audition_sound:before,
-#hotstats_audition_sound:before,
-#ctas_audition_sound:before {
+#conversions_audition_sound:before, #livestats_audition_sound:before, #hotstats_audition_sound:before, #ctas_audition_sound:before {
     display: inline-block;
     background: #0095ff;
     color: white;
@@ -205,7 +188,6 @@ label {
     0% {
         opacity: 1;
     }
-
     100% {
         opacity: 0;
     }

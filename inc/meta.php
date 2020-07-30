@@ -126,7 +126,8 @@ class WPRTSPGENERAL {
 				<?php
 				if ( ! $ga_profile ) {
 					?>
-					 <a class="button-primary" href="<?php echo WPRTSPAPIEP . '?wppro_gaapi_authenticate=' . $statevars; ?>">Authenticate with Google Analytics</a> 
+					 <a class="button-primary btn-gauth" href="<?php echo WPRTSPAPIEP . '?wppro_gaapi_authenticate=' . $statevars; ?>">Sign in with Google</a> 
+					 <!-- <a class="button-primary" href="<?php echo WPRTSPAPIEP . '?wppro_gaapi_authenticate=' . $statevars; ?>">Authenticate with Google Analytics</a> -->
 					<?php
 				} else {
 					?>
