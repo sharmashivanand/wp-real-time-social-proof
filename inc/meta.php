@@ -712,7 +712,7 @@ class LiveSales {
 		$customers = array();
 		$messages  = array();
 		foreach ( $orders as $purchase ) {
-			$order      = wc_get_order( $purchase );
+			$order      = new WC_Order( $purchase );
 			$order_data = $order->get_data();
 
 			$user      = $order->get_user();

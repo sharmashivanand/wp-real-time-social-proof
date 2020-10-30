@@ -3,7 +3,7 @@ Contributors: varun21, ruchikawp
 Tags: social proof, marketing, recent sales notification, woocommerce, popup, live sales, conversion, ctr, ecommerce, easy digital downloads, newsletter, optin, signup, sales triggers
 Donate link: https://www.converticacommerce.com?item_name=Donation%20for%20WP%20Social%20Proof&cmd=_donations&currency_code=USD&lc=US&business=shivanand@converticacommerce.com
 Requires at least: 3.7.4
-Tested up to: 5.3.2
+Tested up to: 5.5.2
 Requires PHP: 5.6
 Stable tag: 2.2.0
 License: MIT
@@ -68,6 +68,13 @@ Ask away.
 6. screenshot-6.png
 
 == Changelog ==
+
+= 2.2.0 =
+* Fixed Google Authentication UI to comply with Google Branding requirements.
+* Fixed critical error with WooCommerce.
+
+= 2.1.9 =
+* Fixed critical error with WooCommerce.
 
 = 2.1.8 =
 * Refined ability to exclude user-roles.
