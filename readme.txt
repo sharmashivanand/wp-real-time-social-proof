@@ -69,6 +69,12 @@ Ask away.
 
 == Changelog ==
 
+= 2.2.2 =
+* Fixed bug in the updater for premium version.
+
+= 2.2.1 =
+* Fixed bug in the updater for premium version.
+
 = 2.2.0 =
 * Fixed Google Authentication UI to comply with Google Branding requirements.
 * Fixed critical error with WooCommerce.
