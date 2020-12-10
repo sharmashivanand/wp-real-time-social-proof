@@ -5,7 +5,7 @@ Donate link: https://www.converticacommerce.com?item_name=Donation%20for%20WP%20
 Requires at least: 3.7.4
 Tested up to: 5.5.2
 Requires PHP: 5.6
-Stable tag: 2.2.2
+Stable tag: 2.2.4
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -68,6 +68,10 @@ Ask away.
 6. screenshot-6.png
 
 == Changelog ==
+
+= 2.2.4 =
+* Better sanitization for custom CTAs.
+* Better placeholders for inputs.
 
 = 2.2.2 =
 * Fixed bug in the updater for premium version.

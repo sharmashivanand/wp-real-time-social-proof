@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP Real-Time Social-Proof
  * Description: Animated, live, real-time social-proof Pop-ups for your WordPress website to boost sales and signups.
- * Version:     2.2.2
+ * Version:     2.2.4
  * Plugin URI:  https://wordpress.org/plugins/wp-real-time-social-proof/
  * Author:      Shivanand Sharma
  * Author URI:  https://www.wp-social-proof.com
@@ -98,14 +98,14 @@ class WPRTSP {
 	}
 
 	function postbox_actions( $action ) {
-		//print_r($_REQUEST);
+		// print_r($_REQUEST);
 		if ( ! empty( $_REQUEST['page'] ) && $_REQUEST['page'] == 'socialproof' ) {
 			if ( $action != 'meta-box-order' ) {
 				die( 'wpsp doesn\'t support: ' . $action );
 			}
-			//return;
+			// return;
 		}
-		
+
 	}
 
 	function add_extra_meta_boxes() {
@@ -268,6 +268,19 @@ class WPRTSP {
 			<div class="notice notice-error"><p><strong>Please <a href="<?php echo get_admin_url( null, 'edit.php?post_type=socialproof' ); ?>">visit all your social proofs</a> and save them again else they may not work with this version.</strong></p></div>
 			<?php
 		}
+
+		if ( $this->is_pro() && ! $this->is_valid_pro() ) { // Allow opportunity to input license
+			echo '<div class="notice notice-error"><p><strong>WP Social Proof Pro: <a class="button-primary" target="_blank" href="' . menu_page_url( 'wprtsp', false ) . '">Click&nbsp;here&nbsp;to&nbsp;enter&nbsp;your&nbsp;license&nbsp;&rarr;</a></p></div>';
+		}
+
+		$args   = array(
+			'post_type'   => 'socialproof',
+			'post_status' => 'publish',
+		);
+		$proofs = new WP_Query( $args );
+		if ( ! $proofs->have_posts() ) {
+			echo '<div class="notice notice-success"><p><strong>Let\'s get started with Social Proof.</strong> <a class="button-primary" target="_blank" href="' . esc_url( get_admin_url( null, 'edit.php?post_type=socialproof' ) ) . '">Create&nbsp;your&nbsp;first&nbsp;Social-Proof&nbsp;&rarr;</a></p></div>';
+		}
 	}
 
 	function needs_upgrade() {
@@ -281,7 +294,7 @@ class WPRTSP {
 			if ( empty( $old_version ) ) {
 				$this->firstrun_redirect();
 			} else {
-				$this->firstrun_redirect( $old_version );
+				$this->firstrun_redirect( $this->version );
 			}
 		}
 
@@ -344,6 +357,24 @@ class WPRTSP {
 		<div class="wrap about-wrap">
 		<h1><?php printf( esc_html__( 'Welcome to %1$s %2$s', 'wprtsp' ), $plugin_data['Name'], $display_version ); ?></h1>
 		<div class="about-text"><?php printf( esc_html__( 'Thank you for %1$s %2$s! Version %3$s is ready to rock!', 'wprtsp' ), $process, $plugin_data['Name'], $display_version ); ?></div>
+		<?php
+		if ( $this->is_pro() && ! $this->is_valid_pro() ) { // Allow opportunity to input license
+			echo '<a class="button-primary" target="_blank" style="font-size:1.618em;padding: 1em; display:table; height: auto; margin: 1em;" href="' . menu_page_url( 'wprtsp', false ) . '">Click&nbsp;here&nbsp;to&nbsp;enter&nbsp;your&nbsp;license&nbsp;&rarr;</a>';
+		}
+		if ( ! $this->is_pro() ) { // Allow to upgrade
+			echo '<a class="button-primary" target="_blank" style="font-size:1.618em;padding: 1em; display:table; height: auto; margin: 1em;" href="https://wp-social-proof.com/?utm_source=firstrun&utm_medium=web&utm_campaign=wprtsp">Unleash more sales with WP Social Proof Pro!&nbsp;&rarr;</a>';
+		}
+
+		$args   = array(
+			'post_type'   => 'socialproof',
+			'post_status' => 'publish',
+		);
+		$proofs = new WP_Query( $args );
+		if ( ! $proofs->have_posts() ) {
+			echo '<a class="button-primary" target="_blank" style="font-size:1.618em;padding: 1em; display:table; height: auto; margin: 1em;" href="' . esc_url( get_admin_url( null, 'edit.php?post_type=socialproof' ) ) . '">Create&nbsp;your&nbsp;first&nbsp;Social-Proof&nbsp;&rarr;</a>';
+		}
+
+		?>
 		<div class="wp-badge wprtsp-badge"><?php printf( esc_html__( 'Version %s', 'wprtsp' ), $display_version ); ?></div>
 
 		<h2 class="nav-tab-wrapper">
