@@ -22,6 +22,11 @@ The above copyright notice and this permission notice shall be included in all c
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 define( 'WPRTSP_EDD_SL_URL', 'https://wp-social-proof.com' );
 define( 'WPRTSPAPIEP', 'https://wp-social-proof.com/gaapi/' );
 define( 'WPRTSPFILE', __FILE__ );
@@ -123,6 +128,7 @@ class WPRTSP {
 	}
 
 	function is_valid_pro() {
+		return $this->get_pro_status();
 		if ( $this->is_pro() ) {
 			$settings = get_option( 'wprtsp' );
 			if ( ! $settings ) {
@@ -135,18 +141,22 @@ class WPRTSP {
 		}
 	}
 
-	function get_pro_status() {
-		$status = get_transient( 'wprtsp_license_status' );
-		if ( ! $status ) {
-			$settings = get_option( 'wprtsp' );
-			if ( ! $settings ) {
-				return;
-			}
-			if ( empty( $settings['license_key'] ) ) {
-				return;
-			}
+	function flog( $str ) {
+		$date = date( 'Ymd-G:i:s' ); // 20171231-23:59:59
+		$date = $date . '-' . microtime( true );
+		$file = trailingslashit( __DIR__ ) . 'log.log';
+		file_put_contents( $file, PHP_EOL . $date, FILE_APPEND | LOCK_EX );
+		usleep( 1000 );
+		$str = print_r( $str, true );
+		file_put_contents( $file, PHP_EOL . $str, FILE_APPEND | LOCK_EX );
+		usleep( 1000 );
+	}
 
-			$key = $settings['license_key'];
+	function get_pro_status( $cached = true ) {
+		//$this->flog( 'get_pro_status called from' . debug_backtrace()[1]['function'] );
+		$status = get_transient( 'wprtsp_license_status' );
+		if ( ! $status || ! $cached ) {
+			$key = $this->get_setting( 'license_key' );
 			if ( empty( $key ) ) {
 				return;
 			}
@@ -166,10 +176,11 @@ class WPRTSP {
 				return;
 			}
 			if ( $status['success'] != true ) {
+				$this->set_validation( $status['error'] );
 				return;
 			}
 			if ( ! empty( $status['success'] ) && $status['success'] == true ) {
-				$this->set_validation();
+				$this->set_validation( 'valid' );
 				return true;
 			}
 			return;
@@ -178,8 +189,13 @@ class WPRTSP {
 		}
 	}
 
-	function set_validation() {
-		set_transient( 'wprtsp_license_status', 'valid', 24 * HOUR_IN_SECONDS );
+	function set_validation( $status ) {
+		//return;
+		$this->flog( 'set_validation called from' . debug_backtrace()[1]['function'] );
+		if ( ! $status ) {
+			return;
+		}
+		set_transient( 'wprtsp_license_status', sanitize_text_field( $status ), 24 * HOUR_IN_SECONDS );
 		return true;
 	}
 
@@ -379,7 +395,7 @@ class WPRTSP {
 
 		<h2 class="nav-tab-wrapper">
 			<a class="nav-tab nav-tab-active" href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'wprtsp-about' ), 'index.php' ) ) ); ?>">
-				<?php esc_html_e( 'What&#8217;s New', 'bbpress' ); ?>
+				<?php esc_html_e( 'What&#8217;s New', 'wprtsp' ); ?>
 			</a><!--<a class="nav-tab" href="<?php echo esc_url( admin_url( add_query_arg( array( 'page' => 'wprtsp-credits' ), 'index.php' ) ) ); ?>">
 				<?php esc_html_e( 'Credits', 'wprtsp' ); ?>
 			</a>-->
@@ -475,6 +491,31 @@ class WPRTSP {
 
 	}
 
+	function get_setting( $setting ) {
+		$settings = get_option( 'wprtsp' );
+		return isset( $settings[ $setting ] ) ? $settings[ $setting ] : false;
+	}
+
+	function update_setting( $setting, $value ) {
+		$settings = get_option( 'wprtsp' );
+		if ( ! $settings ) {
+			$settings = array();
+		}
+		$settings[ $setting ] = $value;
+
+		wp_cache_delete( 'wprtsp', 'options' );
+		return update_option( 'wprtsp', $settings );
+	}
+
+	function delete_setting( $setting ) {
+		$settings = get_option( 'wprtsp' );
+		if ( ! $settings ) {
+			$settings = array();
+		}
+		unset( $settings[ $setting ] );
+		update_option( 'wprtsp', $settings );
+	}
+
 	/* Add links below the plugin name on the plugins page */
 	function plugin_action_links( $links ) {
 		$links[] = '<a target="_blank" href="https://www.converticacommerce.com?item_name=Donation%20for%20WP%20Social%20Proof&cmd=_donations&currency_code=USD&lc=US&business=shivanand@converticacommerce.com"><strong style="display:inline">Donate</strong></a>';
@@ -531,7 +572,7 @@ class WPRTSP {
 			$meta                    = get_post_meta( $notification->ID, '_socialproof', true );
 			$meta                    = $this->wprtsp_sanitize( $meta );
 			$meta['notification_id'] = $notification->ID;
-			$meta['post_title'] = sanitize_title($notification->post_title);
+			$meta['post_title']      = sanitize_title( $notification->post_title );
 			$this->settings          = $meta;
 			// echo 'enabled:' . $notification->ID . PHP_EOL;
 			$enabled = apply_filters( 'wprtsp_enabled', false, $meta );

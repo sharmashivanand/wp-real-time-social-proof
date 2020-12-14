@@ -186,30 +186,19 @@ class WPRTSPGENERAL {
 			</tr>
 			<tr id="post_ids_selector">
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Enable, disable Social Proof notifications on specific pages.</p></div></div><label for="wprtsp_general_post_ids">Enter Post Ids (comma separated)</label></td>
-				<td><input type="text" class="widefat" 
-				<?php
-				if ( $show_on == 1 ) {
-					echo 'readonly';}
-				?>
-				 id="wprtsp_general_post_ids" name="wprtsp[general_post_ids]" value="<?php echo $post_ids; ?>"></td>
+				<td><input type="text" class="widefat" <?php if ( $show_on == 1 ) {	echo 'readonly'; } ?> id="wprtsp_general_post_ids" name="wprtsp[general_post_ids]" value="<?php echo $post_ids; ?>"></td>
 			</tr>
 			<tr>
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Position of Social Proof notifications. We've seen best results from the bottom left position.</p></div></div><label for="wprtsp[general_position]">Notification Position</label></td>
-				<td><select id="wprtsp[general_position]" name="wprtsp[general_position]">
-						<?php echo $positions_html; ?>
-					</select></td>
+				<td><select id="wprtsp[general_position]" name="wprtsp[general_position]"><?php echo $positions_html; ?></select></td>
 			</tr>
 			<tr>
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Depending on your site design one of these styles will look the best.</p></div></div><label for="wprtsp[general_box_style]">Notification Style</label></td>
-				<td><select id="wprtsp[general_box_style]" name="wprtsp[general_box_style]">
-						<?php echo $box_styles_html; ?>
-					</select></td>
+				<td><select id="wprtsp[general_box_style]" name="wprtsp[general_box_style]"><?php echo $box_styles_html; ?></select></td>
 			</tr>
 			<tr>
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Depending on your site design one of these themes will look the best.</p></div></div><label for="wprtsp[general_notification_theme]">Notification Theme</label></td>
-				<td><select id="wprtsp[general_notification_theme]" name="wprtsp[general_notification_theme]">
-						<?php echo $notification_theme_html; ?>
-					</select></td>
+				<td><select id="wprtsp[general_notification_theme]" name="wprtsp[general_notification_theme]"><?php echo $notification_theme_html; ?></select></td>
 			</tr>
 			<tr>
 				<td colspan="2">
@@ -601,21 +590,12 @@ class LiveSales {
 			</tr>
 			<tr class="generated_transactions">
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Action visitors took for auto generated records.</p></div></div><label for="wprtsp_conversion_generated_action">Action for Generated records</label></td>
-				<td><input id="wprtsp_conversion_generated_action" 
-				<?php
-				if ( $conversions_shop_type != 'Generated' ) {
-					echo 'readonly';}
-				?>
+				<td><input id="wprtsp_conversion_generated_action" <?php if ( $conversions_shop_type != 'Generated' ) { echo 'readonly'; } ?>
 				 name="wprtsp[conversion_generated_action]" type="text" class="widefat" value="<?php echo $conversion_generated_action; ?>" /></td>
 			</tr>
 			<tr class="generated_transactions">
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Product visitors bought for auto generated records.</p></div></div><label for="wprtsp_conversion_generated_product">Product for Generated records</label></td>
-				<td><input id="wprtsp_conversion_generated_product" 
-				<?php
-				if ( $conversions_shop_type != 'Generated' ) {
-					echo 'readonly';}
-				?>
-				 name="wprtsp[conversion_generated_product]" type="text" class="widefat" value="<?php echo $conversion_generated_product; ?>" /></td>
+				<td><input id="wprtsp_conversion_generated_product" <?php if ( $conversions_shop_type != 'Generated' ) { echo 'readonly';} ?> name="wprtsp[conversion_generated_product]" type="text" class="widefat" value="<?php echo $conversion_generated_product; ?>" /></td>
 			</tr>
 		</table>
 		<script type="text/javascript">
