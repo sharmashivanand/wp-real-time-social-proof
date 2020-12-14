@@ -220,7 +220,7 @@ class WPRTSPGENERAL {
 						}
 						?>
 					</ol>
-					<input type="text" value="<?php echo implode( ',', $settings['general_notification_order'] ); ?>" id="wprtsp_general_notification_order" name="wprtsp[general_notification_order]" />
+					<input type="hidden" value="<?php echo implode( ',', $settings['general_notification_order'] ); ?>" id="wprtsp_general_notification_order" name="wprtsp[general_notification_order]" />
 					<script type="text/javascript">
 					jQuery( document ).ready(function($) {
 						$( "#wprtsp_general_notification_order_ui" ).sortable({
@@ -590,8 +590,7 @@ class LiveSales {
 			</tr>
 			<tr class="generated_transactions">
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Action visitors took for auto generated records.</p></div></div><label for="wprtsp_conversion_generated_action">Action for Generated records</label></td>
-				<td><input id="wprtsp_conversion_generated_action" <?php if ( $conversions_shop_type != 'Generated' ) { echo 'readonly'; } ?>
-				 name="wprtsp[conversion_generated_action]" type="text" class="widefat" value="<?php echo $conversion_generated_action; ?>" /></td>
+				<td><input id="wprtsp_conversion_generated_action" <?php if ( $conversions_shop_type != 'Generated' ) { echo 'readonly'; } ?> name="wprtsp[conversion_generated_action]" type="text" class="widefat" value="<?php echo $conversion_generated_action; ?>" /></td>
 			</tr>
 			<tr class="generated_transactions">
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Product visitors bought for auto generated records.</p></div></div><label for="wprtsp_conversion_generated_product">Product for Generated records</label></td>

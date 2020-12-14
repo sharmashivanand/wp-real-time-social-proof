@@ -174,7 +174,11 @@ body {
 }
 
 .cta_btn:empty {
-  display: none;
+  border-top: 5px solid hsl(205, 100%, 50%);
+  border-top: 5px solid hsl(350, 80%, 75%);
+  border-top: 5px solid hsl(350, 90%, 65%);
+  background: hsl(0deg 0% 0% / 0%);
+  border-radius: 0;
 }
 
 #cta-grow {
