@@ -72,6 +72,7 @@ Ask away.
 = 2.2.4 =
 * Better sanitization for custom CTAs.
 * Better placeholders for inputs.
+* Updates to license manager and updater.
 
 = 2.2.2 =
 * Fixed bug in the updater for premium version.
@@ -220,6 +221,24 @@ Initial release
 Generated records show name, transaction, location of the person. Times are intelligently generated using prime numbers for maximum CTR. Records are also pulled out of uniquely seed based random algorithm.
 
 == Upgrade Notice ==
+
+= 2.2.4 =
+* Better sanitization for custom CTAs.
+* Better placeholders for inputs.
+* Updates to license manager and updater.
+
+= 2.2.2 =
+* Fixed bug in the updater for premium version.
+
+= 2.2.1 =
+* Fixed bug in the updater for premium version.
+
+= 2.2.0 =
+* Fixed Google Authentication UI to comply with Google Branding requirements.
+* Fixed critical error with WooCommerce.
+
+= 2.1.9 =
+* Fixed critical error with WooCommerce.
 
 = 2.1.8 =
 * Refined ability to exclude user-roles.
