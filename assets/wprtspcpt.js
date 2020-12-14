@@ -203,7 +203,7 @@ function titlenotification() {
 
 function wprtsp_get_message() {
     console.log('current flag:' + flag);
-    
+
     console.log('new flag:' + flag);
     if (flag == 's') {
         current_proof_type = 'conversions';
@@ -308,7 +308,7 @@ function set_sequence_next(currentflag) {
     var sequence = settings.general_notification_order;
     var have_proof = false;
     sequence.forEach(function (item, index) {
-        if(proof_has_length(item)){
+        if (proof_has_length(item)) {
             have_proof = 1;
         }
     });
@@ -420,7 +420,8 @@ function get_ga_utm_link(link, type) {
         link = new URL(link);
         link.searchParams.set('utm_campaign', 'WP-Social-Proof-Pro');
         link.searchParams.set('utm_source', 'wp-social-proof-pro-' + type);
-        link.searchParams.set('utm_content', 'wp-social-proof-pro-notification-id-' + settings.notification_id);
+        //link.searchParams.set('utm_content', 'wp-social-proof-pro-notification-id-' + settings.notification_id);
+        link.searchParams.set('utm_content', 'wp-social-proof-' + settings.post_title);
         return link.toString();
     }
     return link;

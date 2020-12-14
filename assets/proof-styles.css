@@ -70,7 +70,8 @@ body {
 
 .wprtsp_right {
   padding-left: 0.618em;
-  padding-right: 1em; /* Required since right side box has a vertical edge which doesn't fit nicely with the rounded corners */
+  padding-right: 1em;
+  /* Required since right side box has a vertical edge which doesn't fit nicely with the rounded corners */
   line-height: 1.5em;
   /* white-space: nowrap; */
   width: auto;
@@ -170,6 +171,10 @@ body {
   color: #fff;
   font-weight: 500;
   border-radius: 5px;
+}
+
+.cta_btn:empty {
+  display: none;
 }
 
 #cta-grow {

@@ -13,7 +13,7 @@
  */
 
 /*
-Copyright 2019 Shivanand Sharma
+Copyright 2020 Shivanand Sharma
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -531,6 +531,7 @@ class WPRTSP {
 			$meta                    = get_post_meta( $notification->ID, '_socialproof', true );
 			$meta                    = $this->wprtsp_sanitize( $meta );
 			$meta['notification_id'] = $notification->ID;
+			$meta['post_title'] = sanitize_title($notification->post_title);
 			$this->settings          = $meta;
 			// echo 'enabled:' . $notification->ID . PHP_EOL;
 			$enabled = apply_filters( 'wprtsp_enabled', false, $meta );
