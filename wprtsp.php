@@ -728,8 +728,8 @@ class WPRTSP {
 		$vars['url']      = $this->uri;
 		$vars['siteurl']  = get_bloginfo( 'url' );
 		$vars['sitename'] = get_bloginfo( 'name' );
-		$vars['translate_ago'] = __( 'ago' );
-		$vars['translate_minutes'] = __( 'minutes' );
+		$vars['translate_ago'] = __( 'ago', 'wprtsp' );
+		$vars['translate_minutes'] = __( 'minutes', 'wprtsp' );
 		return $vars;
 	}
 
