@@ -71,6 +71,8 @@ Ask away.
 
 = 2.2.5 =
 * Bugfix: Social-Proofs to be shown on singular must take priority over global ones.
+* Several translation updates.
+* Better width-handling on Custom CTA notifications.
 
 = 2.2.4 =
 * Better sanitization for custom CTAs.
@@ -227,6 +229,8 @@ Generated records show name, transaction, location of the person. Times are inte
 
 = 2.2.5 =
 * Bugfix: Social-Proofs to be shown on singular must take priority over global ones.
+* Several translation updates.
+* Better width-handling on Custom CTA notifications.
 
 = 2.2.4 =
 * Better sanitization for custom CTAs.

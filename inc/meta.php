@@ -709,10 +709,10 @@ class LiveSales {
 					$lastname = $user->user_lastname;
 				}
 				if ( empty( trim( $name ) ) ) {
-					$name = 'A visitor';
+					$name = __( 'A visitor', 'wprtsp' );
 				}
 			} else {
-				$customers[ $purchase ]['name'] = 'A visitor';
+				$customers[ $purchase ]['name'] = __( 'A visitor', 'wprtsp' );
 			}
 			$item = $order->get_items();
 			if ( empty( $item ) ) {
@@ -728,13 +728,13 @@ class LiveSales {
 			$customers[ $purchase ]['time']         = human_time_diff( $time->getTimestamp() );
 			$messages[]                             = array(
 				'link'      => $customers[ $purchase ]['product_link'],
-				'name'      => $name ? $name : 'A guest',
-				'firstname' => $firstname ? $firstname : 'A guest',
+				'name'      => $name ? $name : __( 'A guest', 'wprtsp' ),
+				'firstname' => $firstname ? $firstname : __( 'A guest', 'wprtsp' ),
 				'lastname'  => $lastname ? $lastname : '',
 				'location'  => implode( ', ', array_filter( array( $order_data['billing']['city'], $order_data['billing']['country'] ) ) ),
-				'action'    => 'purchased',
+				'action'    => __( 'purchased', 'wprtsp' ),
 				'product'   => $customers[ $purchase ]['product'],
-				'time'      => $customers[ $purchase ]['time'] . ' ago',
+				'time'      => __( $customers[ $purchase ]['time'] . ' ago', 'wprtsp' ),
 			);
 		}
 		$messages = $this->translate_wooc_placeholders( $messages, $settings );
@@ -862,21 +862,20 @@ class LiveSales {
 					'product_link' => get_permalink( $downloads[0]['id'] ),
 					'first_name'   => $payment->user_info['first_name'],
 					'last_name'    => $payment->user_info['last_name'],
-					'transaction'  => 'purchased',
+					'transaction'  => __( 'purchased', 'wprtsp' ),
 					'product'      => $downloads[0]['name'],
 					'time'         => $payment_time,
 				);
 				$messages[]                   = array(
 					'link'      => get_permalink( $downloads[0]['id'] ),
 					'name'      => $name,
-					'firstname' => $firstname ? $firstname : 'A visitor',
+					'firstname' => $firstname ? $firstname : __( 'A visitor', 'wprtsp' ),
 					'lastname'  => $lastname ? $lastname : '',
 					'location'  => $address,
-					'action'    => 'purchased',
+					'action'    => __( 'purchased', 'wprtsp' ),
 					'product'   => $downloads[0]['name'],
-					'time'      => $payment_time . ' ago',
+					'time'      => __( $payment_time . ' ago', 'wprtsp' ),
 				);
-				// apply_filters('wprtsp_edd_conversion_message','<a href="'.get_permalink( $downloads[0]['id'] ).'"><span class="wprtsp_conversion_icon" style="'.$this->get_conversion_icon_style().'"></span><span class="wprtsp_line1" style="'. $this->get_message_style_line1() . '">' . $name . '</span><span class="wprtsp_line2" style="' . $this->get_message_style_line2() . '"> purchased ' . $downloads[0]['name'] . ' ' . $payment_time . ' ago.</span></a>',$records[$payment_post->ID]);
 			}
 			wp_reset_postdata();
 		}
@@ -983,7 +982,7 @@ class LiveSales {
 		for ( $i = 0; $i < count( $indexes ); $i++ ) {
 			$time                  = strtotime( $date );
 			$time                  = $time - ( current( $times ) * 60 );
-			$indexes[ $i ]['time'] = human_time_diff( $time ) . ' ago';
+			$indexes[ $i ]['time'] = __( human_time_diff( $time ) . ' ago', 'wprtsp' );
 			next( $times );
 		}
 

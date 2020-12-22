@@ -439,7 +439,7 @@ class WPRTSP {
 				</div>
 
 				<div class="feature column is-vertically-aligned-top">
-					<h4><?php esc_html_e( 'A Call to Developers', 'bbpress' ); ?></h4>
+					<h4><?php esc_html_e( 'A Call to Developers', 'wprtsp' ); ?></h4>
 					<p><?php esc_html_e( 'Developers can create their own addons and sell / distribute as they deem fit. This extends the power of ' . $plugin_data['Name'] . ' and is a win-win for everyone.', 'wprtsp' ); ?></p>
 				</div>
 
@@ -728,6 +728,8 @@ class WPRTSP {
 		$vars['url']      = $this->uri;
 		$vars['siteurl']  = get_bloginfo( 'url' );
 		$vars['sitename'] = get_bloginfo( 'name' );
+		$vars['translate_ago'] = __( 'ago' );
+		$vars['translate_minutes'] = __( 'minutes' );
 		return $vars;
 	}
 

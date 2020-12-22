@@ -124,7 +124,8 @@ body {
 
 .wprtsp_cta_body {
   margin: 1.618em auto 0 auto;
-  max-width: 255px;
+  max-width: 266px;
+  min-width: 224px;
   flex: 1;
 }
 
