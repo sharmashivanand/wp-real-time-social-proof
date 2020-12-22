@@ -657,6 +657,7 @@ class WPRTSP {
 		// echo '$settings';
 		$post_ids = $settings['general_post_ids'];
 		$show_on  = $settings['general_show_on'];
+		
 		switch ( $show_on ) {
 			case '1':   // Entire Site
 				$records = $this->wprtsp_get_proofs();
@@ -673,7 +674,8 @@ class WPRTSP {
 						$post_ids = array( $post_ids );
 					}
 				}
-				if ( is_singular() && in_array( get_the_ID(), $post_ids ) ) {
+				
+				if ( is_singular() && in_array( get_the_ID(), $post_ids, 1 ) ) { // Need strict check else post id like "82xxx" also trigger the proof
 					$records = $this->wprtsp_get_proofs();
 					if ( $records ) {
 						$this->settings['proofs'] = $records;
