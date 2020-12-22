@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WP Real-Time Social-Proof
  * Description: Animated, live, real-time social-proof Pop-ups for your WordPress website to boost sales and signups.
- * Version:     2.2.4
+ * Version:     2.2.5
  * Plugin URI:  https://wordpress.org/plugins/wp-real-time-social-proof/
  * Author:      Shivanand Sharma
  * Author URI:  https://www.wp-social-proof.com
@@ -567,7 +567,28 @@ class WPRTSP {
 				'posts_per_page' => -1,
 			)
 		);
-
+		// Fist collect all proofs that are supposed to be shown on singular
+		// Second collect all proofs that are supposed to be shown except on this post
+		// Finally collect all proofs that are supposed to be shown globally
+		$sp_sinular = array();
+		$sp_global = array();
+		foreach( $notifications as $notification ) {
+			$meta                    = get_post_meta( $notification->ID, '_socialproof', true );
+			$meta                    = $this->wprtsp_sanitize( $meta );
+			$post_ids = $meta['general_post_ids'];
+			$show_on  = $meta['general_show_on'];
+			if( $meta['general_show_on'] == '2' ) {
+				$sp_sinular[] = $notification;
+			}
+			else {
+				$sp_global[] = $notification;
+			}
+			/* if( $meta['general_show_on'] == '1' || $meta['general_show_on'] == '3' ) {
+				$sp_global[] = $notification;
+			} */
+		}
+		$notifications = array_merge( $sp_sinular, $sp_global );
+		//$this->llog( $notifications );
 		foreach ( $notifications as $notification ) {
 			$meta                    = get_post_meta( $notification->ID, '_socialproof', true );
 			$meta                    = $this->wprtsp_sanitize( $meta );
@@ -576,6 +597,9 @@ class WPRTSP {
 			$this->settings          = $meta;
 			// echo 'enabled:' . $notification->ID . PHP_EOL;
 			$enabled = apply_filters( 'wprtsp_enabled', false, $meta );
+			if ( $enabled ) {
+				return; // Required so that once an apt social-proof to be displayed is found, it is not overridden with global or other older social-proofs.
+			}
 			if ( ! $enabled ) {
 				// return;
 			}
@@ -629,7 +653,7 @@ class WPRTSP {
 
 	function wprtsp_enabled( $enabled, $settings ) {
 		// echo '$enabled';
-		// var_dump($enabled);
+		//$this->llog($settings);
 		// echo '$settings';
 		$post_ids = $settings['general_post_ids'];
 		$show_on  = $settings['general_show_on'];
@@ -641,7 +665,7 @@ class WPRTSP {
 					$enabled                  = true;
 				}
 				break;
-			case '2':
+			case '2': // Specific post / page
 				if ( ! is_array( $post_ids ) ) {
 					if ( strpos( $post_ids, ',' ) !== false ) {
 						$post_ids = explode( ',', $post_ids );
@@ -687,7 +711,7 @@ class WPRTSP {
 		} else {
 			// $enabled = false;
 		}
-
+		//$this->llog($enabled);
 		if ( $enabled ) {
 			wp_enqueue_script( 'wprtsp-main', $this->uri . 'assets/wprtspcpt.js', array( 'jquery' ), filemtime( $this->dir . 'assets/wprtspcpt.js' ), true );
 			wp_localize_script( 'wprtsp-main', 'wprtsp_vars', json_encode( apply_filters( 'wprtsp_vars', $this->settings ) ) );
