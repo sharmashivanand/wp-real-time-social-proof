@@ -39,7 +39,7 @@ class WPRTSPGENERAL {
 		$wprtsp = wprtsp();
 
 		$defaults['general_ga_utm_tracking']             = 1;
-		$defaults['general_badge_enable']                = 0; // bool
+		$defaults['general_badge_enable']                = 1; // bool
 		$defaults['general_title_string']                = 'Rachel says…'; // bool
 		$defaults['general_show_on']                     = '1'; // select
 		$defaults['general_post_ids']                    = get_option( 'page_on_front' ); // string
@@ -283,8 +283,9 @@ class WPRTSPGENERAL {
 	function sanitize( $request ) {
 		$defaults = $this->defaults();
 
-		if ( ! $request ) { // not sure why but on a freshpost, if you customize settings, this throws errors when DEBUG is true
-			// return $defaults;
+		if ( ! $request || ! is_array( $request ) ) { // not sure why but on a freshpost, if you customize settings, this throws errors when DEBUG is true			
+			//return $request; // how do we verify this call is a valid request from our app?
+			//return;
 		}
 
 		$request['general_ga_utm_tracking']       = array_key_exists( 'general_ga_utm_tracking', $request ) && $request['general_ga_utm_tracking'] ? 1 : 0;
@@ -414,6 +415,7 @@ class LiveSales {
 		add_filter( 'wprtsp_register_proof', array( $this, 'register_proof' ) );
 		add_action( 'wprtsp_add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 		add_filter( 'wprtsp_sanitize', array( $this, 'sanitize' ) );
+		
 		add_filter( 'wprtsp_get_proof_data_conversions_WooCommerce', array( $this, 'get_wooc_conversions' ), 10, 2 ); // Get wooc comversions
 		add_filter( 'wprtsp_tag_WooCommerce_name', array( $this, 'get_tag_WooCommerce_name' ) ); // replace woocommerce {name} tag
 		add_filter( 'wprtsp_tag_WooCommerce_firstname', array( $this, 'get_tag_WooCommerce_firstname' ) ); // replace woocommerce {firstname} tag
@@ -576,7 +578,9 @@ class LiveSales {
 				<td><select id="wprtsp_conversions_shop_type" name="wprtsp[conversions_shop_type]">
 						<?php echo $sources_html; ?>
 					</select></td>
-			</tr>
+			</tr><?php
+			do_action('wprtsp_shop_type_configuration'); // Hook your additional settings, defaults and sanitisation must be performed by you.
+			?>
 			<tr>
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Select how recent the sales should be.</p></div></div><label for="wprtsp_conversions_timeframe">Show number of sales since</label></td>
 				<td><?php echo $timeframes_html; ?></td>

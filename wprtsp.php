@@ -153,7 +153,7 @@ class WPRTSP {
 	}
 
 	function get_pro_status( $cached = true ) {
-		//$this->flog( 'get_pro_status called from' . debug_backtrace()[1]['function'] );
+		// $this->flog( 'get_pro_status called from' . debug_backtrace()[1]['function'] );
 		$status = get_transient( 'wprtsp_license_status' );
 		if ( ! $status || ! $cached ) {
 			$key = $this->get_setting( 'license_key' );
@@ -190,7 +190,7 @@ class WPRTSP {
 	}
 
 	function set_validation( $status ) {
-		//return;
+		// return;
 		$this->flog( 'set_validation called from' . debug_backtrace()[1]['function'] );
 		if ( ! $status ) {
 			return;
@@ -295,7 +295,10 @@ class WPRTSP {
 		);
 		$proofs = new WP_Query( $args );
 		if ( ! $proofs->have_posts() ) {
-			echo '<div class="notice notice-success"><p><strong>Let\'s get started with Social Proof.</strong> <a class="button-primary" target="_blank" href="' . esc_url( get_admin_url( null, 'edit.php?post_type=socialproof' ) ) . '">Create&nbsp;your&nbsp;first&nbsp;Social-Proof&nbsp;&rarr;</a></p></div>';
+			$screen = get_current_screen();
+			if ( $screen && ! empty( $screen->id ) && $screen->id !== 'edit-socialproof' ) {
+				echo '<div class="notice notice-success"><p><strong>Let\'s get started with Social Proof.</strong> <a class="button-primary" target="_blank" href="' . esc_url( get_admin_url( null, 'edit.php?post_type=socialproof' ) ) . '">Create&nbsp;your&nbsp;first&nbsp;Social-Proof&nbsp;&rarr;</a></p></div>';
+			}
 		}
 	}
 
@@ -567,28 +570,25 @@ class WPRTSP {
 				'posts_per_page' => -1,
 			)
 		);
+
 		// Fist collect all proofs that are supposed to be shown on singular
 		// Second collect all proofs that are supposed to be shown except on this post
 		// Finally collect all proofs that are supposed to be shown globally
 		$sp_sinular = array();
-		$sp_global = array();
-		foreach( $notifications as $notification ) {
-			$meta                    = get_post_meta( $notification->ID, '_socialproof', true );
-			$meta                    = $this->wprtsp_sanitize( $meta );
+		$sp_global  = array();
+		foreach ( $notifications as $notification ) {
+			$meta     = get_post_meta( $notification->ID, '_socialproof', true );
+			$meta     = $this->wprtsp_sanitize( $meta );
 			$post_ids = $meta['general_post_ids'];
 			$show_on  = $meta['general_show_on'];
-			if( $meta['general_show_on'] == '2' ) {
+			if ( $meta['general_show_on'] == '2' ) {
 				$sp_sinular[] = $notification;
-			}
-			else {
+			} else {
 				$sp_global[] = $notification;
 			}
-			/* if( $meta['general_show_on'] == '1' || $meta['general_show_on'] == '3' ) {
-				$sp_global[] = $notification;
-			} */
 		}
 		$notifications = array_merge( $sp_sinular, $sp_global );
-		//$this->llog( $notifications );
+
 		foreach ( $notifications as $notification ) {
 			$meta                    = get_post_meta( $notification->ID, '_socialproof', true );
 			$meta                    = $this->wprtsp_sanitize( $meta );
@@ -597,11 +597,12 @@ class WPRTSP {
 			$this->settings          = $meta;
 			// echo 'enabled:' . $notification->ID . PHP_EOL;
 			$enabled = apply_filters( 'wprtsp_enabled', false, $meta );
+
 			if ( $enabled ) {
-				return; // Required so that once an apt social-proof to be displayed is found, it is not overridden with global or other older social-proofs.
+				return $enabled; // Required so that once an apt social-proof to be displayed is found, it is not overridden with global or other older social-proofs.
 			}
 			if ( ! $enabled ) {
-				// return;
+				// return false;
 			}
 		}
 	}
@@ -652,9 +653,7 @@ class WPRTSP {
 	}
 
 	function wprtsp_enabled( $enabled, $settings ) {
-		// echo '$enabled';
-		//$this->llog($settings);
-		// echo '$settings';
+
 		$post_ids = $settings['general_post_ids'];
 		$show_on  = $settings['general_show_on'];
 		
@@ -675,7 +674,7 @@ class WPRTSP {
 					}
 				}
 				
-				if ( is_singular() && in_array( get_the_ID(), $post_ids, 1 ) ) { // Need strict check else post id like "82xxx" also trigger the proof
+				if ( is_singular() && in_array( get_the_ID(), $post_ids ) ) {
 					$records = $this->wprtsp_get_proofs();
 					if ( $records ) {
 						$this->settings['proofs'] = $records;
@@ -701,7 +700,6 @@ class WPRTSP {
 				}
 				break;
 		}
-
 		$exclude_role = $settings['general_roles_exclude'];
 		if ( ! empty( $exclude_role ) ) {
 			$roles = get_role( $exclude_role )->capabilities;
@@ -713,7 +711,7 @@ class WPRTSP {
 		} else {
 			// $enabled = false;
 		}
-		//$this->llog($enabled);
+
 		if ( $enabled ) {
 			wp_enqueue_script( 'wprtsp-main', $this->uri . 'assets/wprtspcpt.js', array( 'jquery' ), filemtime( $this->dir . 'assets/wprtspcpt.js' ), true );
 			wp_localize_script( 'wprtsp-main', 'wprtsp_vars', json_encode( apply_filters( 'wprtsp_vars', $this->settings ) ) );
@@ -727,10 +725,10 @@ class WPRTSP {
 	}
 
 	function wprtsp_add_vars( $vars ) {
-		$vars['url']      = $this->uri;
-		$vars['siteurl']  = get_bloginfo( 'url' );
-		$vars['sitename'] = get_bloginfo( 'name' );
-		$vars['translate_ago'] = __( 'ago', 'wprtsp' );
+		$vars['url']               = $this->uri;
+		$vars['siteurl']           = get_bloginfo( 'url' );
+		$vars['sitename']          = get_bloginfo( 'name' );
+		$vars['translate_ago']     = __( 'ago', 'wprtsp' );
 		$vars['translate_minutes'] = __( 'minutes', 'wprtsp' );
 		return $vars;
 	}
@@ -741,10 +739,8 @@ class WPRTSP {
 
 	function wprtsp_get_proofs() {
 		$settings = $this->settings;
-		// $this->llog($settings);
 		$conversions = apply_filters( 'wprtsp_get_proof_data_conversions_' . $settings['conversions_shop_type'], $settings );
-		$hotstats    = apply_filters( 'wprtsp_get_proof_data_hotstats_' . $settings['conversions_shop_type'], array(), $settings );
-		// $this->llog($settings);
+		$hotstats = apply_filters( 'wprtsp_get_proof_data_hotstats_' . $settings['conversions_shop_type'], array(), $settings );
 		$livestats = apply_filters( 'wprtsp_get_proof_data_livestats', array(), $settings );
 		$ctas      = apply_filters( 'wprtsp_get_proof_data_ctas', array_key_exists( 'ctas', $settings ) ? $settings['ctas'] : array(), $settings );
 

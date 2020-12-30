@@ -243,26 +243,32 @@ body #tbl_display .btn-gauth {
     font-size: 12px;
 }
 
-.wprtsp-help-tip .wprtsp-help-content {
-    text-align: left;
-    background-color: #0095ff;
-    padding: 1em 1.618em;
-    width: 300px;
-    position: absolute;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, .25);
-    color: #fff;
-    font-size: 13px;
-    line-height: 1.4;
-    opacity: 0;
-    transition: all .4s ease-in-out;
-    z-index: -1;
-    left: -999px;
-}
+.wprtsp-help-tip {
+    .wprtsp-help-content {
+        text-align: left;
+        background-color: #0095ff;
+        padding: 1em 1.618em;
+        width: 300px;
+        position: absolute;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, .25);
+        color: #fff;
+        font-size: 13px;
+        line-height: 1.4;
+        opacity: 0;
+        transition: all .4s ease-in-out;
+        z-index: -1;
+        left: -999px;
 
-.wprtsp-help-tip:hover .wprtsp-help-content {
-    opacity: 1;
-    z-index: 99;
-    left: 0px;
+        a, a:hover {
+            color: white;
+        }
+    }
+    &:hover .wprtsp-help-content {
+        opacity: 1;
+        z-index: 99;
+        left: 0px;
+    }
+
 }
 
 .postbox.closed .inside {
