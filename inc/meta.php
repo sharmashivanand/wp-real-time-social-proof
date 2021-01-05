@@ -186,7 +186,12 @@ class WPRTSPGENERAL {
 			</tr>
 			<tr id="post_ids_selector">
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Enable, disable Social Proof notifications on specific pages.</p></div></div><label for="wprtsp_general_post_ids">Enter Post Ids (comma separated)</label></td>
-				<td><input type="text" class="widefat" <?php if ( $show_on == 1 ) {	echo 'readonly'; } ?> id="wprtsp_general_post_ids" name="wprtsp[general_post_ids]" value="<?php echo $post_ids; ?>"></td>
+				<td><input type="text" class="widefat" 
+				<?php
+				if ( $show_on == 1 ) {
+					echo 'readonly'; }
+				?>
+				 id="wprtsp_general_post_ids" name="wprtsp[general_post_ids]" value="<?php echo $post_ids; ?>"></td>
 			</tr>
 			<tr>
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Position of Social Proof notifications. We've seen best results from the bottom left position.</p></div></div><label for="wprtsp[general_position]">Notification Position</label></td>
@@ -283,9 +288,9 @@ class WPRTSPGENERAL {
 	function sanitize( $request ) {
 		$defaults = $this->defaults();
 
-		if ( ! $request || ! is_array( $request ) ) { // not sure why but on a freshpost, if you customize settings, this throws errors when DEBUG is true			
-			//return $request; // how do we verify this call is a valid request from our app?
-			//return;
+		if ( ! $request || ! is_array( $request ) ) { // not sure why but on a freshpost, if you customize settings, this throws errors when DEBUG is true
+			// return $request; // how do we verify this call is a valid request from our app?
+			// return;
 		}
 
 		$request['general_ga_utm_tracking']       = array_key_exists( 'general_ga_utm_tracking', $request ) && $request['general_ga_utm_tracking'] ? 1 : 0;
@@ -415,7 +420,7 @@ class LiveSales {
 		add_filter( 'wprtsp_register_proof', array( $this, 'register_proof' ) );
 		add_action( 'wprtsp_add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 		add_filter( 'wprtsp_sanitize', array( $this, 'sanitize' ) );
-		
+
 		add_filter( 'wprtsp_get_proof_data_conversions_WooCommerce', array( $this, 'get_wooc_conversions' ), 10, 2 ); // Get wooc comversions
 		add_filter( 'wprtsp_tag_WooCommerce_name', array( $this, 'get_tag_WooCommerce_name' ) ); // replace woocommerce {name} tag
 		add_filter( 'wprtsp_tag_WooCommerce_firstname', array( $this, 'get_tag_WooCommerce_firstname' ) ); // replace woocommerce {firstname} tag
@@ -578,8 +583,9 @@ class LiveSales {
 				<td><select id="wprtsp_conversions_shop_type" name="wprtsp[conversions_shop_type]">
 						<?php echo $sources_html; ?>
 					</select></td>
-			</tr><?php
-			do_action('wprtsp_shop_type_configuration'); // Hook your additional settings, defaults and sanitisation must be performed by you.
+			</tr>
+			<?php
+			do_action( 'wprtsp_shop_type_configuration' ); // Hook your additional settings, defaults and sanitisation must be performed by you.
 			?>
 			<tr>
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Select how recent the sales should be.</p></div></div><label for="wprtsp_conversions_timeframe">Show number of sales since</label></td>
@@ -594,11 +600,21 @@ class LiveSales {
 			</tr>
 			<tr class="generated_transactions">
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Action visitors took for auto generated records.</p></div></div><label for="wprtsp_conversion_generated_action">Action for Generated records</label></td>
-				<td><input id="wprtsp_conversion_generated_action" <?php if ( $conversions_shop_type != 'Generated' ) { echo 'readonly'; } ?> name="wprtsp[conversion_generated_action]" type="text" class="widefat" value="<?php echo $conversion_generated_action; ?>" /></td>
+				<td><input id="wprtsp_conversion_generated_action" 
+				<?php
+				if ( $conversions_shop_type != 'Generated' ) {
+					echo 'readonly'; }
+				?>
+				 name="wprtsp[conversion_generated_action]" type="text" class="widefat" value="<?php echo $conversion_generated_action; ?>" /></td>
 			</tr>
 			<tr class="generated_transactions">
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Product visitors bought for auto generated records.</p></div></div><label for="wprtsp_conversion_generated_product">Product for Generated records</label></td>
-				<td><input id="wprtsp_conversion_generated_product" <?php if ( $conversions_shop_type != 'Generated' ) { echo 'readonly';} ?> name="wprtsp[conversion_generated_product]" type="text" class="widefat" value="<?php echo $conversion_generated_product; ?>" /></td>
+				<td><input id="wprtsp_conversion_generated_product" 
+				<?php
+				if ( $conversions_shop_type != 'Generated' ) {
+					echo 'readonly';}
+				?>
+				 name="wprtsp[conversion_generated_product]" type="text" class="widefat" value="<?php echo $conversion_generated_product; ?>" /></td>
 			</tr>
 		</table>
 		<script type="text/javascript">
@@ -676,34 +692,30 @@ class LiveSales {
 		}
 		$value  = $settings['conversions_timeframe'];
 		$period = ( $value >= 0 ) ? '>' . ( time() - ( $value * DAY_IN_SECONDS ) ) : false;
-
-		$args = array(
+		$args   = array(
 			'limit'   => 100,
 			'orderby' => 'date',
 			'order'   => 'DESC',
 			'return'  => 'ids',
 			'status'  => 'completed',
 		);
-
 		if ( $period ) {
 			$args['date_created'] = $period;
 		}
-
-		$query  = new WC_Order_Query( $args );
-		$orders = $query->get_orders();
-
+		$args      = apply_filters( 'wprtsp_' . $settings['conversions_shop_type'] . '_livesales_args', $args, $settings );
+		$query     = new WC_Order_Query( $args );
+		$orders    = $query->get_orders();
+		$orders    = apply_filters( 'wprtsp_' . $settings['conversions_shop_type'] . '_livesales_data', $orders, $settings );
 		$customers = array();
 		$messages  = array();
 		foreach ( $orders as $purchase ) {
 			$order      = new WC_Order( $purchase );
 			$order_data = $order->get_data();
-
-			$user      = $order->get_user();
-			$name      = '';
-			$firstname = '';
-			$lastname  = '';
+			$user       = $order->get_user();
+			$name       = '';
+			$firstname  = '';
+			$lastname   = '';
 			if ( ! empty( $user ) ) {
-
 				if ( $user->user_firstname && strtolower( $user->user_firstname ) != 'guest' ) {
 					$name     .= $user->user_firstname;
 					$firstname = $user->user_firstname;
@@ -808,35 +820,31 @@ class LiveSales {
 		if ( ! class_exists( 'Easy_Digital_Downloads' ) ) {
 			return array();
 		}
-		$args = array(
+		$args   = array(
 			'numberposts'      => 100,
 			'post_status'      => 'publish',
 			'post_type'        => 'edd_payment',
 			'suppress_filters' => true,
 		);
-
-		$value = $settings['conversions_timeframe'];
-
+		$value  = $settings['conversions_timeframe'];
 		$period = ( $value >= 0 ) ? ( time() - ( $value * DAY_IN_SECONDS ) ) : false;
-
 		if ( $period ) {
 			$args['date_query'] = array(
 				'after' => date( 'c', $period ),
 			);
 		}
-
+		$args     = apply_filters( 'wprtsp_' . $settings['conversions_shop_type'] . '_livesales_args', $args, $settings );
 		$payments = get_posts( $args );
+		$payments = apply_filters( 'wprtsp_' . $settings['conversions_shop_type'] . '_livesales_data', $payments, $settings );
 		$records  = array();
 		$messages = array();
 		if ( $payments ) {
 			foreach ( $payments as $payment_post ) {
 				setup_postdata( $payment_post );
 				$payment = new EDD_Payment( $payment_post->ID );
-
 				if ( empty( $payment->ID ) ) {
 					continue;
 				}
-
 				$payment_time = human_time_diff( strtotime( $payment->date ), current_time( 'timestamp' ) );
 				$customer     = new EDD_Customer( $payment->customer_id );
 				$downloads    = $payment->cart_details;
