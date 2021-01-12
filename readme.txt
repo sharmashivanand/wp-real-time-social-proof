@@ -69,6 +69,9 @@ Ask away.
 
 == Changelog ==
 
+= 2.2.6 =
+* Added several filters to allow third-party addons to hook in.
+
 = 2.2.5 =
 * Bugfix: Social-Proofs to be shown on singular must take priority over global ones.
 * Several translation updates.
@@ -226,6 +229,9 @@ Initial release
 Generated records show name, transaction, location of the person. Times are intelligently generated using prime numbers for maximum CTR. Records are also pulled out of uniquely seed based random algorithm.
 
 == Upgrade Notice ==
+
+= 2.2.6 =
+* Added several filters to allow third-party addons to hook in.
 
 = 2.2.5 =
 * Bugfix: Social-Proofs to be shown on singular must take priority over global ones.
