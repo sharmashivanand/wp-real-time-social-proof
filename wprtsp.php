@@ -286,7 +286,7 @@ class WPRTSP {
 		}
 
 		if ( $this->is_pro() && ! $this->is_valid_pro() ) { // Allow opportunity to input license
-			echo '<div class="notice notice-error"><p><strong>WP Social Proof Pro: <a class="button-primary" target="_blank" href="' . menu_page_url( 'wprtsp', false ) . '">Click&nbsp;here&nbsp;to&nbsp;enter&nbsp;your&nbsp;license&nbsp;&rarr;</a></p></div>';
+			echo '<div class="notice notice-error"><p><strong>WP Social Proof Pro: <a class="button-primary" target="_blank" href="' . menu_page_url( 'wprtsp', false ) . '">Click&nbsp;here&nbsp;to&nbsp;enter&nbsp;your&nbsp;license&nbsp;&rarr;</a></strong></p></div>';
 		}
 
 		$args   = array(
