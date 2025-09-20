@@ -62,8 +62,8 @@ class WPRTSP {
 		if ( file_exists( $this->dir . 'inc/license_manager.php' ) ) {
 			include_once $this->dir . 'inc/license_manager.php';
 		}
-		if ( file_exists( $this->dir . 'pro/pro.php' ) ) {
-			include_once $this->dir . 'pro/pro.php';
+		if ( file_exists( $this->dir . 'premium/pro.php' ) ) {
+			include_once $this->dir . 'premium/pro.php';
 		}
 	}
 
