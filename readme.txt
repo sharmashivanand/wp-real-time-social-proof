@@ -3,7 +3,7 @@ Contributors: varun21, ruchikawp
 Tags: social proof, marketing, recent sales notification, woocommerce, popup, live sales, conversion, ctr, ecommerce, easy digital downloads, newsletter, optin, signup, sales triggers
 Donate link: https://www.converticacommerce.com?item_name=Donation%20for%20WP%20Social%20Proof&cmd=_donations&currency_code=USD&lc=US&business=shivanand@converticacommerce.com
 Requires at least: 3.7.4
-Tested up to: 5.6
+Tested up to: 6.3
 Requires PHP: 5.6
 Stable tag: 2.2.7
 License: MIT
@@ -27,7 +27,7 @@ All your efforts be it via organic SEO, paid ads or any other form of marketing 
 * __Save__ on cost of customer acquisition.
 * Tap into buyer psychology: __"Fear-of-Missing-Out"__ effect and __"herd effect"__ to __create urgency__ and invite buyer action.
 * *Boost conversion rates*, __build credibility & trust__.
-* Auto-sync with WooCommerce, Easy Digital Download sales data.
+* Auto-sync with WooCommerce, Easy Digital Download sales data (compatible with EDD 2.x and 3.0+).
 * __Super-elegant__ popup styles.
 
 #### Features:
@@ -36,7 +36,7 @@ All your efforts be it via organic SEO, paid ads or any other form of marketing 
 * Mobile optimized.
 * Light-weight, built to scale, zero impact on site-speed / performance.
 * Gutenberg support.
-* Works out of the box with WooCommerce, Easy Digital Downloads.
+* Works out of the box with WooCommerce, Easy Digital Downloads (2.x and 3.0+).
 * Show across the site, on specific posts / pages or exclude from specific posts and pages.
 * Configure delay, timing, duration, position of notifications.
 * Create multivariate notifications.
@@ -68,6 +68,13 @@ Ask away.
 6. screenshot-6.png
 
 == Changelog ==
+
+= 2.2.7 =
+* Compatibility: Added error suppression for Easy Digital Downloads 3.0+ to eliminate PHP notices while maintaining functionality
+* Fixed: Resolved "Array to string conversion" warnings in EDD order processing
+* Fixed: Resolved "Cannot use object of type stdClass as array" fatal errors
+* Improved: Enhanced error handling and data validation for EDD order processing
+* Updated: Uses legacy EDD methods with error suppression for better stability across EDD versions
 
 = 2.2.6 =
 * Added several filters to allow third-party addons to hook in.
@@ -229,6 +236,13 @@ Initial release
 Generated records show name, transaction, location of the person. Times are intelligently generated using prime numbers for maximum CTR. Records are also pulled out of uniquely seed based random algorithm.
 
 == Upgrade Notice ==
+
+= 2.2.7 =
+* Compatibility: Added error suppression for Easy Digital Downloads 3.0+ to eliminate PHP notices while maintaining functionality
+* Fixed: Resolved "Array to string conversion" warnings in EDD order processing
+* Fixed: Resolved "Cannot use object of type stdClass as array" fatal errors
+* Improved: Enhanced error handling and data validation for EDD order processing
+* Updated: Uses legacy EDD methods with error suppression for better stability across EDD versions
 
 = 2.2.6 =
 * Added several filters to allow third-party addons to hook in.

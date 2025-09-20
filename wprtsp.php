@@ -598,6 +598,7 @@ class WPRTSP {
 			// echo 'enabled:' . $notification->ID . PHP_EOL;
 			$enabled = apply_filters( 'wprtsp_enabled', false, $meta );
 
+			flog( 'Notification ID: ' . $notification->ID . ' Enabled: ' . ( $enabled ? 'true' : 'false' ) . ' Title: ' . $notification->post_title  . ' Meta: ' . print_r( $meta, true ) );
 			if ( $enabled ) {
 				return $enabled; // Required so that once an apt social-proof to be displayed is found, it is not overridden with global or other older social-proofs.
 			}
@@ -742,6 +743,7 @@ class WPRTSP {
 		$conversions = apply_filters( 'wprtsp_get_proof_data_conversions_' . $settings['conversions_shop_type'], $settings );
 		$hotstats = apply_filters( 'wprtsp_get_proof_data_hotstats_' . $settings['conversions_shop_type'], array(), $settings );
 		$livestats = apply_filters( 'wprtsp_get_proof_data_livestats', array(), $settings );
+		flog( 'livestats', $livestats );
 		$ctas      = apply_filters( 'wprtsp_get_proof_data_ctas', array_key_exists( 'ctas', $settings ) ? $settings['ctas'] : array(), $settings );
 
 		if ( $conversions ) {

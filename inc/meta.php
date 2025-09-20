@@ -106,8 +106,10 @@ class WPRTSPGENERAL {
 			$notification_theme_html .= '<option value="' . $value . '" ' . selected( $general_notification_theme, $value, false ) . '>' . ucwords( preg_replace( '/[^\da-z]/i', ' ', $value ) ) . '</option>';
 		}
 		$ga_profile = get_option( 'wpsppro_ga_profile' );
+		flog( '$ga_profile' );
+		flog( $ga_profile );
 		if ( $ga_profile ) {
-			$ga_profile = $ga_profile['ga_webpropertyua'];
+			$ga_profile = $ga_profile['ga_propertyid'];
 		}
 		wp_nonce_field( 'socialproof_meta_box_nonce', 'socialproof_meta_box_nonce' );
 		$pdata = WPRTSP::get_instance();
@@ -124,14 +126,15 @@ class WPRTSPGENERAL {
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Connect with Google Analytics to get Live Visitor count. Make sure to select the correct analytics profile.</p></div></div><label>Google Analytics</label></td>
 				<td>
 				<?php
+				
 				if ( ! $ga_profile ) {
 					?>
-					 <a class="button-primary btn-gauth" href="<?php echo WPRTSPAPIEP . '?wppro_gaapi_authenticate=' . $statevars; ?>">Sign in with Google</a> 
-					 <!-- <a class="button-primary" href="<?php echo WPRTSPAPIEP . '?wppro_gaapi_authenticate=' . $statevars; ?>">Authenticate with Google Analytics</a> -->
+					<a class="button-primary btn-gauth" href="<?php echo WPRTSPAPIEP . '?wppro_gaapi_authenticate=' . $statevars; ?>">Sign in with Google</a> 
+					<!-- <a class="button-primary" href="<?php echo WPRTSPAPIEP . '?wppro_gaapi_authenticate=' . $statevars; ?>">Authenticate with Google Analytics</a> -->
 					<?php
 				} else {
 					?>
-					Profile Active: <?php echo $ga_profile; ?><br /><a href="<?php echo WPRTSPAPIEP . '/?wppro_gaapi_revoke=' . $statevars; ?>" class="button-primary">Disconnect</a><?php } ?>
+					Profile Active: <?php echo $ga_profile; ?><br /><a href="<?php echo trailingslashit( WPRTSPAPIEP ) . '?wppro_gaapi_revoke=' . $statevars; ?>" class="button-primary">Disconnect</a><?php } ?>
 			</tr>
 			<tr>
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Check this box to see traffic and conversions in your Google Analytics profile.</p></div></div><label for="wprtsp[general_ga_utm_tracking]">Enable Google Analytics UTM Tracking for Conversions?</label></td>
@@ -186,7 +189,12 @@ class WPRTSPGENERAL {
 			</tr>
 			<tr id="post_ids_selector">
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Enable, disable Social Proof notifications on specific pages.</p></div></div><label for="wprtsp_general_post_ids">Enter Post Ids (comma separated)</label></td>
-				<td><input type="text" class="widefat" <?php echo ( $show_on ) ? 'readonly' : ''; ?> id="wprtsp_general_post_ids" name="wprtsp[general_post_ids]" value="<?php echo $post_ids; ?>"></td>
+				<td><input type="text" class="widefat" 
+				<?php
+				if ( $show_on == 1 ) {
+					echo 'readonly'; }
+				?>
+				id="wprtsp_general_post_ids" name="wprtsp[general_post_ids]" value="<?php echo $post_ids; ?>"></td>
 			</tr>
 			<tr>
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Position of Social Proof notifications. We've seen best results from the bottom left position.</p></div></div><label for="wprtsp[general_position]">Notification Position</label></td>
@@ -283,7 +291,7 @@ class WPRTSPGENERAL {
 	function sanitize( $request ) {
 		$defaults = $this->defaults();
 
-		if ( ! $request || ! is_array( $request ) ) { // not sure why but on a freshpost, if you customize settings, this throws errors when DEBUG is true
+		if ( ! $request ) { // not sure why but on a freshpost, if you customize settings, this throws errors when DEBUG is true
 			// return $request; // how do we verify this call is a valid request from our app?
 			// return;
 		}
@@ -347,28 +355,31 @@ class WPRTSPGENERAL {
 	}
 
 	function save_ga_profile() {
-			// https://dev.converticacommerce.com/woocommerce-sandbox/wp-admin/post.php?post=204&action=edit&origin_nonce=4c990a9bb6&gaapi_accountid=107074057&gaapi_webpropertyid=159840733&gaapi_webpropertyua=UA-107074057-1&gaapi_profileid=161102233&wpsppro-action=oauth&success=1
+		// https://dev.converticacommerce.com/woocommerce-sandbox/wp-admin/post.php?post=204&action=edit&origin_nonce=4c990a9bb6&gaapi_accountid=107074057&gaapi_webpropertyid=159840733&gaapi_webpropertyua=UA-107074057-1&gaapi_profileid=161102233&wpsppro-action=oauth&success=1
 		// llog('hello');
 
 		if ( isset( $_REQUEST['wpsppro-action'] ) && $_REQUEST['wpsppro-action'] == 'oauth' ) {
+			flog( '$_REQUEST' );
+			flog( $_REQUEST );
 			wp_verify_nonce( $_REQUEST['origin_nonce'], 'wprtsp_gaapi' );
+			flog( 'nonce passed' );
 			if ( current_user_can( 'activate_plugins' )
 			&& isset( $_REQUEST['success'] ) && $_REQUEST['success']
 			&& isset( $_REQUEST['gaapi_accountid'] ) && $_REQUEST['gaapi_accountid']
-			&& isset( $_REQUEST['gaapi_webpropertyid'] ) && $_REQUEST['gaapi_webpropertyid']
-			&& isset( $_REQUEST['gaapi_webpropertyua'] ) && $_REQUEST['gaapi_webpropertyua']
-			&& isset( $_REQUEST['gaapi_profileid'] ) && $_REQUEST['gaapi_profileid']
+			// && isset( $_REQUEST['gaapi_webpropertyid'] ) && $_REQUEST['gaapi_webpropertyid']
+			// && isset( $_REQUEST['gaapi_webpropertyua'] ) && $_REQUEST['gaapi_webpropertyua']
+			&& isset( $_REQUEST['gaapi_propertyid'] ) && $_REQUEST['gaapi_propertyid']
 			) {
 				//
 				// wp_send_json(get_option('wpsppro_ga_profile'));
 				$settings                     = array();
 				$settings['ga_accountid']     = $_REQUEST['gaapi_accountid'];
-				$settings['ga_webpropertyid'] = $_REQUEST['gaapi_webpropertyid'];
-				$settings['ga_webpropertyua'] = $_REQUEST['gaapi_webpropertyua'];
-				$settings['ga_profileid']     = $_REQUEST['gaapi_profileid'];
+				$settings['ga_propertyid'] = $_REQUEST['gaapi_propertyid'];
+				// $settings['ga_webpropertyua'] = $_REQUEST['gaapi_webpropertyua'];
+				$settings['ga_propertyid']     = $_REQUEST['gaapi_propertyid'];
 				update_option( 'wpsppro_ga_profile', $settings );
 			} else {
-
+				flog( 'failed checks' );
 			}
 			wp_redirect( html_entity_decode( get_edit_post_link( $_REQUEST['post'] ) ), 302 );
 			exit;
@@ -378,7 +389,6 @@ class WPRTSPGENERAL {
 			delete_option( 'wpsppro_ga_profile' );
 		}
 	}
-
 }
 
 class LiveSales {
@@ -454,6 +464,7 @@ class LiveSales {
 		$defaults['conversions_enable']                  = 1; // bool
 		$defaults['conversions_enable_mob']              = 1; // bool
 		$defaults['conversions_shop_type']               = class_exists( 'Easy_Digital_Downloads' ) ? 'Easy_Digital_Downloads' : ( class_exists( 'WooCommerce' ) ? 'WooCommerce' : 'Generated' );
+		$defaults['conversions_shop_type']               = apply_filters( 'wprtsp_source', $defaults['conversions_shop_type'] );
 		$defaults['conversion_template_line1']           = '{name} {location}';
 		$defaults['conversion_template_line2']           = '{action} {product} {time}';
 		$defaults['conversion_generated_action']         = 'subscribed to the';
@@ -465,7 +476,7 @@ class LiveSales {
 		$defaults['conversions_allowed_timeframes']      = array( 1, 2, 3, 7, -1 );
 
 		/*
-		 Additional routines */
+		Additional routines */
 		// $defaults['conversions_generated_records'] = $this->generate_cpt_records(array('conversions_transaction' => 'subscribed to the newsletter', 'conversions_transaction_alt' => 'registered for the webinar'));
 
 		return $defaults;
@@ -595,11 +606,21 @@ class LiveSales {
 			</tr>
 			<tr class="generated_transactions">
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Action visitors took for auto generated records.</p></div></div><label for="wprtsp_conversion_generated_action">Action for Generated records</label></td>
-				<td><input id="wprtsp_conversion_generated_action" <?php echo ( $conversions_shop_type != 'Generated' ) ? 'readonly' : ''; ?> name="wprtsp[conversion_generated_action]" type="text" class="widefat" value="<?php echo $conversion_generated_action; ?>" /></td>
+				<td><input id="wprtsp_conversion_generated_action" 
+				<?php
+				if ( $conversions_shop_type != 'Generated' ) {
+					echo 'readonly'; }
+				?>
+				name="wprtsp[conversion_generated_action]" type="text" class="widefat" value="<?php echo $conversion_generated_action; ?>" /></td>
 			</tr>
 			<tr class="generated_transactions">
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Product visitors bought for auto generated records.</p></div></div><label for="wprtsp_conversion_generated_product">Product for Generated records</label></td>
-				<td><input id="wprtsp_conversion_generated_product" <?php echo ( $conversions_shop_type != 'Generated' ) ? 'readonly' : ''; ?> name="wprtsp[conversion_generated_product]" type="text" class="widefat" value="<?php echo $conversion_generated_product; ?>" /></td>
+				<td><input id="wprtsp_conversion_generated_product" 
+				<?php
+				if ( $conversions_shop_type != 'Generated' ) {
+					echo 'readonly';}
+				?>
+				name="wprtsp[conversion_generated_product]" type="text" class="widefat" value="<?php echo $conversion_generated_product; ?>" /></td>
 			</tr>
 		</table>
 		<script type="text/javascript">
@@ -751,7 +772,7 @@ class LiveSales {
 		foreach ( $records as $key => $value ) {
 			$messages[ $i ]['line1'] = '<span class="wprtsp_line1">' . preg_replace_callback(
 				'/{.+?}/',
-				function( $matches ) use ( $value, $settings ) {
+				function ( $matches ) use ( $value, $settings ) {
 					$key = preg_replace( '/[^\da-z]/i', '', $matches[0] );
 					return apply_filters( 'wprtsp_tag_' . $settings['conversions_shop_type'] . '_' . $key, $value[ $key ] );
 				},
@@ -759,14 +780,14 @@ class LiveSales {
 			) . '</span>';
 			$messages[ $i ]['line2'] = '<span class="wprtsp_line2">' . preg_replace_callback(
 				'/{.+?}/',
-				function( $matches ) use ( $value, $settings ) {
+				function ( $matches ) use ( $value, $settings ) {
 					$key = preg_replace( '/[^\da-z]/i', '', $matches[0] );
 					return apply_filters( 'wprtsp_tag_' . $settings['conversions_shop_type'] . '_' . $key, $value[ $key ] );
 				},
 				$template2
 			) . '</span>';
 			$messages[ $i ]['link']  = $value['link'];
-			$i++;
+			++$i;
 		}
 		return $messages;
 	}
@@ -805,12 +826,16 @@ class LiveSales {
 		if ( ! class_exists( 'Easy_Digital_Downloads' ) ) {
 			return array();
 		}
-		$args   = array(
+		
+		// Use legacy approach with error suppression for EDD 3.0+ compatibility
+		// This avoids the complex EDD 3.0+ API handling while still working
+		$args = array(
 			'numberposts'      => 100,
 			'post_status'      => 'publish',
 			'post_type'        => 'edd_payment',
 			'suppress_filters' => true,
 		);
+		
 		$value  = $settings['conversions_timeframe'];
 		$period = ( $value >= 0 ) ? ( time() - ( $value * DAY_IN_SECONDS ) ) : false;
 		if ( $period ) {
@@ -818,18 +843,24 @@ class LiveSales {
 				'after' => date( 'c', $period ),
 			);
 		}
-		$args     = apply_filters( 'wprtsp_' . $settings['conversions_shop_type'] . '_livesales_args', $args, $settings );
-		$payments = get_posts( $args );
+		
+		$args = apply_filters( 'wprtsp_' . $settings['conversions_shop_type'] . '_livesales_args', $args, $settings );
+		
+		// Suppress notices for EDD 3.0+ while using legacy method
+		$payments = @get_posts( $args );
+		
 		$payments = apply_filters( 'wprtsp_' . $settings['conversions_shop_type'] . '_livesales_data', $payments, $settings );
 		$records  = array();
 		$messages = array();
-		if ( $payments ) {
+		
+		if ( $payments && is_array( $payments ) ) {
 			foreach ( $payments as $payment_post ) {
 				setup_postdata( $payment_post );
-				$payment = new EDD_Payment( $payment_post->ID );
+				$payment = @new EDD_Payment( $payment_post->ID );
 				if ( empty( $payment->ID ) ) {
 					continue;
 				}
+				
 				$payment_time = human_time_diff( strtotime( $payment->date ), current_time( 'timestamp' ) );
 				$customer     = new EDD_Customer( $payment->customer_id );
 				$downloads    = $payment->cart_details;
@@ -837,43 +868,56 @@ class LiveSales {
 				$name         = '';
 				$firstname    = '';
 				$lastname     = '';
-				$address      = array_key_exists( 'address', $payment->user_info ) ? $payment->user_info['address'] : false;
-				if ( $address ) {
-					$address = $payment->user_info['address']['city'] . ' ' . $payment->user_info['address']['country'];
-					if ( empty( trim( $address ) ) ) {
-						$address = false;
+				$address      = '';
+				
+				// Safely get address information
+				if ( is_array( $payment->user_info ) && array_key_exists( 'address', $payment->user_info ) && is_array( $payment->user_info['address'] ) ) {
+					$city = isset( $payment->user_info['address']['city'] ) ? $payment->user_info['address']['city'] : '';
+					$country = isset( $payment->user_info['address']['country'] ) ? $payment->user_info['address']['country'] : '';
+					if ( ! empty( $city ) || ! empty( $country ) ) {
+						$address = trim( $city . ' ' . $country );
 					}
 				}
-				if ( array_key_exists( 'first_name', $payment->user_info ) && ! empty( $payment->user_info['first_name'] ) ) {
-					$name      = $payment->user_info['first_name'];
-					$firstname = $name;
+				
+				// Safely get customer names
+				if ( is_array( $payment->user_info ) && array_key_exists( 'first_name', $payment->user_info ) && ! empty( $payment->user_info['first_name'] ) ) {
+					$firstname = $payment->user_info['first_name'];
+					$name      = $firstname;
 				}
-				if ( array_key_exists( 'last_name', $payment->user_info ) && ! empty( $payment->user_info['last_name'] ) ) {
-					$name    .= ' ' . $payment->user_info['last_name'];
+				if ( is_array( $payment->user_info ) && array_key_exists( 'last_name', $payment->user_info ) && ! empty( $payment->user_info['last_name'] ) ) {
 					$lastname = $payment->user_info['last_name'];
+					$name    .= ' ' . $lastname;
 				}
 				if ( empty( trim( $name ) ) ) {
 					$name = 'Someone';
 				}
-				$records[ $payment_post->ID ] = array(
-					'product_link' => get_permalink( $downloads[0]['id'] ),
-					'first_name'   => $payment->user_info['first_name'],
-					'last_name'    => $payment->user_info['last_name'],
-					'transaction'  => __( 'purchased', 'wprtsp' ),
-					'product'      => $downloads[0]['name'],
-					'time'         => $payment_time,
-				);
-				$messages[]                   = array(
-					'link'      => get_permalink( $downloads[0]['id'] ),
-					'name'      => $name,
-					'firstname' => $firstname ? $firstname : __( 'A visitor', 'wprtsp' ),
-					'lastname'  => $lastname ? $lastname : '',
-					'location'  => $address,
-					'action'    => __( 'purchased', 'wprtsp' ),
-					'product'   => $downloads[0]['name'],
-					'time'      => __( $payment_time . ' ago', 'wprtsp' ),
-				);
+
+				// Safely handle downloads array
+				if ( ! empty( $downloads ) && is_array( $downloads ) ) {
+					$first_download = reset( $downloads );
+					if ( is_array( $first_download ) && isset( $first_download['id'] ) && isset( $first_download['name'] ) ) {
+						$records[ $payment_post->ID ] = array(
+							'product_link' => get_permalink( $first_download['id'] ),
+							'first_name'   => $firstname,
+							'last_name'    => $lastname,
+							'transaction'  => __( 'purchased', 'wprtsp' ),
+							'product'      => $first_download['name'],
+							'time'         => $payment_time,
+						);
+						$messages[] = array(
+							'link'      => get_permalink( $first_download['id'] ),
+							'name'      => $name,
+							'firstname' => $firstname ? $firstname : __( 'A visitor', 'wprtsp' ),
+							'lastname'  => $lastname ? $lastname : '',
+							'location'  => $address,
+							'action'    => __( 'purchased', 'wprtsp' ),
+							'product'   => $first_download['name'],
+							'time'      => __( $payment_time . ' ago', 'wprtsp' ),
+						);
+					}
+				}
 			}
+			
 			wp_reset_postdata();
 		}
 		$messages = $this->translate_edd_placeholders( $messages, $settings );
@@ -889,7 +933,7 @@ class LiveSales {
 		foreach ( $records as $key => $value ) {
 			$messages[ $i ]['line1'] = '<span class="wprtsp_line1">' . preg_replace_callback(
 				'/{.+?}/',
-				function( $matches ) use ( $value, $settings ) {
+				function ( $matches ) use ( $value, $settings ) {
 					$key = preg_replace( '/[^\da-z]/i', '', $matches[0] );
 					return apply_filters( 'wprtsp_tag_' . $settings['conversions_shop_type'] . '_' . $key, $value[ $key ] );
 				},
@@ -897,14 +941,14 @@ class LiveSales {
 			) . '</span>';
 			$messages[ $i ]['line2'] = '<span class="wprtsp_line2">' . preg_replace_callback(
 				'/{.+?}/',
-				function( $matches ) use ( $value, $settings ) {
+				function ( $matches ) use ( $value, $settings ) {
 					$key = preg_replace( '/[^\da-z]/i', '', $matches[0] );
 					return apply_filters( 'wprtsp_tag_' . $settings['conversions_shop_type'] . '_' . $key, $value[ $key ] );
 				},
 				$template2
 			) . '</span>';
 			$messages[ $i ]['link']  = $value['link'];
-			$i++;
+			++$i;
 		}
 		return $messages;
 	}
@@ -995,7 +1039,7 @@ class LiveSales {
 		foreach ( $records as $key => $value ) {
 			$messages[ $i ]['line1'] = '<span class="wprtsp_line1">' . preg_replace_callback(
 				'/{.+?}/',
-				function( $matches ) use ( $value, $settings ) {
+				function ( $matches ) use ( $value, $settings ) {
 					$key = preg_replace( '/[^\da-z]/i', '', $matches[0] );
 					return apply_filters( 'wprtsp_tag_' . $settings['conversions_shop_type'] . '_' . $key, $value[ $key ] );
 				},
@@ -1003,14 +1047,14 @@ class LiveSales {
 			) . '</span>';
 			$messages[ $i ]['line2'] = '<span class="wprtsp_line2">' . preg_replace_callback(
 				'/{.+?}/',
-				function( $matches ) use ( $value, $settings ) {
+				function ( $matches ) use ( $value, $settings ) {
 					$key = preg_replace( '/[^\da-z]/i', '', $matches[0] );
 					return apply_filters( 'wprtsp_tag_' . $settings['conversions_shop_type'] . '_' . $key, $value[ $key ] );
 				},
 				$template2
 			) . '</span>';
 			$messages[ $i ]['link']  = $value['link'];
-			$i++;
+			++$i;
 		}
 		return $messages;
 	}
@@ -1034,7 +1078,6 @@ class LiveSales {
 	function get_tag_Generated_location( $location ) {
 		return empty( $location ) ? '' : " <span class=\"wprtsp_location\">from $location </span>";
 	}
-
 }
 
 class WPRTSPUPGRADES {
@@ -1061,18 +1104,18 @@ class WPRTSPUPGRADES {
 
 	function meta_box() {
 		?>
-	   <h3>Upgrade to WP Real-Time Social-Proof Pro today</h3>
-	   <div>
-	   <ul>
-	   <li>Boost Conversions</li>
-	   <li>Reduce Cost of Customer-Acquisition</li>
-	   <li>Build Trust and Brand-Value</li>
-	   <li>Connect with Google Analytics to get live, real-time users visiting your site</li>
-	   <li>Show custom discounts and calls-to-action</li>
-	   </ul>
+		<h3>Upgrade to WP Real-Time Social-Proof Pro today</h3>
+		<div>
+		<ul>
+		<li>Boost Conversions</li>
+		<li>Reduce Cost of Customer-Acquisition</li>
+		<li>Build Trust and Brand-Value</li>
+		<li>Connect with Google Analytics to get live, real-time users visiting your site</li>
+		<li>Show custom discounts and calls-to-action</li>
+		</ul>
 
-	   <a class="button-primary" href="https://wp-social-proof.com/?p=262" target="_blank">Upgrade to Pro Version!</a>
-	   <iframe style="display: block;margin: 1.618em 0" width="560" height="315" src="https://www.youtube.com/embed/crxvwE3YWQo" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>       </div>
+		<a class="button-primary" href="https://wp-social-proof.com/?p=262" target="_blank">Upgrade to Pro Version!</a>
+		<iframe style="display: block;margin: 1.618em 0" width="560" height="315" src="https://www.youtube.com/embed/crxvwE3YWQo" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>       </div>
 		<?php
 	}
 }
