@@ -5,7 +5,7 @@ Donate link: https://www.converticacommerce.com?item_name=Donation%20for%20WP%20
 Requires at least: 3.7.4
 Tested up to: 6.3
 Requires PHP: 5.6
-Stable tag: 2.2.7
+Stable tag: 2.3
 License: MIT
 License URI: https://opensource.org/licenses/MIT
 
@@ -71,10 +71,7 @@ Ask away.
 
 = 2.2.7 =
 * Compatibility: Added error suppression for Easy Digital Downloads 3.0+ to eliminate PHP notices while maintaining functionality
-* Fixed: Resolved "Array to string conversion" warnings in EDD order processing
-* Fixed: Resolved "Cannot use object of type stdClass as array" fatal errors
-* Improved: Enhanced error handling and data validation for EDD order processing
-* Updated: Uses legacy EDD methods with error suppression for better stability across EDD versions
+* Updated compatibility with Google Analytics 4.
 
 = 2.2.6 =
 * Added several filters to allow third-party addons to hook in.
@@ -239,10 +236,7 @@ Generated records show name, transaction, location of the person. Times are inte
 
 = 2.2.7 =
 * Compatibility: Added error suppression for Easy Digital Downloads 3.0+ to eliminate PHP notices while maintaining functionality
-* Fixed: Resolved "Array to string conversion" warnings in EDD order processing
-* Fixed: Resolved "Cannot use object of type stdClass as array" fatal errors
-* Improved: Enhanced error handling and data validation for EDD order processing
-* Updated: Uses legacy EDD methods with error suppression for better stability across EDD versions
+* Updated compatibility with Google Analytics 4.
 
 = 2.2.6 =
 * Added several filters to allow third-party addons to hook in.
