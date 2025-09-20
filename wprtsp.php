@@ -54,14 +54,16 @@ class WPRTSP {
 		$this->dir = trailingslashit( plugin_dir_path( __FILE__ ) );
 		$this->uri = trailingslashit( plugin_dir_url( __FILE__ ) );
 		$this->set_version();
-
 	}
 
 	function includes() {
 		require_once $this->dir . 'inc/meta.php';
 
-		if ( file_exists( $this->dir . 'wprtsppro/pro/pro.php' ) ) {
-			include_once $this->dir . 'wprtsppro/pro/pro.php';
+		if ( file_exists( $this->dir . 'inc/license_manager.php' ) ) {
+			include_once $this->dir . 'inc/license_manager.php';
+		}
+		if ( file_exists( $this->dir . 'pro/pro.php' ) ) {
+			include_once $this->dir . 'pro/pro.php';
 		}
 	}
 
@@ -110,7 +112,6 @@ class WPRTSP {
 			}
 			// return;
 		}
-
 	}
 
 	function add_extra_meta_boxes() {
@@ -491,7 +492,6 @@ class WPRTSP {
 			do_action( 'after_wprtsp_upgrade', $this->version );
 			delete_option( 'wprtsp_upgrade_required' );
 		}
-
 	}
 
 	function get_setting( $setting ) {
@@ -560,7 +560,6 @@ class WPRTSP {
 			wp_deregister_script( 'postbox' );
 			wp_enqueue_style( 'wprtsp', $this->uri . 'assets/admin-styles.css', array(), filemtime( $this->dir . 'assets/admin-styles.css' ) );
 		}
-
 	}
 
 	function enqueue_scripts() {
@@ -598,7 +597,7 @@ class WPRTSP {
 			// echo 'enabled:' . $notification->ID . PHP_EOL;
 			$enabled = apply_filters( 'wprtsp_enabled', false, $meta );
 
-			flog( 'Notification ID: ' . $notification->ID . ' Enabled: ' . ( $enabled ? 'true' : 'false' ) . ' Title: ' . $notification->post_title  . ' Meta: ' . print_r( $meta, true ) );
+			flog( 'Notification ID: ' . $notification->ID . ' Enabled: ' . ( $enabled ? 'true' : 'false' ) . ' Title: ' . $notification->post_title . ' Meta: ' . print_r( $meta, true ) );
 			if ( $enabled ) {
 				return $enabled; // Required so that once an apt social-proof to be displayed is found, it is not overridden with global or other older social-proofs.
 			}
@@ -657,7 +656,7 @@ class WPRTSP {
 
 		$post_ids = $settings['general_post_ids'];
 		$show_on  = $settings['general_show_on'];
-		
+
 		switch ( $show_on ) {
 			case '1':   // Entire Site
 				$records = $this->wprtsp_get_proofs();
@@ -674,7 +673,7 @@ class WPRTSP {
 						$post_ids = array( $post_ids );
 					}
 				}
-				
+
 				if ( is_singular() && in_array( get_the_ID(), $post_ids ) ) {
 					$records = $this->wprtsp_get_proofs();
 					if ( $records ) {
@@ -739,12 +738,12 @@ class WPRTSP {
 	}
 
 	function wprtsp_get_proofs() {
-		$settings = $this->settings;
+		$settings    = $this->settings;
 		$conversions = apply_filters( 'wprtsp_get_proof_data_conversions_' . $settings['conversions_shop_type'], $settings );
-		$hotstats = apply_filters( 'wprtsp_get_proof_data_hotstats_' . $settings['conversions_shop_type'], array(), $settings );
-		$livestats = apply_filters( 'wprtsp_get_proof_data_livestats', array(), $settings );
+		$hotstats    = apply_filters( 'wprtsp_get_proof_data_hotstats_' . $settings['conversions_shop_type'], array(), $settings );
+		$livestats   = apply_filters( 'wprtsp_get_proof_data_livestats', array(), $settings );
 		flog( 'livestats', $livestats );
-		$ctas      = apply_filters( 'wprtsp_get_proof_data_ctas', array_key_exists( 'ctas', $settings ) ? $settings['ctas'] : array(), $settings );
+		$ctas = apply_filters( 'wprtsp_get_proof_data_ctas', array_key_exists( 'ctas', $settings ) ? $settings['ctas'] : array(), $settings );
 
 		if ( $conversions ) {
 			$settings['proofs']['conversions'] = $conversions;
@@ -903,7 +902,6 @@ class WPRTSP {
 		print_r( $str );
 		echo '</pre>';
 	}
-
 }
 
 function wprtsp() {
