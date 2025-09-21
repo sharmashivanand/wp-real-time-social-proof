@@ -69,6 +69,10 @@ Ask away.
 
 == Changelog ==
 
+= 2.3 =
+* Maintenance: Disabled frontend console debug logging by default in public script
+* Minor polish and docs clean-up; no breaking changes
+
 = 2.2.7 =
 * Compatibility: Added error suppression for Easy Digital Downloads 3.0+ to eliminate PHP notices while maintaining functionality
 * Updated compatibility with Google Analytics 4.
@@ -233,6 +237,9 @@ Initial release
 Generated records show name, transaction, location of the person. Times are intelligently generated using prime numbers for maximum CTR. Records are also pulled out of uniquely seed based random algorithm.
 
 == Upgrade Notice ==
+
+= 2.3 =
+Maintenance update with minor polish. No breaking changes.
 
 = 2.2.7 =
 * Compatibility: Added error suppression for Easy Digital Downloads 3.0+ to eliminate PHP notices while maintaining functionality
