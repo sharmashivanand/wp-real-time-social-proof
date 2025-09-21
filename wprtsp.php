@@ -119,7 +119,39 @@ class WPRTSP {
 	}
 
 	function meta_box_tips() {
-		// echo 22;
+		?>
+		<div class="wprtsp-tips">
+			<h4><?php _e( 'Quick Tips', 'wprtsp' ); ?></h4>
+			<ul>
+				<li><?php _e( 'Test different positions and styles to find what converts best', 'wprtsp' ); ?></li>
+				<li><?php _e( 'Use real customer data for authentic social proof', 'wprtsp' ); ?></li>
+				<li><?php _e( 'Monitor conversion rates to optimize performance', 'wprtsp' ); ?></li>
+			</ul>
+			
+			<h4><?php _e( 'Need Help?', 'wprtsp' ); ?></h4>
+			<p>
+				<a href="https://wp-social-proof.com/contact/" target="_blank" class="button button-secondary">
+					<?php _e( 'Get Support', 'wprtsp' ); ?>
+				</a>
+			</p>
+			
+			<?php if ( ! $this->is_valid_pro() ) : ?>
+			<h4><?php _e( 'Go Pro', 'wprtsp' ); ?></h4>
+			<p><?php _e( 'Unlock advanced features with WP Social Proof Pro!', 'wprtsp' ); ?></p>
+			<p>
+				<a href="https://wp-social-proof.com/" target="_blank" class="button button-primary">
+					<?php _e( 'Upgrade Now', 'wprtsp' ); ?>
+				</a>
+			</p>
+			<?php endif; ?>
+		</div>
+		<style>
+		.wprtsp-tips h4 { margin-top: 15px; margin-bottom: 8px; }
+		.wprtsp-tips ul { margin-left: 20px; }
+		.wprtsp-tips li { margin-bottom: 5px; }
+		.wprtsp-tips .button { margin-top: 5px; }
+		</style>
+		<?php
 	}
 
 	function is_pro() {
@@ -143,6 +175,9 @@ class WPRTSP {
 	}
 
 	function flog( $str ) {
+		if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+			return;
+		}
 		$date = date( 'Ymd-G:i:s' ); // 20171231-23:59:59
 		$date = $date . '-' . microtime( true );
 		$file = trailingslashit( __DIR__ ) . 'log.log';
@@ -154,7 +189,6 @@ class WPRTSP {
 	}
 
 	function get_pro_status( $cached = true ) {
-		// $this->flog( 'get_pro_status called from' . debug_backtrace()[1]['function'] );
 		$status = get_transient( 'wprtsp_license_status' );
 		if ( ! $status || ! $cached ) {
 			$key = $this->get_setting( 'license_key' );
@@ -192,7 +226,6 @@ class WPRTSP {
 
 	function set_validation( $status ) {
 		// return;
-		$this->flog( 'set_validation called from' . debug_backtrace()[1]['function'] );
 		if ( ! $status ) {
 			return;
 		}
@@ -207,7 +240,6 @@ class WPRTSP {
 		} else {
 			$this->version = $version['wprtspversion'];
 		}
-		// $this->llog($this->version);
 	}
 
 	function plugin_data() {
@@ -367,7 +399,6 @@ class WPRTSP {
 
 		$display_version = $this->version;
 		$plugin_data     = $this->plugin_data();
-		// $this->llog($_REQUEST);
 		if ( isset( $_REQUEST['upgrade'] ) ) {
 			$process = 'updating';
 		} else {
@@ -597,7 +628,6 @@ class WPRTSP {
 			// echo 'enabled:' . $notification->ID . PHP_EOL;
 			$enabled = apply_filters( 'wprtsp_enabled', false, $meta );
 
-			flog( 'Notification ID: ' . $notification->ID . ' Enabled: ' . ( $enabled ? 'true' : 'false' ) . ' Title: ' . $notification->post_title . ' Meta: ' . print_r( $meta, true ) );
 			if ( $enabled ) {
 				return $enabled; // Required so that once an apt social-proof to be displayed is found, it is not overridden with global or other older social-proofs.
 			}
@@ -742,7 +772,7 @@ class WPRTSP {
 		$conversions = apply_filters( 'wprtsp_get_proof_data_conversions_' . $settings['conversions_shop_type'], $settings );
 		$hotstats    = apply_filters( 'wprtsp_get_proof_data_hotstats_' . $settings['conversions_shop_type'], array(), $settings );
 		$livestats   = apply_filters( 'wprtsp_get_proof_data_livestats', array(), $settings );
-		flog( 'livestats', $livestats );
+
 		$ctas = apply_filters( 'wprtsp_get_proof_data_ctas', array_key_exists( 'ctas', $settings ) ? $settings['ctas'] : array(), $settings );
 
 		if ( $conversions ) {
@@ -895,6 +925,9 @@ class WPRTSP {
 
 	/* Outputs any variable / php objects / arrays in a clear visible frmat */
 	function llog( $str ) {
+		if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+			return;
+		}
 		if ( ! is_user_logged_in() ) {
 			return;
 		}

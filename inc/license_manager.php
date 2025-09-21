@@ -3,9 +3,11 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
 if ( ! defined( 'WPRTSP_LICENSE_PAGE' ) ) {
 	define( 'WPRTSP_LICENSE_PAGE', 'wprtsp-settings' );
 }
+
 if ( ! class_exists( 'WPRTSP_EDD_Settings' ) ) {
 	class WPRTSP_EDD_Settings {
 		function __construct() {
@@ -83,6 +85,11 @@ if ( ! class_exists( 'WPRTSP_EDD_Settings' ) ) {
 
 		function wprtsp_check_license() {
 
+			// Security check - ensure user has proper capabilities
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return false;
+			}
+
 			global $wp_version;
 			$wprtsp = WPRTSP::get_instance();
 
@@ -101,7 +108,7 @@ if ( ! class_exists( 'WPRTSP_EDD_Settings' ) ) {
 				WPRTSP_EDD_SL_URL,
 				array(
 					'timeout'   => 15,
-					'sslverify' => false,
+					'sslverify' => true,
 					'body'      => $api_params,
 				)
 			);
@@ -111,8 +118,7 @@ if ( ! class_exists( 'WPRTSP_EDD_Settings' ) ) {
 			}
 
 			$license_data = json_decode( wp_remote_retrieve_body( $response ) );
-			flog( 'wprtsp $license_data' );
-			flog( $license_data );
+
 			if ( $license_data->license == 'valid' ) {
 				// echo 'valid'; exit;
 				return 'valid';
@@ -140,14 +146,6 @@ if ( ! class_exists( 'WPRTSP_EDD_Settings' ) ) {
 		}
 
 		function settings_menu() {
-			/*
-			if ( isset( $_REQUEST['submit'] ) && $_REQUEST['submit'] == 'De-Activate' && ! empty( $_REQUEST['wprtsp']['license_key'] ) ) {
-				$this->wprtsp_deactivate_license( sanitize_text_field( $_REQUEST['wprtsp']['license_key'] ) );
-			}
-			if ( isset( $_REQUEST['submit'] ) && $_REQUEST['submit'] == 'Save & Activate' && ! empty( $_REQUEST['wprtsp']['license_key'] ) ) {
-				$this->wprtsp_activate_license( sanitize_text_field( $_REQUEST['wprtsp']['license_key'] ) );
-			}
-			*/
 			add_submenu_page( 'edit.php?post_type=socialproof', 'Social Proof', 'License', 'manage_options', 'wprtsp', array( $this, 'settings_page' ) );
 		}
 
@@ -165,8 +163,8 @@ if ( ! class_exists( 'WPRTSP_EDD_Settings' ) ) {
 			$readonly  = '';
 			$protected = 'type="text"';
 			if ( $this->get_activation_status() == 'valid' ) {
-				$readonly  = 'readonly';
-				$protected = 'type="password"';
+				// $readonly  = 'readonly';
+				// $protected = 'type="password"';
 			}
 			?>
 			<input autocomplete="on" <?php echo $readonly; ?> <?php echo $protected; ?> placeholder="Enter your license key" id="license_key" name="wprtsp[license_key]" value="<?php echo esc_attr( $this->get_setting( 'license_key' ) ); ?>" />
@@ -212,12 +210,18 @@ if ( ! class_exists( 'WPRTSP_EDD_Settings' ) ) {
 		}
 
 		function settings_page() {
+			// Security check - ensure user has proper capabilities
+			if ( ! current_user_can( 'manage_options' ) ) {
+				wp_die( __( 'You do not have sufficient permissions to access this page.', 'wprtsp' ) );
+			}
 			?>
 			<div class="wrap">
 			<h1>WP Real-Time Social-Proof License Settings</h1>
+			<?php settings_errors( 'wprtsp' ); ?>
 			<div class="container">
 				<form method="post" action="options.php" autocomplete="on" id="wprtsp-license-form">
 				<?php settings_fields( 'wprtsp' ); ?>
+				<?php wp_nonce_field( 'wprtsp_license_action', 'wprtsp_license_nonce' ); ?>
 				<?php
 				do_settings_sections( 'wprtsp' );
 				$wprtsp = WPRTSP::get_instance();
@@ -252,6 +256,20 @@ if ( ! class_exists( 'WPRTSP_EDD_Settings' ) ) {
 			// var_dump( $settings );
 			// die();
 			$status = sanitize_text_field( $settings['wprtsp_activation'] );
+
+			// Security checks before processing license operations
+			if ( ! current_user_can( 'manage_options' ) ) {
+				add_settings_error( 'wprtsp', 'unauthorized', __( 'Unauthorized operation. You do not have sufficient permissions.', 'wprtsp' ), 'error' );
+				return $settings; // Return without processing
+			}
+
+			// Verify nonce for license operations (only when form is submitted)
+			if ( isset( $_POST['wprtsp_license_nonce'] ) ) {
+				if ( ! wp_verify_nonce( $_POST['wprtsp_license_nonce'], 'wprtsp_license_action' ) ) {
+					add_settings_error( 'wprtsp', 'nonce_failed', __( 'Security check failed. Please refresh the page and try again.', 'wprtsp' ), 'error' );
+					return $settings; // Return without processing
+				}
+			}
 
 			$wprtsp = WPRTSP::get_instance();
 			if ( $status == 'no' ) { // Not Activated
@@ -296,8 +314,18 @@ if ( ! class_exists( 'WPRTSP_EDD_Settings' ) ) {
 		 *************************************/
 
 		function wprtsp_activate_license( $license ) {
-			$this->flog( 'wprtsp_activate_license' );
 			// listen for our activate button to be clicked
+
+			// Security check - ensure user has proper capabilities
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return false;
+			}
+
+			// Validate license key
+			$license = trim( sanitize_text_field( $license ) );
+			if ( empty( $license ) ) {
+				return false;
+			}
 
 			$wprtsp = WPRTSP::get_instance();
 
@@ -319,7 +347,7 @@ if ( ! class_exists( 'WPRTSP_EDD_Settings' ) ) {
 				WPRTSP_EDD_SL_URL,
 				array(
 					'timeout'   => 15,
-					'sslverify' => false,
+					'sslverify' => true,
 					'body'      => $api_params,
 				)
 			);
@@ -411,7 +439,17 @@ if ( ! class_exists( 'WPRTSP_EDD_Settings' ) ) {
 		 ***********************************************/
 
 		function wprtsp_deactivate_license( $license ) {
-			$this->flog( 'WPRTSP_DEACTIVATE_LICENSE' );
+
+			// Security check - ensure user has proper capabilities
+			if ( ! current_user_can( 'manage_options' ) ) {
+				return false;
+			}
+
+			// Validate license key
+			$license = trim( sanitize_text_field( $license ) );
+			if ( empty( $license ) ) {
+				return false;
+			}
 
 			$wprtsp     = WPRTSP::get_instance();
 			$plugindata = get_plugin_data( WPRTSPFILE, 0, 0 );
@@ -429,7 +467,7 @@ if ( ! class_exists( 'WPRTSP_EDD_Settings' ) ) {
 				WPRTSP_EDD_SL_URL,
 				array(
 					'timeout'   => 15,
-					'sslverify' => false,
+					'sslverify' => true,
 					'body'      => $api_params,
 				)
 			);
@@ -457,26 +495,10 @@ if ( ! class_exists( 'WPRTSP_EDD_Settings' ) ) {
 
 			$license_data = json_decode( wp_remote_retrieve_body( $response ) ); // decode the license data
 
-			// $license_data->license will be either "deactivated" or "failed"
-			// llog($license_data->license);
-			if ( $license_data ) {
-				// llog( $license_data );
-			}
-			$this->flog( $license_data );
 			if ( $license_data->license == 'deactivated' ) {
 				delete_transient( 'wprtsp_license_status' );
 				delete_option( 'wprtsp' );
-				// $this->flog( delete_transient( 'wprtsp_license_status' ) );
-				// while ( get_transient( 'wprtsp_license_status' ) ) {
-				// $this->flog( 'delete_transient' );
-				// $this->flog( delete_transient( 'wprtsp_license_status' ) );
-				// }
-				// $this->flog( delete_option( 'wprtsp' ) );
-				// wp_cache_delete( 'wprtsp', 'options' );
-				// llog( $license_data->license );
 			}
-			// die();
-			// llog($_REQUEST);
 
 			return;
 			wp_redirect(
@@ -492,6 +514,9 @@ if ( ! class_exists( 'WPRTSP_EDD_Settings' ) ) {
 		}
 
 		function flog( $str ) {
+			if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+				return;
+			}
 			$date = date( 'Ymd-G:i:s' ); // 20171231-23:59:59
 			$date = $date . '-' . microtime( true );
 			$file = trailingslashit( __DIR__ ) . 'log.log';

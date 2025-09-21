@@ -22,13 +22,16 @@ class LiveVisitors {
 	}
 
 	function llog( $str ) {
+		if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+			return;
+		}
 		echo '<pre>';
 		print_r( $str );
 		echo '</pre>';
 	}
 
 	function setup_actions() {
-		
+
 		add_filter( 'wprtsp_register_proof', array( $this, 'register_proof' ) );
 		add_action( 'wprtsp_add_meta_boxes', array( $this, 'add_meta_boxes' ) );
 		add_filter( 'wprtsp_sanitize', array( $this, 'sanitize' ) );
@@ -230,6 +233,9 @@ class SalesMilestones {
 	}
 
 	function llog( $str ) {
+		if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+			return;
+		}
 		echo '<pre>';
 		print_r( $str );
 		echo '</pre>';
@@ -477,6 +483,9 @@ class CustomCTA {
 	}
 
 	function llog( $str ) {
+		if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+			return;
+		}
 		echo '<pre>';
 		print_r( $str );
 		echo '</pre>';

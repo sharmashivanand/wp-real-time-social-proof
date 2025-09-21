@@ -17,6 +17,9 @@ class WPRTSPGENERAL {
 	}
 
 	function llog( $str ) {
+		if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+			return;
+		}
 		echo '<pre>';
 		print_r( $str );
 		echo '</pre>';
@@ -106,8 +109,7 @@ class WPRTSPGENERAL {
 			$notification_theme_html .= '<option value="' . $value . '" ' . selected( $general_notification_theme, $value, false ) . '>' . ucwords( preg_replace( '/[^\da-z]/i', ' ', $value ) ) . '</option>';
 		}
 		$ga_profile = get_option( 'wpsppro_ga_profile' );
-		flog( '$ga_profile' );
-		flog( $ga_profile );
+
 		if ( $ga_profile ) {
 			$ga_profile = $ga_profile['ga_propertyid'];
 		}
@@ -126,7 +128,7 @@ class WPRTSPGENERAL {
 				<td><div class="wprtsp-help-tip"><div class="wprtsp-help-content"><p>Connect with Google Analytics to get Live Visitor count. Make sure to select the correct analytics profile.</p></div></div><label>Google Analytics</label></td>
 				<td>
 				<?php
-				
+
 				if ( ! $ga_profile ) {
 					?>
 					<a class="button-primary btn-gauth" href="<?php echo WPRTSPAPIEP . '?wppro_gaapi_authenticate=' . $statevars; ?>">Sign in with Google</a> 
@@ -221,8 +223,6 @@ class WPRTSPGENERAL {
 					<ol id="wprtsp_general_notification_order_ui" multiple>
 						<?php
 						$proofs = $this->sanitize_order( $settings['general_notification_order'], $defaults['general_notification_order'] );// array_values( array_unique( array_merge( , array_diff( , $settings['general_notification_order'] ) ) ) );
-						// $proofs = explode( ',', $proofs );
-						// $this->llog( $proofs );
 						foreach ( $proofs as $proof ) {
 							echo '<li id="' . $proof . '">' . $proof . '</li>';
 						}
@@ -355,38 +355,44 @@ class WPRTSPGENERAL {
 	}
 
 	function save_ga_profile() {
-		// https://dev.converticacommerce.com/woocommerce-sandbox/wp-admin/post.php?post=204&action=edit&origin_nonce=4c990a9bb6&gaapi_accountid=107074057&gaapi_webpropertyid=159840733&gaapi_webpropertyua=UA-107074057-1&gaapi_profileid=161102233&wpsppro-action=oauth&success=1
-		// llog('hello');
 
 		if ( isset( $_REQUEST['wpsppro-action'] ) && $_REQUEST['wpsppro-action'] == 'oauth' ) {
-			flog( '$_REQUEST' );
-			flog( $_REQUEST );
-			wp_verify_nonce( $_REQUEST['origin_nonce'], 'wprtsp_gaapi' );
-			flog( 'nonce passed' );
+			// Verify nonce for OAuth action
+			check_ajax_referer( 'wprtsp_gaapi', $_REQUEST['origin_nonce'] );
+
 			if ( current_user_can( 'activate_plugins' )
 			&& isset( $_REQUEST['success'] ) && $_REQUEST['success']
 			&& isset( $_REQUEST['gaapi_accountid'] ) && $_REQUEST['gaapi_accountid']
-			// && isset( $_REQUEST['gaapi_webpropertyid'] ) && $_REQUEST['gaapi_webpropertyid']
-			// && isset( $_REQUEST['gaapi_webpropertyua'] ) && $_REQUEST['gaapi_webpropertyua']
 			&& isset( $_REQUEST['gaapi_propertyid'] ) && $_REQUEST['gaapi_propertyid']
 			) {
-				//
-				// wp_send_json(get_option('wpsppro_ga_profile'));
-				$settings                     = array();
-				$settings['ga_accountid']     = $_REQUEST['gaapi_accountid'];
-				$settings['ga_propertyid'] = $_REQUEST['gaapi_propertyid'];
-				// $settings['ga_webpropertyua'] = $_REQUEST['gaapi_webpropertyua'];
-				$settings['ga_propertyid']     = $_REQUEST['gaapi_propertyid'];
+				$settings                  = array();
+				$settings['ga_accountid']  = sanitize_text_field( $_REQUEST['gaapi_accountid'] );
+				$settings['ga_propertyid'] = sanitize_text_field( $_REQUEST['gaapi_propertyid'] );
 				update_option( 'wpsppro_ga_profile', $settings );
 			} else {
-				flog( 'failed checks' );
+				// Failed security checks - log for debugging if WP_DEBUG is enabled
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'WPRTSP: GA Profile OAuth failed security checks' );
+				}
 			}
-			wp_redirect( html_entity_decode( get_edit_post_link( $_REQUEST['post'] ) ), 302 );
+
+			// Safely handle post ID for redirect
+			$post_id = isset( $_REQUEST['post'] ) ? absint( $_REQUEST['post'] ) : 0;
+			if ( $post_id > 0 ) {
+				wp_redirect( html_entity_decode( get_edit_post_link( $post_id ) ), 302 );
+			} else {
+				wp_redirect( admin_url( 'edit.php?post_type=socialproof' ), 302 );
+			}
 			exit;
 		}
 
 		if ( isset( $_REQUEST['wpsppro-action'] ) && $_REQUEST['wpsppro-action'] == 'revoke' && isset( $_REQUEST['success'] ) && $_REQUEST['success'] == '1' ) {
-			delete_option( 'wpsppro_ga_profile' );
+			// Verify nonce for revoke action
+			check_ajax_referer( 'wprtsp_gaapi', $_REQUEST['origin_nonce'] );
+
+			if ( current_user_can( 'activate_plugins' ) ) {
+				delete_option( 'wpsppro_ga_profile' );
+			}
 		}
 	}
 }
@@ -416,6 +422,9 @@ class LiveSales {
 	}
 
 	function llog( $str ) {
+		if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+			return;
+		}
 		echo '<pre>';
 		print_r( $str );
 		echo '</pre>';
@@ -826,7 +835,7 @@ class LiveSales {
 		if ( ! class_exists( 'Easy_Digital_Downloads' ) ) {
 			return array();
 		}
-		
+
 		// Use legacy approach with error suppression for EDD 3.0+ compatibility
 		// This avoids the complex EDD 3.0+ API handling while still working
 		$args = array(
@@ -835,7 +844,7 @@ class LiveSales {
 			'post_type'        => 'edd_payment',
 			'suppress_filters' => true,
 		);
-		
+
 		$value  = $settings['conversions_timeframe'];
 		$period = ( $value >= 0 ) ? ( time() - ( $value * DAY_IN_SECONDS ) ) : false;
 		if ( $period ) {
@@ -843,16 +852,16 @@ class LiveSales {
 				'after' => date( 'c', $period ),
 			);
 		}
-		
+
 		$args = apply_filters( 'wprtsp_' . $settings['conversions_shop_type'] . '_livesales_args', $args, $settings );
-		
+
 		// Suppress notices for EDD 3.0+ while using legacy method
 		$payments = @get_posts( $args );
-		
+
 		$payments = apply_filters( 'wprtsp_' . $settings['conversions_shop_type'] . '_livesales_data', $payments, $settings );
 		$records  = array();
 		$messages = array();
-		
+
 		if ( $payments && is_array( $payments ) ) {
 			foreach ( $payments as $payment_post ) {
 				setup_postdata( $payment_post );
@@ -860,7 +869,7 @@ class LiveSales {
 				if ( empty( $payment->ID ) ) {
 					continue;
 				}
-				
+
 				$payment_time = human_time_diff( strtotime( $payment->date ), current_time( 'timestamp' ) );
 				$customer     = new EDD_Customer( $payment->customer_id );
 				$downloads    = $payment->cart_details;
@@ -869,16 +878,16 @@ class LiveSales {
 				$firstname    = '';
 				$lastname     = '';
 				$address      = '';
-				
+
 				// Safely get address information
 				if ( is_array( $payment->user_info ) && array_key_exists( 'address', $payment->user_info ) && is_array( $payment->user_info['address'] ) ) {
-					$city = isset( $payment->user_info['address']['city'] ) ? $payment->user_info['address']['city'] : '';
+					$city    = isset( $payment->user_info['address']['city'] ) ? $payment->user_info['address']['city'] : '';
 					$country = isset( $payment->user_info['address']['country'] ) ? $payment->user_info['address']['country'] : '';
 					if ( ! empty( $city ) || ! empty( $country ) ) {
 						$address = trim( $city . ' ' . $country );
 					}
 				}
-				
+
 				// Safely get customer names
 				if ( is_array( $payment->user_info ) && array_key_exists( 'first_name', $payment->user_info ) && ! empty( $payment->user_info['first_name'] ) ) {
 					$firstname = $payment->user_info['first_name'];
@@ -904,7 +913,7 @@ class LiveSales {
 							'product'      => $first_download['name'],
 							'time'         => $payment_time,
 						);
-						$messages[] = array(
+						$messages[]                   = array(
 							'link'      => get_permalink( $first_download['id'] ),
 							'name'      => $name,
 							'firstname' => $firstname ? $firstname : __( 'A visitor', 'wprtsp' ),
@@ -917,7 +926,7 @@ class LiveSales {
 					}
 				}
 			}
-			
+
 			wp_reset_postdata();
 		}
 		$messages = $this->translate_edd_placeholders( $messages, $settings );
