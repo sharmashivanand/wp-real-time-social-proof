@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: WP Real-Time Social-Proof
+ * Plugin Name: WP Live Social-Proof
  * Description: Animated, live, real-time social-proof Pop-ups for your WordPress website to boost sales and signups.
  * Version:     2.3
  * Plugin URI:  https://wordpress.org/plugins/wp-real-time-social-proof/
@@ -13,7 +13,7 @@
  */
 
 /*
-Copyright 2020 Shivanand Sharma
+Copyright 2025 Shivanand Sharma
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

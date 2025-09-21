@@ -8,7 +8,7 @@ var wprtsp_conversions_messages = [];
 var wprtsp_hotstats_messages = [];
 var wprtsp_livestats_messages = [];
 var wprtsp_ctas_messages = [];
-var debug = 0;
+var debug = 1;
 var title = false;
 var titletimer = false;
 var height = 0;
@@ -173,17 +173,13 @@ function wprtsp_show_message() {
 
     jQuery('#wprtsp_pop').mouseover(function () {
         wprtsp_pauseshow = Date.now();
-        if (debug) {
-            console.log('Show Started @: ' + wprtsp_startshow);
-            console.log('Show Paused @: ' + wprtsp_pauseshow);
-        }
+        console.log('Show Started @: ' + wprtsp_startshow);
+        console.log('Show Paused @: ' + wprtsp_pauseshow);
         clearTimeout(clock);
         wprtsp_pop.stop(true, true).show(200);
     }).mouseout(function () {
-        if (debug) {
-            console.log('Show stopped for ' + (wprtsp_pauseshow - wprtsp_startshow) + 'ms');
-            console.log('Show remaining for ' + ((settings.general_duration * 1000) - (wprtsp_pauseshow - wprtsp_startshow)) + 'ms');
-        }
+        console.log('Show stopped for ' + (wprtsp_pauseshow - wprtsp_startshow) + 'ms');
+        console.log('Show remaining for ' + ((settings.general_duration * 1000) - (wprtsp_pauseshow - wprtsp_startshow)) + 'ms');
         wprtsp_pop.stop(true, true).delay((settings.general_duration * 1000) - (wprtsp_pauseshow - wprtsp_startshow)).animate({
             "bottom": '-' + height + 'px',
             'opacity': '0'
@@ -206,9 +202,9 @@ function titlenotification() {
 }
 
 function wprtsp_get_message() {
-    if (debug) { console.log('current flag:' + flag); }
+    console.log('current flag:' + flag);
 
-    if (debug) { console.log('new flag:' + flag); }
+    console.log('new flag:' + flag);
     if (flag == 's') {
         current_proof_type = 'conversions';
         set_sequence_next(flag);
@@ -291,19 +287,19 @@ function translate_into_flag(sflag) {
 }
 
 function proof_has_length(sProof) {
-    if (debug) { console.log('sProof:' + sProof); }
+    console.log('sProof:' + sProof);
     switch (sProof) {
         case 'LiveSales':
-            if (debug) { console.log('wprtsp_conversions_messages.length:' + wprtsp_conversions_messages.length); }
+            console.log('wprtsp_conversions_messages.length:' + wprtsp_conversions_messages.length);
             return wprtsp_conversions_messages.length;
         case 'LiveVisitors':
-            if (debug) { console.log('wprtsp_livestats_messages.length:' + wprtsp_livestats_messages.length); }
+            console.log('wprtsp_livestats_messages.length:' + wprtsp_livestats_messages.length);
             return wprtsp_livestats_messages.length;
         case 'SalesMilestones':
-            if (debug) { console.log('wprtsp_hotstats_messages.length:' + wprtsp_hotstats_messages.length); }
+            console.log('wprtsp_hotstats_messages.length:' + wprtsp_hotstats_messages.length);
             return wprtsp_hotstats_messages.length;
         case 'CustomCTA':
-            if (debug) { console.log('wprtsp_ctas_messages.length:' + wprtsp_ctas_messages.length); }
+            console.log('wprtsp_ctas_messages.length:' + wprtsp_ctas_messages.length);
             return wprtsp_ctas_messages.length;
     }
 }

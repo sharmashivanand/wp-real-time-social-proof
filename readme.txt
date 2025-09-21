@@ -1,9 +1,9 @@
-=== WP Real-Time Social-Proof ===
+=== WP Live Social-Proof ===
 Contributors: varun21, ruchikawp
 Tags: social proof, marketing, recent sales notification, woocommerce, popup, live sales, conversion, ctr, ecommerce, easy digital downloads, newsletter, optin, signup, sales triggers
 Donate link: https://www.converticacommerce.com?item_name=Donation%20for%20WP%20Social%20Proof&cmd=_donations&currency_code=USD&lc=US&business=shivanand@converticacommerce.com
 Requires at least: 3.7.4
-Tested up to: 6.3
+Tested up to: 6.8
 Requires PHP: 5.6
 Stable tag: 2.3
 License: MIT
@@ -18,7 +18,7 @@ Potential shoppers trust other buyers (social proof). Therefore, when a potentia
 
 [A very short video explains this powerful phenomenon and how you can leverage it to sell better. Pls see here](https://wp-social-proof.com/how-it-works/)
 
-WP Real-Time Social-Proof shows popups of the recent sales and signups on the bottom left (or right) corner of your website.
+WP Live Social-Proof shows popups of the recent sales and signups on the bottom left (or right) corner of your website.
 
 All your efforts be it via organic SEO, paid ads or any other form of marketing and promotion, go through a bottleneck. The fact is the cost of paid-ads is shooting up. Visitors are confused with information overload. Ad-blindness is at an all time high. Cost Per Acquition is getting costly.
 
@@ -70,10 +70,6 @@ Ask away.
 == Changelog ==
 
 = 2.3 =
-* Maintenance: Disabled frontend console debug logging by default in public script
-* Minor polish and docs clean-up; no breaking changes
-
-= 2.2.7 =
 * Compatibility: Added error suppression for Easy Digital Downloads 3.0+ to eliminate PHP notices while maintaining functionality
 * Updated compatibility with Google Analytics 4.
 
@@ -239,9 +235,6 @@ Generated records show name, transaction, location of the person. Times are inte
 == Upgrade Notice ==
 
 = 2.3 =
-Maintenance update with minor polish. No breaking changes.
-
-= 2.2.7 =
 * Compatibility: Added error suppression for Easy Digital Downloads 3.0+ to eliminate PHP notices while maintaining functionality
 * Updated compatibility with Google Analytics 4.
 
