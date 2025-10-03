@@ -4,529 +4,389 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-if ( ! defined( 'WPRTSP_LICENSE_PAGE' ) ) {
-	define( 'WPRTSP_LICENSE_PAGE', 'wprtsp-settings' );
-}
+/**
+ * UNIX-style license trait - contains all license functionality
+ * Provides complete license management to any class that uses it
+ * PHP 5.6+ compatible
+ *
+ * @since 2.4
+ */
 
-if ( ! class_exists( 'WPRTSP_EDD_Settings' ) ) {
-	class WPRTSP_EDD_Settings {
-		function __construct() {
-			add_action( 'admin_init', array( $this, 'register_settings' ) );
-			add_action( 'admin_menu', array( $this, 'settings_menu' ) );
+trait WPRTSP_License_Trait {
 
-			add_action( 'admin_notices', array( $this, 'wprtsp_check_dependencies' ) );
-			// the name of the settings page for the license input to be displayed
+	// License state
+	private $license_error = '';
 
-			add_action( 'admin_notices', array( $this, 'wprtsp_admin_notices' ) );
-			// add_action( 'admin_init', 'wprtsp_activate_license' );
-			// add_action( 'admin_init',array( $this, 'wprtsp_deactivate_license' ) );
-		}
+	/**
+	 * Initialize license hooks - call from parent class constructor
+	 */
+	public function init_license() {
+		add_action( 'admin_menu', array( $this, 'license_menu' ) );
+		add_action( 'admin_init', array( $this, 'license_handle' ) );
+		add_action( 'admin_notices', array( $this, 'license_notices' ) );
+	}
 
-		/**
-		 * This is a means of catching errors from the activation method above and displaying it to the customer
-		 */
-		function wprtsp_admin_notices() {
-
-			if ( isset( $_REQUEST['wprtsp_activation'] ) && ! empty( $_REQUEST['wprtsp_activation_message'] ) ) {
-				$message = urldecode( $_REQUEST['wprtsp_activation_message'] );
-				switch ( $_REQUEST['wprtsp_activation'] ) {
-
-					case 'false':
-						?>
-				<div class="error" style="background: #fbfbfb; border-top: 1px solid #eee; border-right: 1px solid #eee;">
-					<p><?php echo $message; ?></p>
-				</div>
-						<?php
-						break;
-
-					case 'true':
-					default:
-						?>
-				<div class="notice notice-success is-dismissible">
-					<p><?php echo $message; ?></p>
-				</div>
-						<?php
-						break;
-
-				}
-			}
-
-			if ( isset( $_REQUEST['wprtsp_deactivation'] ) && ! empty( $_REQUEST['wprtsp_deactivation_message'] ) ) {
-				$message = urldecode( $_REQUEST['wprtsp_deactivation_message'] );
-				switch ( $_REQUEST['wprtsp_deactivation'] ) {
-					case 'false':
-						?>
-				<div class="error" style="background: #fbfbfb; border-top: 1px solid #eee; border-right: 1px solid #eee;">
-					<p><?php echo ucfirst( $message ) . '. Are you using the correct license key?'; ?></p>
-				</div>
-						<?php
-						break;
-
-					case 'true':
-					default:
-						?>
-				<div class="notice notice-success is-dismissible">
-					<p><?php echo ucfirst( $message ); ?></p>
-				</div>
-						<?php
-						break;
-				}
+	/**
+	 * Check if license is valid
+	 *
+	 * @param bool $force_check Force fresh check bypassing cache
+	 * @return bool True if license is valid
+	 */
+	public function is_valid_pro( $force_check = false ) {
+		$status = get_transient( WPRTSP_LICENSE_CACHE_KEY );
+		if ( false === $status || $force_check ) {
+			$status = $this->license_check();
+			if ( $status ) {
+				set_transient( WPRTSP_LICENSE_CACHE_KEY, $status, WPRTSP_LICENSE_TTL );
 			}
 		}
+		return 'valid' === $status;
+	}
 
-		/************************************
-		 * this illustrates how to check if
-		 * a license key is still valid
-		 * the updater does this for you,
-		 * so this is only needed if you
-		 * want to do something custom
-		 * UNUSED / Can be used on-demand for troubleshooting
-		 *************************************/
+	/**
+	 * Get license status - for backwards compatibility
+	 *
+	 * @param bool $cached Use cached result (true) or force fresh (false)
+	 * @return bool License validity
+	 */
+	public function get_pro_status( $cached = true ) {
+		return $this->is_valid_pro( ! $cached );
+	}
 
-		function wprtsp_check_license() {
+	/**
+	 * Set license validation status - for backwards compatibility
+	 *
+	 * @param string $status Status to set
+	 * @return bool Always returns true
+	 */
+	public function set_validation( $status ) {
+		set_transient( WPRTSP_LICENSE_CACHE_KEY, $status, WPRTSP_LICENSE_TTL );
+		return true;
+	}
 
-			// Security check - ensure user has proper capabilities
-			if ( ! current_user_can( 'manage_options' ) ) {
-				return false;
-			}
-
-			global $wp_version;
-			$wprtsp = WPRTSP::get_instance();
-
-			$license = sanitize_text_field( $wprtsp->get_setting( 'license_key' ) );
-
-			$api_params = array(
-				'edd_action' => 'check_license',
-				'license'    => $license,
-				// 'item_name'  => urlencode( WPRTSP_ITEM_NAME ),
-				'item_id'    => 262,
-				'url'        => site_url(),
-			);
-
-			// Call the custom API.
-			$response = wp_remote_post(
-				WPRTSP_EDD_SL_URL,
-				array(
-					'timeout'   => 15,
-					'sslverify' => true,
-					'body'      => $api_params,
-				)
-			);
-
-			if ( is_wp_error( $response ) ) {
-				return false;
-			}
-
-			$license_data = json_decode( wp_remote_retrieve_body( $response ) );
-
-			if ( $license_data->license == 'valid' ) {
-				// echo 'valid'; exit;
-				return 'valid';
-				// this license is still valid
-			} else {
-				// echo 'invalid'; exit;
-				return 'invalid';
-				// this license is no longer valid
-			}
+	/**
+	 * Activate license key
+	 *
+	 * @param string $key License key
+	 * @return bool Success
+	 */
+	public function license_activate( $key ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->license_error( 'Unauthorized' );
 		}
 
-
-		function wprtsp_check_dependencies() {
-
-			if ( class_exists( 'WPRTSP_Records_Manager' ) ) {
-				$wpsprm  = wprtsp_records_manager();
-				$file    = new ReflectionClass( 'WPRTSP_Records_Manager' );
-				$file    = $file->getFileName();
-				$data    = get_plugin_data( $file, false );
-				$version = $data['Version'];
-				if ( version_compare( $version, '0.2', '<=' ) ) {
-					echo '<div class="notice notice-error"><p>WP Social Proof requires Records Manager Version 1.0 or later. You are using version ' . $data['Version'] . '. Please <a href="https://wp-social-proof.com/?p=339" target="_blank">visit your Social Proof account</a> to download the updated version.</p></div>';
-				}
-			}
+		$key = sanitize_text_field( trim( $key ) );
+		if ( empty( $key ) ) {
+			return $this->license_error( 'Empty key' );
 		}
 
-		function settings_menu() {
-			add_submenu_page( 'edit.php?post_type=socialproof', 'Social Proof', 'License', 'manage_options', 'wprtsp', array( $this, 'settings_page' ) );
+		$response = $this->license_api( 'activate_license', $key );
+		if ( ! $response || empty( $response['success'] ) ) {
+			return $this->license_error( isset( $response['error'] ) ? $response['error'] : 'Failed' );
 		}
 
-		function register_settings() {
-			register_setting( 'wprtsp', 'wprtsp', array( $this, 'sanitize' ) );
-			add_settings_section( 'wprtsp_main', '', array( $this, 'main_section_text' ), 'wprtsp' );
-			add_settings_field( 'wprtsp_license', 'License Key', array( $this, 'wprtsp_license_key_markup' ), 'wprtsp', 'wprtsp_main' );
-			add_settings_field( 'wprtsp_activation', 'Status', array( $this, 'wprtsp_license_actions_markup' ), 'wprtsp', 'wprtsp_main' );
+		$this->update_setting( 'license_key', $key );
+		set_transient( WPRTSP_LICENSE_CACHE_KEY, 'valid', WPRTSP_LICENSE_TTL );
+		return true;
+	}
+
+	/**
+	 * Deactivate license
+	 *
+	 * @return bool Success
+	 */
+	public function license_deactivate() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return $this->license_error( 'Unauthorized' );
 		}
 
-		function main_section_text() {
+		$key = $this->get_setting( 'license_key' );
+		if ( $key ) {
+			$this->license_api( 'deactivate_license', $key );
 		}
 
-		function wprtsp_license_key_markup() {
-			$readonly  = '';
-			$protected = 'type="text"';
-			if ( $this->get_activation_status() == 'valid' ) {
-				// $readonly  = 'readonly';
-				// $protected = 'type="password"';
-			}
-			?>
-			<input autocomplete="on" <?php echo $readonly; ?> <?php echo $protected; ?> placeholder="Enter your license key" id="license_key" name="wprtsp[license_key]" value="<?php echo esc_attr( $this->get_setting( 'license_key' ) ); ?>" />
-			<?php
+		$this->delete_setting( 'license_key' );
+		delete_transient( WPRTSP_LICENSE_CACHE_KEY );
+		return true;
+	}
+
+	/**
+	 * Refresh license status
+	 *
+	 * @return bool Current validity
+	 */
+	public function license_refresh() {
+		delete_transient( WPRTSP_LICENSE_CACHE_KEY );
+		return $this->is_valid_pro();
+	}
+
+	/**
+	 * Get/set license error
+	 *
+	 * @param string $msg Error message (optional)
+	 * @return mixed Error message or false
+	 */
+	public function license_error( $msg = null ) {
+		if ( $msg ) {
+			$this->license_error = $msg;
+			return false;
+		}
+		return $this->license_error;
+	}
+
+	/**
+	 * Check license with API
+	 *
+	 * @return string|bool License status
+	 */
+	private function license_check() {
+		$key = $this->get_setting( 'license_key' );
+		if ( empty( $key ) ) {
+			return false;
 		}
 
-		function wprtsp_license_actions_markup() {
-			$wprtsp = WPRTSP::get_instance();
-			?>
-			<script type="text/javascript">
-			console.dir('BEFORE');
-			console.dir('WPRTST license status locally:' + '<?php echo get_transient( 'wprtsp_license_status' ); ?>')
-			console.dir('WPRTST license status on server:' + '<?php echo $wprtsp->get_pro_status( false ); ?>')
-			</script>
-			<?php
-			$status = $wprtsp->get_pro_status( false ) == false ? 'no' : 'yes';
-			?>
-			<input id="wprtsp_activation" name="wprtsp[wprtsp_activation]" type="hidden" value="<?php echo $status; ?>" />
-			<?php
-			if ( ! $this->get_setting( 'license_key' ) ) {
-				?>
-				You must <strong>1. Enter your license key</strong> and <strong>2. Save your license key</strong> before you can activate it.
-				<?php
-			} elseif ( $this->get_activation_status() == 'valid' ) {
-				?>
-					<span style="color: hsl(120, 100%, 27%);font-weight: bold;border-radius: 5px;display: inline-block;padding: .5em 0em;"><?php _e( 'ACTIVE' ); ?></span>
-					<?php
-			} else {
-				?>
-					<span style="color: hsl(350, 100%, 50%);font-weight: bold;border-radius: 5px;display: inline-block;padding: .5em 0em;"><?php _e( ucwords( $this->get_activation_status() ) ); ?></span>
-					<?php
-					// submit_button( 'Activate', 'secondary', 'wprtsp[license_activate]', false, false );
+		$response = $this->license_api( 'check_license', $key );
+		return isset( $response['license'] ) ? $response['license'] : false;
+	}
 
-			}
-			?>
-			
-			<script type="text/javascript">
-			console.dir('AFTER');
-			console.dir('WPRTST license status locally:' + '<?php echo get_transient( 'wprtsp_license_status' ); ?>')
-			console.dir('WPRTST license status on server:' + '<?php echo $wprtsp->get_pro_status( false ); ?>')
-			</script>
-			<?php
+	/**
+	 * License API communication
+	 *
+	 * @param string $action API action
+	 * @param string $key License key
+	 * @return array|bool API response
+	 */
+	private function license_api( $action, $key ) {
+		$response = wp_remote_post(
+			WPRTSP_EDD_SL_URL,
+			array(
+				'timeout' => 15,
+				'body'    => array(
+					'edd_action' => $action,
+					'license'    => $key,
+					'item_id'    => WPRTSP_LICENSE_ITEM_ID,
+					'url'        => home_url(),
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return false;
 		}
 
-		function settings_page() {
-			// Security check - ensure user has proper capabilities
-			if ( ! current_user_can( 'manage_options' ) ) {
-				wp_die( __( 'You do not have sufficient permissions to access this page.', 'wprtsp' ) );
-			}
-			?>
-			<div class="wrap">
-			<h1>WP Real-Time Social-Proof License Settings</h1>
-			<?php settings_errors( 'wprtsp' ); ?>
-			<div class="container">
-				<form method="post" action="options.php" autocomplete="on" id="wprtsp-license-form">
-				<?php settings_fields( 'wprtsp' ); ?>
-				<?php wp_nonce_field( 'wprtsp_license_action', 'wprtsp_license_nonce' ); ?>
-				<?php
-				do_settings_sections( 'wprtsp' );
-				$wprtsp = WPRTSP::get_instance();
-				if ( $this->get_activation_status() !== 'valid' ) {
-					$text = 'Save & Activate';
-				} else {
-					$text = 'De-Activate';
-				}
-				submit_button( $text, 'primary', $text );
-				?>
-				</form>
-			</div>
-			<?php
-		}
+		$body = wp_remote_retrieve_body( $response );
+		return json_decode( $body, true );
+	}
 
-		function get_setting( $setting ) {
-			$defaults = $this->defaults();
-			$settings = wp_parse_args( get_option( 'wprtsp', $defaults ), $defaults );
-			return isset( $settings[ $setting ] ) ? $settings[ $setting ] : false;
-		}
+	/**
+	 * License admin menu
+	 */
+	public function license_menu() {
+		add_submenu_page(
+			'edit.php?post_type=socialproof',
+			'License',
+			'License',
+			'manage_options',
+			'wprtsp-license',
+			array( $this, 'license_page' )
+		);
+	}
 
-		function defaults() {
-			$defaults = array(
-				'license_key' => '',
-			);
-			return $defaults;
-		}
-
-		function sanitize( $settings ) {
-			$settings['license_key'] = sanitize_text_field( $settings['license_key'] );
-			// $this->wprtsp_purge_old_license( $settings['license_key'] );
-			// var_dump( $settings );
-			// die();
-			$status = sanitize_text_field( $settings['wprtsp_activation'] );
-
-			// Security checks before processing license operations
-			if ( ! current_user_can( 'manage_options' ) ) {
-				add_settings_error( 'wprtsp', 'unauthorized', __( 'Unauthorized operation. You do not have sufficient permissions.', 'wprtsp' ), 'error' );
-				return $settings; // Return without processing
-			}
-
-			// Verify nonce for license operations (only when form is submitted)
-			if ( isset( $_POST['wprtsp_license_nonce'] ) ) {
-				if ( ! wp_verify_nonce( $_POST['wprtsp_license_nonce'], 'wprtsp_license_action' ) ) {
-					add_settings_error( 'wprtsp', 'nonce_failed', __( 'Security check failed. Please refresh the page and try again.', 'wprtsp' ), 'error' );
-					return $settings; // Return without processing
-				}
-			}
-
-			$wprtsp = WPRTSP::get_instance();
-			if ( $status == 'no' ) { // Not Activated
-				// $old = sanitize_text_field( $wprtsp->get_setting( 'license_key' ) );
-				if ( $settings['license_key'] ) {
-					$this->wprtsp_activate_license( $settings['license_key'] );
-				}
-			}
-			if ( $status == 'yes' ) { // Already Activated / Deactivate?
-				$this->wprtsp_deactivate_license( $settings['license_key'] );
-				$settings['license_key'] = '';
-			}
-			return $settings;
-		}
-
-		function get_activation_status() {
-			return get_transient( 'wprtsp_license_status' );
-		}
-
-		/**
-		 * Purge activation status in case a new license key is entered.
-		 * UNUSED
-		 *
-		 * @param [type] $new
-		 * @return void
-		 */
-		function wprtsp_purge_old_license( $new ) {
-			$wprtsp = WPRTSP::get_instance();
-
-			$old = sanitize_text_field( $wprtsp->get_setting( 'license_key' ) );
-
-			if ( $old && $old != $new ) {
-				$this->wprtsp_deactivate_license( $old );
-				$this->wprtsp_activate_license( $new ); // new license has been entered, so must reactivate
-			}
-			// return $new;
-		}
-
-		/************************************
-		 * this illustrates how to activate
-		 * a license key
-		 *************************************/
-
-		function wprtsp_activate_license( $license ) {
-			// listen for our activate button to be clicked
-
-			// Security check - ensure user has proper capabilities
-			if ( ! current_user_can( 'manage_options' ) ) {
-				return false;
-			}
-
-			// Validate license key
-			$license = trim( sanitize_text_field( $license ) );
-			if ( empty( $license ) ) {
-				return false;
-			}
-
-			$wprtsp = WPRTSP::get_instance();
-
-			// $license = trim( $_POST['wprtsp']['wpsppro_license_key'] );
-
-			$plugindata = get_plugin_data( $wprtsp->dir . 'wprtsp.php', 0, 0 );
-
-			// data to send in our API request
-			$api_params = array(
-				'edd_action' => 'activate_license',
-				'license'    => $license,
-				// 'item_name'  => urlencode( WPSPPRO_ITEM_NAME ), // the name of our product in EDD
-				'item_name'  => $plugindata['Name'], // name of this plugin
-				'url'        => home_url(),
-			);
-
-			// Call the custom API.
-			$response = wp_remote_post(
-				WPRTSP_EDD_SL_URL,
-				array(
-					'timeout'   => 15,
-					'sslverify' => true,
-					'body'      => $api_params,
-				)
-			);
-
-			// make sure the response came back okay
-			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-				// llog( debug_backtrace()[1]['function'] );
-
-				if ( is_wp_error( $response ) ) {
-					$message = $response->get_error_message();
-				} else {
-					$message = __( 'An error occurred, please try again.', 'wprtsp' );
-				}
-			} else {
-
-				$license_data = json_decode( wp_remote_retrieve_body( $response ) );
-
-				if ( false === $license_data->success ) {
-
-					switch ( $license_data->error ) {
-
-						case 'expired':
-							$message = sprintf(
-								__( 'Your license key expired on %s.', 'wprtsp' ),
-								date_i18n( get_option( 'date_format' ), strtotime( $license_data->expires, current_time( 'timestamp' ) ) )
-							);
-							break;
-
-						case 'revoked':
-							$message = __( 'Your license key has been disabled.', 'wprtsp' );
-							break;
-
-						case 'missing':
-							$message = __( 'Invalid license.', 'wprtsp' );
-							break;
-
-						case 'invalid':
-						case 'site_inactive':
-							$message = __( 'Your license is not active for this URL.', 'wprtsp' );
-							break;
-
-						case 'item_name_mismatch':
-							$message = sprintf( __( 'This appears to be an invalid license key for %s.', 'wprtsp' ), get_plugin_data( WPRTSPFILE, 0, 0 )['Name'] );
-							break;
-
-						case 'no_activations_left':
-							$message = __( 'Your license key has reached its activation limit.', 'wprtsp' );
-							break;
-
-						default:
-							$message = __( 'An error occurred, please try again.', 'wprtsp' );
-							break;
-					}
-
-					if ( ! empty( $_REQUEST['wprtsp'] ) && ! empty( $_REQUEST['wprtsp']['license_key'] ) ) {
-						$message = 'Tried to activate key: <code>' . $_REQUEST['wprtsp']['license_key'] . '</code> <strong>Please correct the license key again and retry</strong>.';
-					} else {
-						$message .= ' <strong>Please correct the license key again and retry</strong>.';
-					}
-					$wprtsp = WPRTSP::get_instance();
-					$wprtsp->set_validation( $license_data->error );
-
-				} else {
-					// update_option( 'wprtsp', array( 'license_key' => $_REQUEST['wprtsp']['license_key'] ) );
-					$message = __( 'Activation Successful. Thankyou for activating!', 'wprtsp' );
-					$wprtsp->set_validation( $license_data->license );
-				}
-			}
-
-			// $license_data->license will be either "valid" or "invalid"
-			// update_option('wpsppro');
-
+	/**
+	 * Handle license form submissions
+	 */
+	public function license_handle() {
+		if ( ! isset( $_POST['wprtsp_license_nonce'] ) || ! wp_verify_nonce( $_POST['wprtsp_license_nonce'], 'license' ) ) {
 			return;
-			wp_redirect(
-				add_query_arg(
-					array(
-						'wprtsp_activation'         => $license_data->success ? $license_data->success : 'false',
-						'wprtsp_activation_message' => urlencode( $message ),
-					),
-					get_admin_url( null, 'edit.php?post_type=socialproof&page=wprtsp' )
-				)
-			);
-			exit();
 		}
 
-		/***********************************************
-		 * Illustrates how to deactivate a license key.
-		 * This will decrease the site count
-		 ***********************************************/
-
-		function wprtsp_deactivate_license( $license ) {
-
-			// Security check - ensure user has proper capabilities
-			if ( ! current_user_can( 'manage_options' ) ) {
-				return false;
-			}
-
-			// Validate license key
-			$license = trim( sanitize_text_field( $license ) );
-			if ( empty( $license ) ) {
-				return false;
-			}
-
-			$wprtsp     = WPRTSP::get_instance();
-			$plugindata = get_plugin_data( WPRTSPFILE, 0, 0 );
-			// data to send in our API request
-			$api_params = array(
-				'edd_action' => 'deactivate_license',
-				'license'    => $license,
-				// 'item_name'  => urlencode( WPSPPRO_ITEM_NAME ), // the name of our product in EDD
-				'item_name'  => $plugindata['Name'], // name of this plugin
-				'url'        => home_url(),
-			);
-
-			// Call the custom API.
-			$response = wp_remote_post(
-				WPRTSP_EDD_SL_URL,
-				array(
-					'timeout'   => 15,
-					'sslverify' => true,
-					'body'      => $api_params,
-				)
-			);
-
-			// make sure the response came back okay
-			if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-
-				if ( is_wp_error( $response ) ) {
-					$message = $response->get_error_message();
-				} else {
-					$message = __( 'An error occurred, please try again.', 'wprtsp' );
-				}
-
-				$redirect = add_query_arg(
-					array(
-						'wprtsp_deactivation'       => 'false',
-						'wprtsp_activation_message' => urlencode( $message ),
-					),
-					get_admin_url( null, 'edit.php?post_type=socialproof&page=wprtsp' )
-				);
-
-				// wp_redirect( $redirect );
-				exit();
-			}
-
-			$license_data = json_decode( wp_remote_retrieve_body( $response ) ); // decode the license data
-
-			if ( $license_data->license == 'deactivated' ) {
-				delete_transient( 'wprtsp_license_status' );
-				delete_option( 'wprtsp' );
-			}
-
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
-			wp_redirect(
-				add_query_arg(
-					array(
-						'wprtsp_deactivation'         => $license_data->success ? 'true' : 'false',
-						'wprtsp_deactivation_message' => urlencode( $license_data->license ),
-					),
-					get_admin_url( null, 'edit.php?post_type=socialproof&page=wprtsp' )
-				)
-			);
-			exit();
 		}
 
-		function flog( $str ) {
-			if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+		$action = '';
+		if ( isset( $_POST['activate'] ) ) {
+			$action = 'activate';
+		} elseif ( isset( $_POST['deactivate'] ) ) {
+			$action = 'deactivate';
+		} elseif ( isset( $_POST['refresh'] ) ) {
+			$action = 'refresh';
+		}
+
+		$redirect = admin_url( 'edit.php?post_type=socialproof&page=wprtsp-license' );
+
+		switch ( $action ) {
+			case 'activate':
+				$key     = sanitize_text_field( $_POST['license_key'] );
+				$result  = $this->license_activate( $key );
+				$message = $result ? 'License activated' : $this->license_error();
+				break;
+			case 'deactivate':
+				$result  = $this->license_deactivate();
+				$message = 'License deactivated';
+				break;
+			case 'refresh':
+				$this->license_refresh();
+				$message = 'Status refreshed';
+				$result  = true;
+				break;
+			default:
 				return;
-			}
-			$date = date( 'Ymd-G:i:s' ); // 20171231-23:59:59
-			$date = $date . '-' . microtime( true );
-			$file = trailingslashit( __DIR__ ) . 'log.log';
-			file_put_contents( $file, PHP_EOL . $date, FILE_APPEND | LOCK_EX );
-			usleep( 1000 );
-			$str = print_r( $str, true );
-			file_put_contents( $file, PHP_EOL . $str, FILE_APPEND | LOCK_EX );
-			usleep( 1000 );
+		}
+
+		wp_redirect(
+			add_query_arg(
+				array(
+					'status'  => $result ? 'success' : 'error',
+					'message' => urlencode( $message ),
+				),
+				$redirect
+			)
+		);
+		exit;
+	}
+
+	/**
+	 * License admin notices
+	 */
+	public function license_notices() {
+		if ( ! isset( $_GET['page'] ) || 'wprtsp-license' !== $_GET['page'] ) {
+			return;
+		}
+
+		if ( isset( $_GET['status'] ) && isset( $_GET['message'] ) ) {
+			$class = 'success' === $_GET['status'] ? 'notice-success' : 'notice-error';
+			echo '<div class="notice ' . esc_attr( $class ) . ' is-dismissible">';
+			echo '<p>' . esc_html( urldecode( $_GET['message'] ) ) . '</p>';
+			echo '</div>';
 		}
 	}
+
+	/**
+	 * License admin page
+	 */
+	public function license_page() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( 'Unauthorized' );
+		}
+
+		$valid = $this->is_valid_pro();
+		$key   = $this->get_setting( 'license_key' );
+		?>
+			<div class="wrap">
+				<h1>License Management</h1>
+				
+				<div class="card" style="max-width: 600px; margin: 20px 0; padding: 20px;">
+					<h2>Status: <?php echo $valid ? '<span style="color: green;">Active</span>' : '<span style="color: red;">Inactive</span>'; ?></h2>
+					
+					<form method="post">
+					<?php wp_nonce_field( 'license', 'wprtsp_license_nonce' ); ?>
+						
+						<table class="form-table">
+							<tr>
+								<th><label for="license_key">License Key</label></th>
+								<td>
+								<?php if ( $valid ) : ?>
+										<input type="password" id="license_key" value="<?php echo esc_attr( $key ); ?>" readonly class="regular-text" />
+										<p class="description">License is active. Deactivate to change.</p>
+									<?php else : ?>
+										<input type="text" name="license_key" id="license_key" value="<?php echo esc_attr( $key ); ?>" class="regular-text" placeholder="Enter license key" />
+										<p class="description">Enter your license key and click Activate.</p>
+									<?php endif; ?>
+								</td>
+							</tr>
+						</table>
+						
+						<p class="submit">
+						<?php if ( $valid ) : ?>
+								<input type="submit" name="deactivate" class="button button-secondary" value="Deactivate" />
+								<input type="submit" name="refresh" class="button button-secondary" value="Refresh Status" />
+							<?php else : ?>
+								<input type="submit" name="activate" class="button button-primary" value="Activate License" />
+								<?php if ( $key ) : ?>
+									<input type="submit" name="refresh" class="button button-secondary" value="Check Status" />
+								<?php endif; ?>
+							<?php endif; ?>
+						</p>
+					</form>
+				</div>
+			</div>
+			<?php
+	}
+
+	/**
+	 * Singleton pattern for backwards compatibility with existing manager calls
+	 * This allows existing WPRTSP_License_Manager::instance() calls to work
+	 */
+	private static $license_manager_instance = null;
+
+	public static function get_license_manager() {
+		if ( null === self::$license_manager_instance ) {
+			// Return the WPRTSP instance that uses this trait
+			self::$license_manager_instance = WPRTSP::get_instance();
+		}
+		return self::$license_manager_instance;
+	}
+
+	// Backwards compatibility aliases for manager methods
+	public function is_valid() {
+		return $this->is_valid_pro();
+	}
+
+	public function activate( $key ) {
+		return $this->license_activate( $key );
+	}
+
+	public function deactivate() {
+		return $this->license_deactivate();
+	}
+
+	public function refresh() {
+		return $this->license_refresh();
+	}
+
+	public function error( $msg = null ) {
+		return $this->license_error( $msg );
+	}
+
+	public function check() {
+		return $this->license_check();
+	}
+
+	public function api( $action, $key ) {
+		return $this->license_api( $action, $key );
+	}
+
+	public function menu() {
+		return $this->license_menu();
+	}
+
+	public function handle() {
+		return $this->license_handle();
+	}
+
+	public function notices() {
+		return $this->license_notices();
+	}
+
+	public function page() {
+		return $this->license_page();
+	}
+
+	/*
+	 * REQUIRED METHODS - Parent class must implement these:
+	 * 
+	 * public function get_setting( $key ) {
+	 *     // Return setting value for $key
+	 * }
+	 * 
+	 * public function update_setting( $key, $value ) {
+	 *     // Update setting $key with $value
+	 * }
+	 * 
+	 * public function delete_setting( $key ) {
+	 *     // Delete setting $key
+	 * }
+	 */
 }
 
-$wprtsp_edd_settings = new WPRTSP_EDD_Settings();

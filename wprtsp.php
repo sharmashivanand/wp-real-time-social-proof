@@ -31,12 +31,22 @@ define( 'WPRTSP_EDD_SL_URL', 'https://wp-social-proof.com' );
 define( 'WPRTSPAPIEP', 'https://wp-social-proof.com/gaapi/' );
 define( 'WPRTSPFILE', __FILE__ );
 
+// License constants for PHP 5.6+ compatibility (traits can't have constants before PHP 8.2)
+define( 'WPRTSP_LICENSE_CACHE_KEY', 'wprtsp_license_status' );
+define( 'WPRTSP_LICENSE_ITEM_ID', 262 );
+define( 'WPRTSP_LICENSE_TTL', 86400 ); // 24 hours
+
+// Include license trait before class definition
+require_once plugin_dir_path( __FILE__ ) . 'inc/license_manager.php';
+
 class WPRTSP {
+	use WPRTSP_License_Trait;
 
 	public $style_box, $wprtsp_notification_style, $wprtsp_text_style, $wprtsp_action_style, $sound_notification, $sound_notification_markup;
 	public $dir = '';
 	public $uri = '';
 	public $settings;
+	public $version = false;
 
 	static function get_instance() {
 
@@ -59,15 +69,14 @@ class WPRTSP {
 	function includes() {
 		require_once $this->dir . 'inc/meta.php';
 
-		if ( file_exists( $this->dir . 'inc/license_manager.php' ) ) {
-			include_once $this->dir . 'inc/license_manager.php';
-		}
-		if ( file_exists( $this->dir . 'premium/pro.php' ) ) {
+		// License manager already included before class definition
+		if ( file_exists( $this->dir . 'premium/pro.php' ) && $this->is_valid_pro() ) {
 			include_once $this->dir . 'premium/pro.php';
 		}
 	}
 
 	function setup_actions() {
+		$this->init_license(); // Initialize license functionality
 		add_action( 'plugins_loaded', array( $this, 'set_version' ) ); // setup plugin information so that it's easier to get
 		add_action( 'admin_init', array( $this, 'plugin_data' ) ); // setup plugin information so that it's easier to get
 		add_action( 'init', array( $this, 'register_post_types' ) ); // register our CPT
@@ -160,20 +169,6 @@ class WPRTSP {
 		}
 	}
 
-	function is_valid_pro() {
-		return $this->get_pro_status();
-		if ( $this->is_pro() ) {
-			$settings = get_option( 'wprtsp' );
-			if ( ! $settings ) {
-				return;
-			}
-			if ( empty( $settings['license_key'] ) ) {
-				return;
-			}
-			return $this->get_pro_status();
-		}
-	}
-
 	function flog( $str ) {
 		if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
 			return;
@@ -188,51 +183,6 @@ class WPRTSP {
 		usleep( 1000 );
 	}
 
-	function get_pro_status( $cached = true ) {
-		$status = get_transient( 'wprtsp_license_status' );
-		if ( ! $status || ! $cached ) {
-			$key = $this->get_setting( 'license_key' );
-			if ( empty( $key ) ) {
-				return;
-			}
-			$url         = trailingslashit( WPRTSP_EDD_SL_URL ) . '?edd_action=check_license&item_id=262&license=' . $key . '&url=' . site_url();
-			$response    = wp_safe_remote_request( $url );
-			$headers     = wp_remote_retrieve_headers( $response );
-			$status_code = wp_remote_retrieve_response_code( $response );
-			if ( 200 != $status_code ) {
-				return;
-			}
-			if ( is_wp_error( $response ) ) {
-				return;
-			}
-			$body   = wp_remote_retrieve_body( $response );
-			$status = json_decode( $body, true );
-			if ( is_null( $status ) ) {
-				return;
-			}
-			if ( $status['success'] != true ) {
-				$this->set_validation( $status['error'] );
-				return;
-			}
-			if ( ! empty( $status['success'] ) && $status['success'] == true ) {
-				$this->set_validation( 'valid' );
-				return true;
-			}
-			return;
-		} else {
-			return $status == 'valid';
-		}
-	}
-
-	function set_validation( $status ) {
-		// return;
-		if ( ! $status ) {
-			return;
-		}
-		set_transient( 'wprtsp_license_status', sanitize_text_field( $status ), 24 * HOUR_IN_SECONDS );
-		return true;
-	}
-
 	function set_version() {
 		$version = get_file_data( WPRTSPFILE, array( 'wprtspversion' => 'Version' ) );
 		if ( isset( $version['wprtspversion'] ) ) {
@@ -245,6 +195,15 @@ class WPRTSP {
 	function plugin_data() {
 		$plugin_data = get_plugin_data( WPRTSPFILE );
 		return $plugin_data;
+	}
+	
+	/**
+	 * Helper function to get plugin data from anywhere
+	 * 
+	 * @return array Plugin data
+	 */
+	function get_plugin_data_static() {
+		return $this->plugin_data();
 	}
 
 	function register_post_types() {
@@ -939,6 +898,19 @@ class WPRTSP {
 
 function wprtsp() {
 	return WPRTSP::get_instance();
+}
+
+/**
+ * Global helper function to get plugin data
+ * Can be called from anywhere including addons
+ * 
+ * @return array Plugin data
+ */
+function wprtsp_get_plugin_data() {
+	if ( ! function_exists( 'get_plugin_data' ) ) {
+		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+	}
+	return get_plugin_data( WPRTSPFILE );
 }
 
 // Let's roll!

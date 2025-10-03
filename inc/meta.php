@@ -354,11 +354,27 @@ class WPRTSPGENERAL {
 		return $style;
 	}
 
+	function flog( $str ) {
+		if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+			return;
+		}
+		$date = date( 'Ymd-G:i:s' ); // 20171231-23:59:59
+		$date = $date . '-' . microtime( true );
+		$file = trailingslashit( __DIR__ ) . 'log.log';
+		file_put_contents( $file, PHP_EOL . $date, FILE_APPEND | LOCK_EX );
+		usleep( 1000 );
+		$str = print_r( $str, true );
+		file_put_contents( $file, PHP_EOL . $str, FILE_APPEND | LOCK_EX );
+		usleep( 1000 );
+	}
+
 	function save_ga_profile() {
 
 		if ( isset( $_REQUEST['wpsppro-action'] ) && $_REQUEST['wpsppro-action'] == 'oauth' ) {
+			$this->flog( $_REQUEST );
 			// Verify nonce for OAuth action
-			check_ajax_referer( 'wprtsp_gaapi', $_REQUEST['origin_nonce'] );
+			wp_verify_nonce( $_REQUEST['origin_nonce'], 'wprtsp_gaapi' );
+			$this->flog( $_REQUEST );
 
 			if ( current_user_can( 'activate_plugins' )
 			&& isset( $_REQUEST['success'] ) && $_REQUEST['success']
@@ -388,7 +404,7 @@ class WPRTSPGENERAL {
 
 		if ( isset( $_REQUEST['wpsppro-action'] ) && $_REQUEST['wpsppro-action'] == 'revoke' && isset( $_REQUEST['success'] ) && $_REQUEST['success'] == '1' ) {
 			// Verify nonce for revoke action
-			check_ajax_referer( 'wprtsp_gaapi', $_REQUEST['origin_nonce'] );
+			wp_verify_nonce( $_REQUEST['origin_nonce'], 'wprtsp_gaapi' );
 
 			if ( current_user_can( 'activate_plugins' ) ) {
 				delete_option( 'wpsppro_ga_profile' );
