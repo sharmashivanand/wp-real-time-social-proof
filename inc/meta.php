@@ -291,6 +291,20 @@ class WPRTSPGENERAL {
 	function sanitize( $request ) {
 		$defaults = $this->defaults();
 
+		// Ensure $request is an array
+		if ( ! is_array( $request ) ) {
+			// Log what's being passed to sanitize for debugging
+			$this->flog( '=== SANITIZE CALLED ===' );
+			$this->flog( 'Request type: ' . gettype( $request ) );
+			$this->flog( 'Request value:' );
+			$this->flog( print_r( $request, true ) );
+			$this->flog( 'Call stack:' );
+			$this->flog( print_r( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ), true ) );
+			$this->flog( '=== END SANITIZE DEBUG ===' );
+			$this->flog( 'WARNING: $request is not an array, returning defaults' );
+			return $defaults;
+		}
+
 		if ( ! $request ) { // not sure why but on a freshpost, if you customize settings, this throws errors when DEBUG is true
 			// return $request; // how do we verify this call is a valid request from our app?
 			// return;
@@ -716,7 +730,6 @@ class LiveSales {
 	}
 
 	/************************************** */
-
 	function get_wooc_conversions( $settings ) {
 		if ( ! class_exists( 'WooCommerce' ) ) {
 			return false;
@@ -846,7 +859,6 @@ class LiveSales {
 	}
 
 	/********************************************** */
-
 	function get_edd_conversions( $settings ) {
 		if ( ! class_exists( 'Easy_Digital_Downloads' ) ) {
 			return array();
@@ -999,7 +1011,6 @@ class LiveSales {
 	}
 
 	/**************************************************** */
-
 	function shuffle_assoc( $list ) {
 		if ( ! is_array( $list ) ) {
 			return $list;

@@ -542,13 +542,33 @@ class WPRTSP {
 	}
 
 	/* Enqueue the styles for admin page */
-	function plugin_styles() {
+	
+	/*function plugin_styles() {
 		$screen = get_current_screen();
 		if ( $screen->post_type == 'socialproof' ) {
 			// wp_dequeue_script( 'jquery-ui-sortable' );
 			wp_dequeue_script( 'jquery-ui-draggable' );
 			wp_deregister_script( 'postbox' );
 			wp_enqueue_style( 'wprtsp', $this->uri . 'assets/admin-styles.css', array(), filemtime( $this->dir . 'assets/admin-styles.css' ) );
+		}
+	}*/
+
+	function plugin_styles() {
+		$screen = get_current_screen();
+		if ( $screen->post_type === 'socialproof' ) {
+			// Make sure sortable is loaded
+			wp_enqueue_script( 'jquery-ui-sortable' );
+
+			// Optional: remove other scripts and styles if needed
+			wp_dequeue_script( 'jquery-ui-draggable' );
+			wp_deregister_script( 'postbox' );
+
+			wp_enqueue_style(
+				'wprtsp',
+				$this->uri . 'assets/admin-styles.css',
+				array(),
+				filemtime( $this->dir . 'assets/admin-styles.css' )
+			);
 		}
 	}
 
